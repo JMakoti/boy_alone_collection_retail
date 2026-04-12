@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Lipa Mdogo | Complete Enterprise Retail Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      @media (max-width: 1024px) {
+        .sidebar-mobile {
+          transform: translateX(-100%);
+          position: fixed;
+          z-index: 50;
+          transition: 0.3s;
+        }
+        .sidebar-mobile.open {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <button
+      id="mobileMenuBtn"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex min-h-screen relative">
+      <aside
+        id="sidebar"
+        class="sidebar-mobile lg:translate-x-0 w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto scrollbar-custom z-40"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                Boy<span class="text-emerald-600">Alone</span>
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Enterprise Admin Suite v2.0
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1.5">
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-chart-line w-5 text-lg"></i
+            ><span>Executive Dashboard</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="catalog"
+          >
+            <i class="fas fa-tags w-5 text-lg"></i><span>Product Catalog</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="inventory"
+          >
+            <i class="fas fa-boxes w-5 text-lg"></i
+            ><span>Inventory Intelligence</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="orders"
+          >
+            <i class="fas fa-tasks w-5 text-lg"></i><span>Order Pipeline</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold"
+            data-tab="customers"
+          >
+            <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="transactions"
+          >
+            <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="installments"
+          >
+            <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+            ><span>Lipa Mdogo Core</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="analytics"
+          >
+            <i class="fas fa-chart-pie w-5 text-lg"></i
+            ><span>Analytics Engine</span>
+          </div>
+        </nav>
+        <div
+          class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white mt-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-gray-800">Store Manager</p>
+              <p class="text-xs text-gray-500">Role: Admin · Full Access</p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </aside>
+
+      <main class="flex-1 lg:ml-0 min-h-screen">
+        <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+      </main>
+    </div>
+
+    <!-- Existing Modals (Product, Delete, Payment, Default) -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl"
+        >
+          <div class="flex justify-between items-center">
+            <h3 class="text-2xl font-bold" id="modalTitle">
+              <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+              Product
+            </h3>
+            <button
+              id="closeProductModalBtn"
+              class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <form id="productForm" class="space-y-5">
+            <input type="hidden" id="productId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category</label
+                ><select
+                  id="prodCategory"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Buy Price (KES)</label
+                ><input
+                  type="number"
+                  id="prodBuyPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Sell Price (KES)</label
+                ><input
+                  type="number"
+                  id="prodSellPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Stock Quantity</label
+                ><input
+                  type="number"
+                  id="prodStock"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Size</label
+                ><select
+                  id="prodSize"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Supplier</label
+                ><input
+                  type="text"
+                  id="prodSupplier"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Image URL</label
+                ><input
+                  type="url"
+                  id="prodImage"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Description</label
+              ><textarea
+                id="prodDesc"
+                rows="3"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              ></textarea>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center">
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Delete Product</h3>
+        <p class="text-gray-500 mb-6">
+          Are you sure you want to delete this product? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="paymentModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold">
+              <i class="fas fa-calendar-plus text-emerald-600 mr-2"></i>New
+              Payment Plan
+            </h3>
+            <button
+              id="closeModalBtn"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          <input
+            type="text"
+            id="planCustomer"
+            placeholder="Customer Name"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          /><input
+            type="number"
+            id="planAmount"
+            placeholder="Total Amount (KES)"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          /><select
+            id="planTerms"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="3">3 Weekly Payments</option>
+            <option value="6">6 Weekly Payments</option>
+          </select>
+          <div class="bg-emerald-50 p-3 rounded-xl">
+            <p class="text-sm font-medium text-emerald-800">
+              💡 Estimated weekly: KES <span id="weeklyEstimate">0</span>
+            </p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex gap-3 justify-end">
+          <button id="closeModalBtn2" class="px-4 py-2 border rounded-xl">
+            Cancel</button
+          ><button
+            id="confirmPlanBtn"
+            class="px-6 py-2 bg-emerald-600 text-white rounded-xl"
+          >
+            Create Plan
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="defaultModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6">
+        <h3 class="font-bold text-xl mb-2">Handle Payment Default</h3>
+        <p class="mb-4 text-gray-500">Escalation & recovery actions</p>
+        <div class="space-y-2">
+          <button
+            class="w-full p-3 bg-yellow-100 text-yellow-800 rounded-xl font-medium"
+          >
+            Send SMS Reminder</button
+          ><button
+            class="w-full p-3 bg-blue-100 text-blue-800 rounded-xl font-medium"
+          >
+            Restructure Payment Plan</button
+          ><button
+            class="w-full p-3 bg-red-100 text-red-800 rounded-xl font-medium"
+          >
+            Mark for Collections
+          </button>
+        </div>
+        <button
+          id="closeDefaultModal"
+          class="mt-4 w-full p-3 bg-gray-100 rounded-xl font-medium"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div
+      id="addCustomerModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-user-plus text-emerald-600 mr-2"></i>Add New
+            Customer
+          </h3>
+          <button
+            id="closeAddCustomerModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="addCustomerForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Full Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="custName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="custEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number <span class="text-red-500">*</span></label
+                ><input
+                  type="tel"
+                  id="custPhone"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="+254 XXX XXX XXX"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Segment</label
+                ><select
+                  id="custSegment"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="New">New Customer</option>
+                  <option value="Regular">Regular</option>
+                  <option value="VIP">VIP</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Initial Payment Score</label
+                ><select
+                  id="custRiskLevel"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="low">Low Risk (Good Payer)</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk (Needs Monitoring)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="custAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Street, City, Postal Code"
+                />
+              </div>
+            </div>
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl"
+            >
+              <p class="text-sm text-emerald-800">
+                <i class="fas fa-info-circle mr-2"></i>New customers start with
+                0 orders and 0 spending. They can be upgraded to VIP based on
+                purchase history.
+              </p>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelAddCustomerBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Add Customer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Detail Modal -->
+    <div
+      id="customerDetailModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-xl font-bold text-gray-800">
+            <i class="fas fa-user-circle text-emerald-600 mr-2"></i>Customer
+            Details
+          </h3>
+          <button
+            id="closeCustomerModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="customerDetailContent" class="p-6 space-y-5"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-end bg-gray-50 rounded-b-2xl"
+        >
+          <button
+            id="closeCustomerModalFooter"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+          <button
+            id="viewCustomerOrdersBtn"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            <i class="fas fa-shopping-bag mr-2"></i>View Orders
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let activeTab = "customers";
+      let products = [
+        {
+          id: 1,
+          name: "Premium Denim Jacket",
+          category: "Men's Clothing",
+          buyPrice: 1800,
+          sellPrice: 3500,
+          stock: 45,
+          size: "L",
+          supplier: "Fashion Hub Ltd",
+          image:
+            "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+          description: "Classic denim jacket",
+        },
+        {
+          id: 2,
+          name: "Floral Summer Dress",
+          category: "Women's Clothing",
+          buyPrice: 1200,
+          sellPrice: 2900,
+          stock: 28,
+          size: "M",
+          supplier: "Style Africa",
+          image:
+            "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+          description: "Lightweight floral dress",
+        },
+      ];
+      let paymentPlans = [
+        {
+          id: 1,
+          customer: "Alice Mwangi",
+          total: 3200,
+          paid: 1200,
+          status: "active",
+          nextDue: "2025-04-12",
+        },
+        {
+          id: 2,
+          customer: "Brian Otieno",
+          total: 6700,
+          paid: 0,
+          status: "default",
+          nextDue: "2025-03-30",
+        },
+      ];
+      let deleteTargetId = null;
+      let selectedCustomerData = null;
+
+      // Customer Data
+      let customersData = [
+        {
+          id: "CUST-001",
+          name: "Sarah Mwangi",
+          email: "sarah.mwangi@email.com",
+          phone: "+254 712 345 678",
+          totalOrders: 24,
+          totalSpent: 125400,
+          activeInstallments: 2,
+          paymentScore: 95,
+          riskLevel: "low",
+          segment: "VIP",
+          joinedDate: "2025-06-15",
+          lastPurchase: "2026-04-09",
+          address: "123 Kimathi Street, Nairobi",
+        },
+        {
+          id: "CUST-002",
+          name: "John Kamau",
+          email: "john.kamau@email.com",
+          phone: "+254 723 456 789",
+          totalOrders: 12,
+          totalSpent: 67800,
+          activeInstallments: 1,
+          paymentScore: 72,
+          riskLevel: "medium",
+          segment: "Regular",
+          joinedDate: "2025-08-22",
+          lastPurchase: "2026-04-08",
+          address: "45 Moi Avenue, Mombasa",
+        },
+        {
+          id: "CUST-003",
+          name: "Grace Njeri",
+          email: "grace.njeri@email.com",
+          phone: "+254 734 567 890",
+          totalOrders: 8,
+          totalSpent: 42500,
+          activeInstallments: 3,
+          paymentScore: 88,
+          riskLevel: "low",
+          segment: "Regular",
+          joinedDate: "2025-10-11",
+          lastPurchase: "2026-04-08",
+          address: "78 Ngong Road, Nairobi",
+        },
+        {
+          id: "CUST-004",
+          name: "Peter Omondi",
+          email: "peter.omondi@email.com",
+          phone: "+254 745 678 901",
+          totalOrders: 5,
+          totalSpent: 28900,
+          activeInstallments: 1,
+          paymentScore: 55,
+          riskLevel: "high",
+          segment: "New",
+          joinedDate: "2025-12-03",
+          lastPurchase: "2026-04-07",
+          address: "12 Kenyatta Avenue, Kisumu",
+        },
+        {
+          id: "CUST-005",
+          name: "Mary Wanjiku",
+          email: "mary.wanjiku@email.com",
+          phone: "+254 756 789 012",
+          totalOrders: 18,
+          totalSpent: 89300,
+          activeInstallments: 2,
+          paymentScore: 92,
+          riskLevel: "low",
+          segment: "VIP",
+          joinedDate: "2025-05-20",
+          lastPurchase: "2026-04-07",
+          address: "99 Thika Road, Kiambu",
+        },
+      ];
+
+      function generateCustomerId() {
+        const lastId =
+          customersData.length > 0
+            ? Math.max(
+                ...customersData.map((c) => parseInt(c.id.split("-")[1])),
+              )
+            : 0;
+        return `CUST-${String(lastId + 1).padStart(3, "0")}`;
+      }
+
+      function addNewCustomer(formData) {
+        const newCustomer = {
+          id: generateCustomerId(),
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          totalOrders: 0,
+          totalSpent: 0,
+          activeInstallments: 0,
+          paymentScore:
+            formData.riskLevel === "low"
+              ? 85
+              : formData.riskLevel === "medium"
+                ? 65
+                : 45,
+          riskLevel: formData.riskLevel,
+          segment: formData.segment,
+          joinedDate: new Date().toISOString().slice(0, 10),
+          lastPurchase: new Date().toISOString().slice(0, 10),
+          address: formData.address || "",
+        };
+        customersData.unshift(newCustomer);
+        return newCustomer;
+      }
+
+      const riskConfig = {
+        low: { label: "Low Risk", color: "bg-green-100 text-green-700" },
+        medium: { label: "Medium Risk", color: "bg-amber-100 text-amber-700" },
+        high: { label: "High Risk", color: "bg-red-100 text-red-700" },
+      };
+      const segmentConfig = {
+        VIP: { color: "bg-purple-100 text-purple-700", icon: "fa-star" },
+        Regular: { color: "bg-blue-100 text-blue-700", icon: "fa-users" },
+        New: { color: "bg-gray-100 text-gray-700", icon: "fa-user-plus" },
+      };
+
+      function renderCustomersHub() {
+        const totalCustomers = customersData.length;
+        const vipCount = customersData.filter(
+          (c) => c.segment === "VIP",
+        ).length;
+        const activePlans = customersData.reduce(
+          (sum, c) => sum + c.activeInstallments,
+          0,
+        );
+        const avgSpend = customersData.length
+          ? Math.round(
+              customersData.reduce((sum, c) => sum + c.totalSpent, 0) /
+                customersData.length,
+            )
+          : 0;
+
+        return `
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div><h1 class="text-3xl font-bold text-gray-800">Customer Management</h1><p class="text-gray-500 mt-1">View and manage customer relationships</p></div>
+            <button id="addCustomerBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg transition flex items-center gap-2"><i class="fas fa-user-plus"></i> Add Customer</button>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-users"></i><p class="text-sm font-medium">Total Customers</p></div><p class="text-2xl font-semibold">${totalCustomers}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-star"></i><p class="text-sm font-medium">VIP Customers</p></div><p class="text-2xl font-semibold">${vipCount}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-medium">Active Plans</p></div><p class="text-2xl font-semibold">${activePlans}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-credit-card"></i><p class="text-sm font-medium">Avg Spend</p></div><p class="text-2xl font-semibold">KES ${(avgSpend / 1000).toFixed(0)}K</p></div>
+          </div>
+          <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="customerSearchInput" placeholder="Search customers by name, email, or phone..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500"></div></div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="customersGrid"></div>
+        </div>
+      `;
+      }
+
+      function renderCustomersGrid(filteredCustomers) {
+        const grid = document.getElementById("customersGrid");
+        if (!grid) return;
+        if (filteredCustomers.length === 0) {
+          grid.innerHTML =
+            '<div class="col-span-2 text-center py-12 text-gray-400"><i class="fas fa-users-slash text-4xl mb-3"></i><p>No customers found</p></div>';
+          return;
+        }
+        grid.innerHTML = filteredCustomers
+          .map((customer) => {
+            const segment = segmentConfig[customer.segment];
+            const risk = riskConfig[customer.riskLevel];
+            const initials = customer.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .slice(0, 2);
+            return `
+          <div class="customer-card bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer" data-customer-id="${customer.id}">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg">${initials}</div><div><h3 class="font-semibold text-gray-800">${escapeHtml(customer.name)}</h3><p class="text-sm text-gray-500">${customer.id}</p></div></div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${segment.color}"><i class="fas ${segment.icon} text-xs"></i> ${customer.segment}</span>
+            </div>
+            <div class="space-y-2 mb-4 pb-4 border-b border-gray-100"><div class="flex items-center gap-2 text-sm text-gray-500"><i class="fas fa-envelope w-4"></i> ${customer.email}</div><div class="flex items-center gap-2 text-sm text-gray-500"><i class="fas fa-phone w-4"></i> ${customer.phone}</div></div>
+            <div class="grid grid-cols-2 gap-4 mb-4"><div><p class="text-xs text-gray-500 mb-1">Total Orders</p><p class="text-lg font-semibold">${customer.totalOrders}</p></div><div><p class="text-xs text-gray-500 mb-1">Total Spent</p><p class="text-lg font-semibold">KES ${(customer.totalSpent / 1000).toFixed(0)}K</p></div><div><p class="text-xs text-gray-500 mb-1">Active Plans</p><p class="text-lg font-semibold">${customer.activeInstallments}</p></div><div><p class="text-xs text-gray-500 mb-1">Payment Score</p><div class="flex items-center gap-2"><p class="text-lg font-semibold">${customer.paymentScore}</p><span class="px-2 py-0.5 rounded text-xs font-medium ${risk.color}">${risk.label}</span></div></div></div>
+            <div class="flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-100"><span>Joined: ${new Date(customer.joinedDate).toLocaleDateString()}</span><span>Last: ${new Date(customer.lastPurchase).toLocaleDateString()}</span></div>
+          </div>
+        `;
+          })
+          .join("");
+        document.querySelectorAll(".customer-card").forEach((card) => {
+          card.addEventListener("click", () => {
+            const id = card.getAttribute("data-customer-id");
+            const customer = customersData.find((c) => c.id === id);
+            if (customer) openCustomerDetailModal(customer);
+          });
+        });
+      }
+
+      function filterCustomers() {
+        const searchTerm =
+          document.getElementById("customerSearchInput")?.value.toLowerCase() ||
+          "";
+        const filtered = customersData.filter(
+          (c) =>
+            c.name.toLowerCase().includes(searchTerm) ||
+            c.email.toLowerCase().includes(searchTerm) ||
+            c.phone.includes(searchTerm),
+        );
+        renderCustomersGrid(filtered);
+      }
+
+      function openCustomerDetailModal(customer) {
+        selectedCustomerData = customer;
+        const risk = riskConfig[customer.riskLevel];
+        const segment = segmentConfig[customer.segment];
+        const container = document.getElementById("customerDetailContent");
+        container.innerHTML = `
+        <div class="flex items-center gap-4 pb-4 border-b"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold">${customer.name
+          .split(" ")
+          .map((n) => n[0])
+          .join(
+            "",
+          )}</div><div><h2 class="text-xl font-bold">${escapeHtml(customer.name)}</h2><p class="text-gray-500">${customer.id}</p><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${segment.color} mt-1"><i class="fas ${segment.icon} text-xs"></i> ${customer.segment}</span></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500 mb-1"><i class="fas fa-envelope mr-2"></i>Email</p><p class="font-medium">${customer.email}</p></div><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500 mb-1"><i class="fas fa-phone mr-2"></i>Phone</p><p class="font-medium">${customer.phone}</p></div><div class="bg-gray-50 rounded-xl p-4 md:col-span-2"><p class="text-sm text-gray-500 mb-1"><i class="fas fa-map-marker-alt mr-2"></i>Address</p><p class="font-medium">${customer.address || "Not provided"}</p></div></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="bg-emerald-50 rounded-xl p-3 text-center"><p class="text-xs text-gray-600 mb-1">Total Orders</p><p class="text-2xl font-bold text-emerald-700">${customer.totalOrders}</p></div><div class="bg-blue-50 rounded-xl p-3 text-center"><p class="text-xs text-gray-600 mb-1">Total Spent</p><p class="text-2xl font-bold text-blue-700">KES ${customer.totalSpent.toLocaleString()}</p></div><div class="bg-purple-50 rounded-xl p-3 text-center"><p class="text-xs text-gray-600 mb-1">Active Plans</p><p class="text-2xl font-bold text-purple-700">${customer.activeInstallments}</p></div><div class="bg-amber-50 rounded-xl p-3 text-center"><p class="text-xs text-gray-600 mb-1">Payment Score</p><p class="text-2xl font-bold text-amber-700">${customer.paymentScore}<span class="text-sm">/100</span></p></div></div>
+        <div class="bg-gray-50 rounded-xl p-4"><div class="flex justify-between items-center flex-wrap gap-2"><div><p class="text-sm text-gray-500">Risk Assessment</p><p class="text-lg font-semibold ${risk.color.split(" ")[0]}">${risk.label}</p></div><div><p class="text-sm text-gray-500">Member Since</p><p class="font-medium">${new Date(customer.joinedDate).toLocaleDateString()}</p></div><div><p class="text-sm text-gray-500">Last Purchase</p><p class="font-medium">${new Date(customer.lastPurchase).toLocaleDateString()}</p></div></div></div>
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4"><div class="flex justify-between items-center"><span class="font-semibold"><i class="fas fa-chart-line mr-2"></i>Loyalty Status</span><span class="text-emerald-700 font-bold">${customer.totalSpent > 100000 ? "Platinum" : customer.totalSpent > 50000 ? "Gold" : "Silver"}</span></div><div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="bg-emerald-600 h-2 rounded-full" style="width: ${Math.min(100, (customer.totalSpent / 150000) * 100)}%"></div></div></div>
+      `;
+        document
+          .getElementById("customerDetailModal")
+          .classList.remove("hidden");
+        document.getElementById("customerDetailModal").classList.add("flex");
+      }
+
+      function openAddCustomerModal() {
+        document.getElementById("addCustomerModal").classList.remove("hidden");
+        document.getElementById("addCustomerModal").classList.add("flex");
+      }
+      function closeAddCustomerModal() {
+        document.getElementById("addCustomerModal").classList.add("hidden");
+        document.getElementById("addCustomerForm").reset();
+      }
+
+      // Other tab renderers
+      function renderDashboard() {
+        return `<div class="space-y-6"><div><h1 class="text-3xl font-bold text-gray-800">Executive Dashboard</h1><p class="text-gray-500">Real-time KPIs & insights</p></div><div class="grid md:grid-cols-3 gap-6"><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-emerald-600 text-xl"></i></div><p class="text-gray-500 mt-4">Daily Sales</p><p class="text-2xl font-bold">KES 184,200</p></div></div></div>`;
+      }
+      function renderCatalog() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Product Catalog</h2><button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">Add Product</button><table class="w-full mt-4"><thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody>${products.map((p) => `<tr><td>${p.name}</td><td>${p.sellPrice}</td><td>${p.stock}</td><td><button class="editProductBtn text-blue-600" data-id="${p.id}">Edit</button><button class="deleteProductBtn text-red-600 ml-2" data-id="${p.id}">Del</button></td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function renderInventory() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Inventory Intelligence</h2><div class="grid grid-cols-2 gap-4"><div class="p-4 bg-gray-50 rounded-xl">Denim Jacket: 45 units</div><div class="p-4 bg-gray-50 rounded-xl">Summer Dress: 28 units</div></div></div>`;
+      }
+      function renderOrders() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Order Pipeline</h2><p>Order management system - List view active</p><div class="mt-4"><input placeholder="Search orders" class="w-full p-2 border rounded-lg"><button id="addOrderManuallyBtn" class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-xl">Manual Add Order</button></div></div>`;
+      }
+      function renderTransactions() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Transaction Hub</h2><p>Ledger and payment reconciliation</p></div>`;
+      }
+      function renderInstallments() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Lipa Mdogo Core</h2><button id="createPlanMainBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">New Payment Plan</button><table class="w-full mt-4"><thead><tr><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>${paymentPlans.map((p) => `<tr><td>${p.customer}</td><td>${p.total}</td><td>${p.status}</td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function renderAnalytics() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Analytics Engine</h2><canvas id="salesTrend" height="200"></canvas></div><script>setTimeout(()=>{ const ctx=document.getElementById('salesTrend')?.getContext('2d'); if(ctx) new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Sales',data:[120,145,178],borderColor:'#059669'}]}}); },100);<\/script>`;
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (activeTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (activeTab === "catalog") container.innerHTML = renderCatalog();
+        else if (activeTab === "inventory")
+          container.innerHTML = renderInventory();
+        else if (activeTab === "orders") container.innerHTML = renderOrders();
+        else if (activeTab === "customers") {
+          container.innerHTML = renderCustomersHub();
+          renderCustomersGrid(customersData);
+          document
+            .getElementById("customerSearchInput")
+            ?.addEventListener("input", filterCustomers);
+          document
+            .getElementById("addCustomerBtn")
+            ?.addEventListener("click", openAddCustomerModal);
+        } else if (activeTab === "transactions")
+          container.innerHTML = renderTransactions();
+        else if (activeTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (activeTab === "analytics")
+          container.innerHTML = renderAnalytics();
+        attachCommonEvents();
+      }
+
+      function attachCommonEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal(null));
+        document.querySelectorAll(".editProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const p = products.find((p) => p.id == btn.dataset.id);
+            if (p) openProductModal(p);
+          }),
+        );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            deleteTargetId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+          }),
+        );
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (deleteTargetId) {
+              products = products.filter((p) => p.id !== deleteTargetId);
+              renderCurrentTab();
+            }
+            document.getElementById("deleteModal").classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        document
+          .getElementById("createPlanMainBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("paymentModal").classList.remove("hidden"),
+          );
+        document
+          .getElementById("confirmPlanBtn")
+          ?.addEventListener("click", () => {
+            alert("Plan created");
+            document.getElementById("paymentModal").classList.add("hidden");
+          });
+        document
+          .querySelectorAll("#closeModalBtn, #closeModalBtn2")
+          .forEach((btn) =>
+            btn?.addEventListener("click", () =>
+              document.getElementById("paymentModal").classList.add("hidden"),
+            ),
+          );
+        document
+          .getElementById("closeDefaultModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("defaultModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("addOrderManuallyBtn")
+          ?.addEventListener("click", () =>
+            alert("Manual order form would open here"),
+          );
+
+        // Add Customer Modal Events
+        document
+          .getElementById("closeAddCustomerModal")
+          ?.addEventListener("click", closeAddCustomerModal);
+        document
+          .getElementById("cancelAddCustomerBtn")
+          ?.addEventListener("click", closeAddCustomerModal);
+        document
+          .getElementById("addCustomerForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("custName").value.trim();
+            const email = document.getElementById("custEmail").value.trim();
+            const phone = document.getElementById("custPhone").value.trim();
+            const segment = document.getElementById("custSegment").value;
+            const riskLevel = document.getElementById("custRiskLevel").value;
+            const address = document.getElementById("custAddress").value;
+            if (!name || !phone) {
+              alert("Please fill in all required fields (Name and Phone)");
+              return;
+            }
+            const newCustomer = addNewCustomer({
+              name,
+              email,
+              phone,
+              segment,
+              riskLevel,
+              address,
+            });
+            alert(
+              `✅ Customer ${newCustomer.name} added successfully!\nID: ${newCustomer.id}`,
+            );
+            closeAddCustomerModal();
+            renderCurrentTab();
+          });
+
+        // Customer Detail Modal Events
+        const closeCustModal = () =>
+          document
+            .getElementById("customerDetailModal")
+            .classList.add("hidden");
+        document
+          .getElementById("closeCustomerModal")
+          ?.addEventListener("click", closeCustModal);
+        document
+          .getElementById("closeCustomerModalFooter")
+          ?.addEventListener("click", closeCustModal);
+        document
+          .getElementById("viewCustomerOrdersBtn")
+          ?.addEventListener("click", () => {
+            if (selectedCustomerData)
+              alert(
+                `Viewing orders for ${selectedCustomerData.name}\nTotal orders: ${selectedCustomerData.totalOrders}`,
+              );
+            closeCustModal();
+          });
+      }
+
+      function openProductModal(product = null) {
+        const modal = document.getElementById("productModal");
+        if (product) {
+          document.getElementById("productId").value = product.id;
+          document.getElementById("prodName").value = product.name;
+          document.getElementById("prodCategory").value = product.category;
+          document.getElementById("prodBuyPrice").value = product.buyPrice;
+          document.getElementById("prodSellPrice").value = product.sellPrice;
+          document.getElementById("prodStock").value = product.stock;
+          document.getElementById("prodSize").value = product.size;
+          document.getElementById("prodSupplier").value =
+            product.supplier || "";
+          document.getElementById("prodImage").value = product.image || "";
+        } else document.getElementById("productForm").reset();
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+      function saveProductFromForm() {
+        const id = document.getElementById("productId").value;
+        const data = {
+          name: document.getElementById("prodName").value,
+          category: document.getElementById("prodCategory").value,
+          buyPrice: parseFloat(document.getElementById("prodBuyPrice").value),
+          sellPrice: parseFloat(document.getElementById("prodSellPrice").value),
+          stock: parseInt(document.getElementById("prodStock").value),
+          size: document.getElementById("prodSize").value,
+          supplier: document.getElementById("prodSupplier").value,
+          image: document.getElementById("prodImage").value,
+        };
+        if (!data.name) return alert("Name required");
+        if (id) {
+          const idx = products.findIndex((p) => p.id == id);
+          if (idx !== -1)
+            products[idx] = { ...products[idx], ...data, id: parseInt(id) };
+        } else products.push({ id: Date.now(), ...data });
+        document.getElementById("productModal").classList.add("hidden");
+        renderCurrentTab();
+      }
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      document.querySelectorAll(".nav-item").forEach((item) =>
+        item.addEventListener("click", function () {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) =>
+              n.classList.remove("bg-emerald-50", "text-emerald-700"),
+            );
+          this.classList.add("bg-emerald-50", "text-emerald-700");
+          activeTab = this.getAttribute("data-tab");
+          renderCurrentTab();
+        }),
+      );
+      document
+        .getElementById("mobileMenuBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("sidebar").classList.toggle("open"),
+        );
+      renderCurrentTab();
+    </script>
+  </body>
+</html>

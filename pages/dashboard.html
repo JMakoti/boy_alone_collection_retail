@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Executive Dashboard (Standalone Module)</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts + Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .dashboard-card {
+        transition: all 0.2s ease;
+      }
+      .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.12);
+      }
+      .fade-in {
+        animation: fadeIn 0.4s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .stat-icon {
+        background: linear-gradient(
+          135deg,
+          rgba(16, 185, 129, 0.1) 0%,
+          rgba(5, 150, 105, 0.1) 100%
+        );
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      /* Fix chart container to fill card properly */
+      .chart-container {
+        width: 100%;
+        position: relative;
+      }
+      canvas {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN DASHBOARD MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="dashboardModuleRoot" class="max-w-7xl mx-auto"></div>
+
+    <script>
+      // ==================== STANDALONE EXECUTIVE DASHBOARD MODULE ====================
+      // Fully independent, can be dropped into Laravel blade or any project.
+      // Features: KPIs, revenue chart (full-width card fill), category sales, recent orders, inventory alerts.
+
+      (function () {
+        // ---------- DASHBOARD DATA (simulated real-time metrics) ----------
+        let dashboardData = {
+          // KPIs
+          totalRevenue: 1847500, // KES
+          totalOrders: 847,
+          activeCustomers: 1243,
+          avgOrderValue: 2180,
+          // Revenue trend (last 7 days)
+          revenueTrend: [
+            125000, 142000, 168000, 189000, 210000, 245000, 268500,
+          ],
+          revenueLabels: [
+            "Apr 5",
+            "Apr 6",
+            "Apr 7",
+            "Apr 8",
+            "Apr 9",
+            "Apr 10",
+            "Apr 11",
+          ],
+          // Category sales breakdown
+          categorySales: [
+            { name: "Apparel", value: 845000, color: "#10b981" },
+            { name: "Footwear", value: 523000, color: "#3b82f6" },
+            { name: "Accessories", value: 289000, color: "#8b5cf6" },
+            { name: "Outerwear", value: 190500, color: "#f59e0b" },
+          ],
+          // Recent orders (latest 6)
+          recentOrders: [
+            {
+              id: "ORD-9823",
+              customer: "Sarah Mwangi",
+              amount: 12500,
+              status: "completed",
+              date: "2026-04-11",
+            },
+            {
+              id: "ORD-9824",
+              customer: "John Kamau",
+              amount: 8450,
+              status: "processing",
+              date: "2026-04-11",
+            },
+            {
+              id: "ORD-9825",
+              customer: "Grace Njeri",
+              amount: 22900,
+              status: "completed",
+              date: "2026-04-10",
+            },
+            {
+              id: "ORD-9826",
+              customer: "Peter Omondi",
+              amount: 3450,
+              status: "pending",
+              date: "2026-04-10",
+            },
+            {
+              id: "ORD-9827",
+              customer: "Mary Wanjiku",
+              amount: 18750,
+              status: "shipped",
+              date: "2026-04-09",
+            },
+            {
+              id: "ORD-9828",
+              customer: "James Otieno",
+              amount: 6200,
+              status: "completed",
+              date: "2026-04-09",
+            },
+          ],
+          // Inventory alerts (low stock items)
+          inventoryAlerts: [
+            {
+              product: "Slim Fit Jeans - Black (32)",
+              sku: "SJ-BLK-32",
+              stock: 0,
+              location: "Main Store",
+              severity: "critical",
+            },
+            {
+              product: "Summer Dress - Floral (S)",
+              sku: "SD-FLR-S",
+              stock: 3,
+              location: "Main Store",
+              severity: "critical",
+            },
+            {
+              product: "Leather Boots - Brown (8)",
+              sku: "LB-BRN-8",
+              stock: 8,
+              location: "Main Store",
+              severity: "low",
+            },
+            {
+              product: "Cashmere Scarf - Beige",
+              sku: "CS-BGE-OS",
+              stock: 2,
+              location: "Warehouse A",
+              severity: "critical",
+            },
+          ],
+        };
+
+        let revenueChart = null;
+        let categoryChart = null;
+
+        // Helper: format currency (KES)
+        function formatCurrency(amount) {
+          return new Intl.NumberFormat("en-KE", {
+            style: "currency",
+            currency: "KES",
+            minimumFractionDigits: 0,
+          }).format(amount);
+        }
+
+        function formatCompactCurrency(amount) {
+          if (amount >= 1000000) return `KES ${(amount / 1000000).toFixed(1)}M`;
+          if (amount >= 1000) return `KES ${(amount / 1000).toFixed(0)}K`;
+          return `KES ${amount}`;
+        }
+
+        function escapeHtml(str) {
+          return String(str ?? "").replace(/[&<>]/g, (m) =>
+            m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+          );
+        }
+
+        // Get status badge class
+        function getOrderStatusBadge(status) {
+          const styles = {
+            completed: "bg-green-100 text-green-700",
+            processing: "bg-blue-100 text-blue-700",
+            pending: "bg-amber-100 text-amber-700",
+            shipped: "bg-purple-100 text-purple-700",
+          };
+          return styles[status] || "bg-gray-100 text-gray-700";
+        }
+
+        function getAlertSeverityBadge(severity) {
+          return severity === "critical"
+            ? "bg-red-100 text-red-700"
+            : "bg-amber-100 text-amber-700";
+        }
+
+        // Calculate week-over-week growth
+        function calculateWoWGrowth() {
+          const trend = dashboardData.revenueTrend;
+          if (trend.length < 2) return "+0%";
+          const lastWeekSum = trend.slice(0, 4).reduce((a, b) => a + b, 0);
+          const thisWeekSum = trend.slice(4).reduce((a, b) => a + b, 0);
+          if (lastWeekSum === 0) return "+∞%";
+          const growth = ((thisWeekSum - lastWeekSum) / lastWeekSum) * 100;
+          return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
+        }
+
+        // Render entire dashboard UI
+        function renderDashboard() {
+          const woWGrowth = calculateWoWGrowth();
+          const totalRevenueFormatted = formatCompactCurrency(
+            dashboardData.totalRevenue,
+          );
+          const avgOrderFormatted = formatCurrency(dashboardData.avgOrderValue);
+
+          const html = `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-emerald-600 mr-2"></i>Executive Dashboard</h1>
+                <p class="text-gray-500 mt-1">Real-time business intelligence & performance metrics</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="refreshDashboardBtn" class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition flex items-center gap-2 text-gray-700"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                <button id="exportReportBtn" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-md transition flex items-center gap-2"><i class="fas fa-download"></i> Export Report</button>
+              </div>
+            </div>
+            
+            <!-- KPI Cards Row -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm dashboard-card">
+                <div class="flex items-center justify-between">
+                  <div><p class="text-sm text-gray-500 font-medium mb-1">Total Revenue</p><p class="text-2xl font-bold text-gray-800">${totalRevenueFormatted}</p></div>
+                  <div class="w-12 h-12 stat-icon rounded-2xl flex items-center justify-center"><i class="fas fa-currency-sign text-emerald-600 text-xl"></i></div>
+                </div>
+                <div class="mt-3 flex items-center gap-1 text-xs"><span class="text-green-600"><i class="fas fa-arrow-up"></i> ${woWGrowth}</span><span class="text-gray-400"> vs last week</span></div>
+              </div>
+              <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm dashboard-card">
+                <div class="flex items-center justify-between">
+                  <div><p class="text-sm text-gray-500 font-medium mb-1">Total Orders</p><p class="text-2xl font-bold text-gray-800">${dashboardData.totalOrders}</p></div>
+                  <div class="w-12 h-12 stat-icon rounded-2xl flex items-center justify-center"><i class="fas fa-shopping-cart text-blue-600 text-xl"></i></div>
+                </div>
+                <div class="mt-3 text-xs text-gray-400">+12% from last month</div>
+              </div>
+              <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm dashboard-card">
+                <div class="flex items-center justify-between">
+                  <div><p class="text-sm text-gray-500 font-medium mb-1">Active Customers</p><p class="text-2xl font-bold text-gray-800">${dashboardData.activeCustomers}</p></div>
+                  <div class="w-12 h-12 stat-icon rounded-2xl flex items-center justify-center"><i class="fas fa-users text-purple-600 text-xl"></i></div>
+                </div>
+                <div class="mt-3 text-xs text-gray-400">+8% customer retention</div>
+              </div>
+              <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm dashboard-card">
+                <div class="flex items-center justify-between">
+                  <div><p class="text-sm text-gray-500 font-medium mb-1">Avg Order Value</p><p class="text-2xl font-bold text-gray-800">${avgOrderFormatted}</p></div>
+                  <div class="w-12 h-12 stat-icon rounded-2xl flex items-center justify-center"><i class="fas fa-receipt text-amber-600 text-xl"></i></div>
+                </div>
+                <div class="mt-3 text-xs text-green-600"><i class="fas fa-arrow-up"></i> +5.2%</div>
+              </div>
+            </div>
+            
+            <!-- Charts Row: Revenue Trend (FULL CARD) + Category Distribution -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Revenue Chart - takes 2/3 and fills entire card with proper sizing -->
+              <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100">
+                  <h3 class="font-bold text-gray-800"><i class="fas fa-chart-line text-emerald-500 mr-2"></i>Revenue Trend (Last 7 Days)</h3>
+                  <p class="text-xs text-gray-400 mt-0.5">Daily sales performance in KES</p>
+                </div>
+                <div class="p-4 pt-2">
+                  <div class="chart-container" style="width: 100%; min-height: 320px;">
+                    <canvas id="revenueTrendChart" style="width: 100%; height: auto; max-height: 800px;"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- Category Distribution Pie Chart -->
+              <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100">
+                  <h3 class="font-bold text-gray-800"><i class="fas fa-chart-pie text-emerald-500 mr-2"></i>Sales by Category</h3>
+                </div>
+                <div class="p-4">
+                  <div class="chart-container" style="width: 100%; min-height: 240px;">
+                    <canvas id="categoryPieChart" style="width: 100%; height: auto; max-height: 240px;"></canvas>
+                  </div>
+                  <div class="mt-5 space-y-2 pt-2 border-t border-gray-100">
+                    ${dashboardData.categorySales
+                      .map(
+                        (cat) => `
+                      <div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background: ${cat.color}"></div><span>${cat.name}</span></div><span class="font-semibold">${formatCompactCurrency(cat.value)}</span></div>
+                    `,
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Recent Orders & Inventory Alerts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Recent Orders Table -->
+              <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+                  <h3 class="font-bold text-gray-800"><i class="fas fa-clock text-emerald-500 mr-2"></i>Recent Orders</h3>
+                  <button id="viewAllOrdersBtn" class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">View all →</button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600 text-xs">
+                      <tr><th class="px-5 py-3 text-left">Order ID</th><th class="px-5 py-3 text-left">Customer</th><th class="px-5 py-3 text-left">Amount</th><th class="px-5 py-3 text-left">Status</th><th class="px-5 py-3 text-left">Date</th></tr>
+                    </thead>
+                    <tbody>
+                      ${dashboardData.recentOrders
+                        .map(
+                          (order) => `
+                        <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                          <td class="px-5 py-3 font-mono text-xs font-medium">${order.id}</td>
+                          <td class="px-5 py-3">${escapeHtml(order.customer)}</td>
+                          <td class="px-5 py-3 font-semibold">${formatCurrency(order.amount)}</td>
+                          <td class="px-5 py-3"><span class="px-2 py-1 rounded-full text-xs font-medium ${getOrderStatusBadge(order.status)}">${order.status}</span></td>
+                          <td class="px-5 py-3 text-gray-500 text-xs">${new Date(order.date).toLocaleDateString()}</td>
+                        </tr>
+                      `,
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Inventory Alerts Card -->
+              <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+                  <h3 class="font-bold text-gray-800"><i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>Inventory Alerts</h3>
+                  <button id="goToInventoryBtn" class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Manage stock →</button>
+                </div>
+                <div class="p-4 space-y-3 max-h-80 overflow-y-auto scrollbar-custom">
+                  ${
+                    dashboardData.inventoryAlerts.length > 0
+                      ? dashboardData.inventoryAlerts
+                          .map(
+                            (alert) => `
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl border-l-4 ${alert.severity === "critical" ? "border-red-500" : "border-amber-500"}">
+                      <div class="flex-1"><p class="font-medium text-gray-800 text-sm">${escapeHtml(alert.product)}</p><p class="text-xs text-gray-500 mt-0.5">SKU: ${alert.sku} | Location: ${alert.location}</p></div>
+                      <div class="text-right"><span class="text-sm font-bold ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}">${alert.stock} units</span><span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${getAlertSeverityBadge(alert.severity)}">${alert.severity}</span></div>
+                    </div>
+                  `,
+                          )
+                          .join("")
+                      : '<div class="text-center text-gray-400 py-6"><i class="fas fa-check-circle text-2xl mb-2"></i><p>No inventory alerts</p></div>'
+                  }
+                </div>
+                <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-500 flex justify-between"><span><i class="fas fa-robot"></i> AI recommends reorder for ${dashboardData.inventoryAlerts.filter((a) => a.severity === "critical").length} items</span><button id="quickReorderBtn" class="text-emerald-600 font-medium">Quick reorder →</button></div>
+              </div>
+            </div>
+            
+            <!-- Footer Insights -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-sm text-gray-700 border border-emerald-100 flex flex-wrap justify-between items-center">
+              <span><i class="fas fa-chart-simple text-emerald-600 mr-2"></i>📊 Performance summary: Revenue up ${woWGrowth} WoW | Top category: Apparel (${formatCompactCurrency(dashboardData.categorySales[0].value)})</span>
+              <span class="text-xs text-gray-500">Last updated: ${new Date().toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+
+          document.getElementById("dashboardModuleRoot").innerHTML = html;
+
+          // Initialize charts after DOM is ready with proper sizing
+          setTimeout(() => {
+            initCharts();
+          }, 50);
+          attachDashboardEvents();
+        }
+
+        // Initialize Chart.js instances with proper responsive fill behavior
+        function initCharts() {
+          const revenueCanvas = document.getElementById("revenueTrendChart");
+          const categoryCanvas = document.getElementById("categoryPieChart");
+
+          // Destroy existing charts if any
+          if (revenueChart) {
+            revenueChart.destroy();
+            revenueChart = null;
+          }
+          if (categoryChart) {
+            categoryChart.destroy();
+            categoryChart = null;
+          }
+
+          // Revenue Line Chart - Fills card completely
+          if (revenueCanvas) {
+            const ctx = revenueCanvas.getContext("2d");
+            // Set explicit dimensions to ensure proper fill
+            const container = revenueCanvas.parentElement;
+            if (container) {
+              const containerWidth = container.clientWidth;
+              revenueCanvas.width = containerWidth;
+              revenueCanvas.style.width = "100%";
+            }
+
+            revenueChart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: dashboardData.revenueLabels,
+                datasets: [
+                  {
+                    label: "Revenue (KES)",
+                    data: dashboardData.revenueTrend,
+                    borderColor: "#10b981",
+                    backgroundColor: "rgba(16, 185, 129, 0.08)",
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: "#059669",
+                    pointBorderColor: "#ffffff",
+                    pointBorderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                resizeDelay: 100,
+                plugins: {
+                  legend: {
+                    position: "top",
+                    labels: {
+                      boxWidth: 12,
+                      font: { size: 11, weight: "500" },
+                      usePointStyle: true,
+                    },
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `Revenue: ${formatCurrency(ctx.raw)}`,
+                    },
+                    backgroundColor: "#1f2937",
+                    titleColor: "#f3f4f6",
+                    bodyColor: "#d1d5db",
+                  },
+                },
+                scales: {
+                  y: {
+                    ticks: {
+                      callback: (val) => `KES ${val / 1000}K`,
+                      font: { size: 11 },
+                    },
+                    grid: { color: "#e5e7eb", drawBorder: true },
+                    title: {
+                      display: true,
+                      text: "Amount (KES)",
+                      font: { size: 10 },
+                    },
+                  },
+                  x: {
+                    ticks: { font: { size: 11 } },
+                    grid: { display: false },
+                  },
+                },
+                layout: {
+                  padding: { top: 10, bottom: 10, left: 5, right: 5 },
+                },
+              },
+            });
+          }
+
+          // Category Pie Chart
+          if (categoryCanvas) {
+            const ctx = categoryCanvas.getContext("2d");
+            categoryChart = new Chart(ctx, {
+              type: "doughnut",
+              data: {
+                labels: dashboardData.categorySales.map((c) => c.name),
+                datasets: [
+                  {
+                    data: dashboardData.categorySales.map((c) => c.value),
+                    backgroundColor: dashboardData.categorySales.map(
+                      (c) => c.color,
+                    ),
+                    borderWidth: 0,
+                    hoverOffset: 10,
+                    cutout: "65%",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: { font: { size: 10 }, boxWidth: 10, padding: 8 },
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) =>
+                        `${ctx.label}: ${formatCurrency(ctx.raw)} (${((ctx.raw / dashboardData.categorySales.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%)`,
+                    },
+                  },
+                },
+                layout: {
+                  padding: 8,
+                },
+              },
+            });
+          }
+
+          // Handle window resize to ensure chart fills correctly
+          const handleResize = () => {
+            if (revenueChart) {
+              revenueChart.resize();
+            }
+            if (categoryChart) {
+              categoryChart.resize();
+            }
+          };
+          window.removeEventListener("resize", handleResize);
+          window.addEventListener("resize", handleResize);
+        }
+
+        // Refresh dashboard data (simulate API fetch with updated metrics)
+        function refreshDashboardData() {
+          // Simulate slight changes in real-time data
+          dashboardData.totalRevenue =
+            1847500 + Math.floor(Math.random() * 50000);
+          dashboardData.totalOrders = 847 + Math.floor(Math.random() * 12);
+          dashboardData.activeCustomers = 1243 + Math.floor(Math.random() * 8);
+          dashboardData.avgOrderValue = Math.floor(
+            2180 + (Math.random() * 100 - 20),
+          );
+          // Update revenue trend with slight variation
+          dashboardData.revenueTrend = dashboardData.revenueTrend.map(
+            (val) => val + Math.floor(Math.random() * 3000 - 1000),
+          );
+          dashboardData.revenueTrend = dashboardData.revenueTrend.map((v) =>
+            Math.max(v, 80000),
+          );
+
+          // Update recent orders first entry amount for demo
+          if (dashboardData.recentOrders.length > 0) {
+            dashboardData.recentOrders[0].amount =
+              12500 + Math.floor(Math.random() * 1000);
+          }
+
+          renderDashboard(); // re-render with fresh data
+        }
+
+        function attachDashboardEvents() {
+          const refreshBtn = document.getElementById("refreshDashboardBtn");
+          const exportBtn = document.getElementById("exportReportBtn");
+          const viewAllOrdersBtn = document.getElementById("viewAllOrdersBtn");
+          const goToInventoryBtn = document.getElementById("goToInventoryBtn");
+          const quickReorderBtn = document.getElementById("quickReorderBtn");
+
+          if (refreshBtn) {
+            refreshBtn.addEventListener("click", () => {
+              refreshDashboardData();
+              // Show toast-like feedback
+              const toast = document.createElement("div");
+              toast.className =
+                "fixed bottom-6 right-6 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg text-sm z-50 fade-in";
+              toast.innerHTML =
+                '<i class="fas fa-check-circle mr-2"></i> Dashboard refreshed with latest metrics';
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 2500);
+            });
+          }
+
+          if (exportBtn) {
+            exportBtn.addEventListener("click", () => {
+              alert(
+                "📄 Exporting executive report (CSV/PDF) – full business summary will be generated.\n\nIn production, this would download a comprehensive report.",
+              );
+            });
+          }
+
+          if (viewAllOrdersBtn) {
+            viewAllOrdersBtn.addEventListener("click", () => {
+              alert(
+                "📋 Orders pipeline module: View all orders, filters, and order management. (Full module coming in suite)",
+              );
+            });
+          }
+
+          if (goToInventoryBtn) {
+            goToInventoryBtn.addEventListener("click", () => {
+              alert(
+                "📦 Inventory Intelligence module: Manage stock levels, transfers, and reorder points. (Navigate to Inventory section)",
+              );
+            });
+          }
+
+          if (quickReorderBtn) {
+            quickReorderBtn.addEventListener("click", () => {
+              const criticalItems = dashboardData.inventoryAlerts.filter(
+                (a) => a.severity === "critical",
+              );
+              if (criticalItems.length) {
+                alert(
+                  `⚡ Quick reorder initiated for ${criticalItems.length} critical SKUs: ${criticalItems.map((i) => i.sku).join(", ")}. Purchase order generated.`,
+                );
+              } else {
+                alert("✅ No critical stock items require immediate reorder.");
+              }
+            });
+          }
+        }
+
+        // Initialize module
+        function init() {
+          renderDashboard();
+        }
+
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

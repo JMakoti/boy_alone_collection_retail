@@ -1,0 +1,2261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Complete Enterprise Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+        margin: 0;
+        padding: 0;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .left-side {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        z-index: 10;
+      }
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 20;
+        padding: 2rem;
+      }
+      .logo-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 30;
+        transition: transform 0.3s ease;
+      }
+      @media (min-width: 1024px) {
+        .right-side {
+          justify-content: flex-start;
+          padding-left: 0;
+        }
+        .form-card {
+          transform: translateX(-40px);
+          margin-left: -20px;
+        }
+        .left-side {
+          margin-right: -20px;
+          justify-content: flex-end;
+          padding-right: 0;
+        }
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+          padding: 2rem;
+        }
+        .form-card {
+          transform: none;
+          margin: 0 auto;
+        }
+      }
+      @media (min-width: 1024px) {
+        .form-card .img-container1 {
+          display: none;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-8px);
+        }
+        75% {
+          transform: translateX(8px);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+      }
+      .sidebar-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .nav-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+        scrollbar-width: thin;
+      }
+      .nav-wrapper::-webkit-scrollbar {
+        width: 5px;
+      }
+      .nav-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .nav-wrapper::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .sidebar-header {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .sidebar-footer {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        background: white;
+      }
+      .nav-item {
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border-radius: 0.75rem;
+        margin-bottom: 0.375rem;
+      }
+      .nav-item:hover {
+        background: #f0fdf4;
+        color: #059669;
+      }
+      .nav-item.active {
+        background: #ecfdf5;
+        color: #059669;
+        font-weight: 600;
+      }
+      @media (max-width: 1024px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .mobile-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 35;
+          display: none;
+        }
+        .mobile-overlay.active {
+          display: block;
+        }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .product-image-preview {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 12px;
+      }
+      .file-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        background: #f8fafc;
+      }
+      .file-upload-area:hover {
+        border-color: #10b981;
+        background: #f0fdf4;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+      .chart-container {
+        width: 100%;
+        position: relative;
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .inventory-card:hover {
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12);
+        border-color: #cbd5e1;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="split-layout">
+      <div class="left-side">
+        <div class="logo-container">
+          <svg width="300" height="200" viewBox="0 0 400 200" fill="none">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24" />
+                <stop offset="100%" stop-color="#d97706" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M180 70 L200 40 L220 70 L240 50 L250 80 L150 80 L160 50 L180 70Z"
+              fill="url(#goldGrad)"
+              opacity="0.9"
+            />
+            <circle
+              cx="200"
+              cy="85"
+              r="8"
+              fill="#fbbf24"
+              stroke="#fff"
+              stroke-width="2"
+            />
+            <text
+              x="200"
+              y="135"
+              text-anchor="middle"
+              fill="#10b981"
+              font-size="28"
+              font-weight="800"
+              letter-spacing="3"
+              font-family="Inter, sans-serif"
+            >
+              BOY ALONE
+            </text>
+            <text
+              x="200"
+              y="165"
+              text-anchor="middle"
+              fill="#94a3b8"
+              font-size="14"
+              font-weight="500"
+              letter-spacing="6"
+            >
+              COLLECTION
+            </text>
+          </svg>
+        </div>
+      </div>
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div
+              class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
+            >
+              <svg width="64" height="64" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="url(#goldGrad)"
+                  opacity="0.15"
+                />
+                <path
+                  d="M40 35 L50 20 L60 35 L70 25 L75 45 L25 45 L30 25 L40 35Z"
+                  fill="url(#goldGrad)"
+                />
+                <text
+                  x="50"
+                  y="70"
+                  text-anchor="middle"
+                  fill="#10b981"
+                  font-size="12"
+                  font-weight="bold"
+                >
+                  BA
+                </text>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm mt-1">
+              Sign in to access your dashboard
+            </p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-envelope mr-2 text-emerald-400"></i>Email
+                Address</label
+              ><input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-lock mr-2 text-emerald-400"></i
+                >Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all pr-12"
+                /><button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer"
+                ><input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500"
+                /><span class="ml-2 text-sm text-gray-300"
+                  >Remember me</span
+                ></label
+              >
+            </div>
+            <button
+              type="submit"
+              id="loginBtn"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-2">Demo Credentials</p>
+            <div
+              class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"
+            >
+              <p>
+                <span class="text-emerald-400">Email:</span> admin@lipamdogo.com
+              </p>
+              <p><span class="text-emerald-400">Password:</span> admin123</p>
+            </div>
+          </div>
+          <div id="errorMessage" class="mt-4 hidden">
+            <div
+              class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"
+            >
+              <p class="text-red-300 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i
+                ><span id="errorText">Invalid credentials</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD (hidden until login) -->
+    <div id="adminApp" style="display: none">
+      <div class="flex min-h-screen">
+        <aside id="mainSidebar" class="sidebar-fixed">
+          <div class="sidebar-header">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+              >
+                <i class="fas fa-store text-white text-2xl"></i>
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-800">
+                  Boy<span class="text-emerald-600">Alone</span>
+                </h1>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  Enterprise Admin Suite v2.0
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-content">
+            <div class="nav-wrapper">
+              <nav class="space-y-1">
+                <div
+                  class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="dashboard"
+                >
+                  <i class="fas fa-chart-line w-5 text-lg"></i
+                  ><span>Executive Dashboard</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="catalog"
+                >
+                  <i class="fas fa-tags w-5 text-lg"></i
+                  ><span>Product Catalog</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="inventory"
+                >
+                  <i class="fas fa-boxes w-5 text-lg"></i
+                  ><span>Inventory Intelligence</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="orders"
+                >
+                  <i class="fas fa-tasks w-5 text-lg"></i
+                  ><span>Order Pipeline</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="customers"
+                >
+                  <i class="fas fa-users w-5 text-lg"></i
+                  ><span>Customer Hub</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="transactions"
+                >
+                  <i class="fas fa-usd w-5 text-lg"></i
+                  ><span>Transaction Hub</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="installments"
+                >
+                  <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+                  ><span>Lipa Mdogo Core</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="analytics"
+                >
+                  <i class="fas fa-chart-pie w-5 text-lg"></i
+                  ><span>Analytics Engine</span>
+                </div>
+                <div
+                  class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+                  data-tab="reports"
+                >
+                  <i class="fas fa-file-alt w-5 text-lg"></i
+                  ><span>Reports Center</span>
+                </div>
+              </nav>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-user-shield text-emerald-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-gray-800 truncate">
+                  Store Manager
+                </p>
+                <p class="text-xs text-gray-500 truncate">
+                  Role: Admin · Full Access
+                </p>
+              </div>
+              <button
+                id="logoutBtn"
+                class="text-gray-400 hover:text-red-500 transition-all flex-shrink-0"
+              >
+                <i class="fas fa-sign-out-alt text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </aside>
+        <button
+          id="mobileMenuToggle"
+          class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+        >
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+        <div id="mobileOverlay" class="mobile-overlay"></div>
+        <main class="lg:ml-[280px] min-h-screen w-full">
+          <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modals for Inventory, Product, etc. -->
+    <div
+      id="adjustModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-sliders-h text-emerald-600 mr-2"></i>Adjust Stock
+          </h3>
+          <button
+            id="closeAdjustModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600" id="adjustProductName"></p>
+          <input
+            type="number"
+            id="adjustQuantity"
+            placeholder="New stock quantity (absolute value)"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          /><select
+            id="adjustLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Main Store">Main Store</option>
+            <option value="Warehouse A">Warehouse A</option>
+          </select>
+          <div class="flex gap-3 pt-2">
+            <button
+              id="confirmAdjustBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-check mr-1"></i> Apply</button
+            ><button
+              id="cancelAdjustBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="transferModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-exchange-alt text-emerald-600 mr-2"></i>Transfer
+            Stock
+          </h3>
+          <button
+            id="closeTransferModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="font-medium text-gray-800" id="transferProductName"></p>
+          <select
+            id="fromLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Main Store">Main Store</option>
+            <option value="Warehouse A">Warehouse A</option></select
+          ><select
+            id="toLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Warehouse A">Warehouse A</option>
+            <option value="Main Store">Main Store</option></select
+          ><input
+            type="number"
+            id="transferQty"
+            placeholder="Quantity to transfer"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          />
+          <div class="flex gap-3">
+            <button
+              id="confirmTransferBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-exchange-alt mr-1"></i> Transfer</button
+            ><button
+              id="cancelTransferBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-custom"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+            Product
+          </h3>
+          <button
+            id="closeProductModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="productForm" class="space-y-5">
+            <input type="hidden" id="productId" value="" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category <span class="text-red-500">*</span></label
+                ><select
+                  id="prodCategory"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                  <option>Kids Wear</option>
+                  <option>Outerwear</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Buy Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodBuyPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Sell Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodSellPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Stock Quantity <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodStock"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Size</label
+                ><select
+                  id="prodSize"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                  <option>XXL</option>
+                  <option>One Size</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Supplier</label
+                ><input
+                  type="text"
+                  id="prodSupplier"
+                  placeholder="e.g., Fashion Hub Ltd"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Image
+                  <span class="text-emerald-600">(Upload)</span></label
+                >
+                <div
+                  class="file-upload-area relative bg-gray-50 p-4 rounded-xl text-center"
+                >
+                  <input
+                    type="file"
+                    id="prodImageFile"
+                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div class="flex flex-col items-center justify-center py-2">
+                    <i
+                      class="fas fa-cloud-upload-alt text-3xl text-emerald-500 mb-2"
+                    ></i>
+                    <p class="text-sm text-gray-600">Click or drag to upload</p>
+                    <p class="text-xs text-gray-400 mt-1">JPG, PNG up to 2MB</p>
+                  </div>
+                </div>
+                <div id="imagePreviewContainer" class="mt-3 hidden">
+                  <div
+                    class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
+                  >
+                    <img
+                      id="imagePreviewLocal"
+                      class="image-preview-circle w-20 h-20 object-cover rounded-xl"
+                      alt="Preview"
+                    />
+                    <div class="flex-1">
+                      <p
+                        class="text-sm font-medium text-gray-700"
+                        id="previewFileName"
+                      >
+                        image.jpg
+                      </p>
+                      <button
+                        type="button"
+                        id="removeImageBtn"
+                        class="text-xs text-red-500 hover:text-red-700 mt-1 transition"
+                      >
+                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Description</label
+              ><textarea
+                id="prodDesc"
+                rows="3"
+                placeholder="Product details, features, care instructions..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              ></textarea>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium transition-all"
+              >
+                <i class="fas fa-save mr-2"></i>Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Product</h3>
+        <p class="text-gray-500 mb-6">
+          Are you sure you want to delete this product? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium hover:bg-red-700 transition"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="addOrderModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-cart-plus text-emerald-600 mr-2"></i>Manual Add
+            Order
+          </h3>
+          <button
+            id="closeAddOrderModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="addOrderForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="orderCustomerName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="orderEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number</label
+                ><input
+                  type="tel"
+                  id="orderPhone"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="orderAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Type <span class="text-red-500">*</span></label
+                ><select
+                  id="orderPaymentType"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="full">Full Payment</option>
+                  <option value="installment">Installment (Lipa Mdogo)</option>
+                </select>
+              </div>
+              <div id="installmentPlanDiv" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Installment Plan</label
+                ><select
+                  id="orderInstallmentPlan"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="3 months">3 Months</option>
+                  <option value="6 months">6 Months</option>
+                  <option value="9 months">9 Months</option>
+                  <option value="12 months">12 Months</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Order Status <span class="text-red-500">*</span></label
+                ><select
+                  id="orderStatus"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-semibold text-gray-700"
+                  >Order Items</label
+                ><button
+                  type="button"
+                  id="addLineItemBtn"
+                  class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-200"
+                >
+                  <i class="fas fa-plus mr-1"></i>Add Item
+                </button>
+              </div>
+              <div id="lineItemsContainer" class="space-y-3">
+                <div
+                  class="line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl"
+                >
+                  <div class="col-span-5">
+                    <input
+                      type="text"
+                      placeholder="Product name"
+                      class="item-name w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2">
+                    <input
+                      type="number"
+                      placeholder="Qty"
+                      class="item-qty w-full px-3 py-2 border rounded-lg text-sm"
+                      value="1"
+                    />
+                  </div>
+                  <div class="col-span-3">
+                    <input
+                      type="number"
+                      placeholder="Price (KES)"
+                      class="item-price w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2 text-right">
+                    <button
+                      type="button"
+                      class="remove-item text-red-500 hover:text-red-700"
+                    >
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 text-right font-semibold text-gray-700">
+                Total Amount:
+                <span id="orderTotalPreview" class="text-emerald-700 text-xl"
+                  >KES 0</span
+                >
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelOrderBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-check-circle mr-2"></i>Create Order
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="orderDetailModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-receipt text-emerald-600 mr-2"></i>Order Details
+          </h3>
+          <button
+            id="closeDetailModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="orderDetailContent" class="p-6 space-y-4"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-end bg-gray-50 rounded-b-2xl"
+        >
+          <button
+            id="closeDetailFooterBtn"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close</button
+          ><button
+            id="updateStatusFromDetailBtn"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            Update Status
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="updateStatusModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <h3 class="text-xl font-bold mb-4">
+          <i class="fas fa-tasks text-emerald-600 mr-2"></i>Update Order Status
+        </h3>
+        <select
+          id="newOrderStatus"
+          class="w-full p-3 border border-gray-300 rounded-xl mb-4"
+        >
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="flex gap-3">
+          <button
+            id="confirmStatusUpdate"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Update</button
+          ><button
+            id="cancelStatusUpdate"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="customerFormModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto p-4 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 id="formModalTitle" class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-user-plus text-emerald-600 mr-2"></i>Add New
+            Customer
+          </h3>
+          <button
+            id="closeFormModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="customerForm" class="space-y-5">
+            <input type="hidden" id="editCustomerId" value="" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Full Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="custName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="custEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number <span class="text-red-500">*</span></label
+                ><input
+                  type="tel"
+                  id="custPhone"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="+254 XXX XXX XXX"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Segment</label
+                ><select
+                  id="custSegment"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="New">New Customer</option>
+                  <option value="Regular">Regular</option>
+                  <option value="VIP">VIP</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Risk / Payment Score Level</label
+                ><select
+                  id="custRiskLevel"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="low">Low Risk (Good Payer)</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk (Needs Monitoring)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="custAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Street, City, Postal Code"
+                />
+              </div>
+            </div>
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl"
+            >
+              <p class="text-sm text-emerald-800">
+                <i class="fas fa-info-circle mr-2"></i>Customers start with 0
+                orders when created. Edit mode preserves existing data.
+              </p>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelFormBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                id="submitFormBtn"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Save Customer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="customerDetailModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl custom-scroll"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-xl font-bold text-gray-800">
+            <i class="fas fa-user-circle text-emerald-600 mr-2"></i>Customer
+            Details
+          </h3>
+          <button
+            id="closeCustomerModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="customerDetailContent" class="p-6 space-y-5"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-between items-center bg-gray-50 rounded-b-2xl"
+        >
+          <div class="flex gap-2">
+            <button
+              id="editFromDetailBtn"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <i class="fas fa-edit"></i> Edit Customer</button
+            ><button
+              id="deleteFromDetailBtn"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+            >
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+          <button
+            id="closeCustomerModalFooterBtn"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteConfirmModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center"
+      >
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Confirm Deletion</h3>
+        <p class="text-gray-600 mb-6">
+          Are you sure you want to delete this customer? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button
+            id="confirmDeleteCustomerBtn"
+            class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Yes, Delete</button
+          ><button
+            id="cancelDeleteCustomerBtn"
+            class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="manualTransactionModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+            Transaction
+          </h3>
+          <button
+            id="closeManualModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="manualTransactionForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Reference Code <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="transRefCode"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="e.g., INV-001 / TRX-001"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Method <span class="text-red-500">*</span></label
+                ><select
+                  id="transPaymentMethod"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="M-Pesa">M-Pesa</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Airtel Money">Airtel Money</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Transaction Code</label
+                ><input
+                  type="text"
+                  id="transCode"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Optional: M-Pesa ref / Cheque no."
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Amount (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="transAmount"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Status <span class="text-red-500">*</span></label
+                ><select
+                  id="transStatus"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="Success">Success</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name</label
+                ><input
+                  type="text"
+                  id="transCustomer"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Customer name"
+                />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Notes</label
+                ><textarea
+                  id="transNotes"
+                  rows="2"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Additional information"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelManualBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-check-circle mr-2"></i>Add Transaction
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="expenseModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div class="px-6 py-5 border-b flex justify-between items-center">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-chart-line text-red-600 mr-2"></i>Record Expense
+          </h3>
+          <button id="closeExpenseModal" class="text-gray-400">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="expenseForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="text-sm font-semibold">Expense Category *</label
+                ><select
+                  id="expenseCategory"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Rent</option>
+                  <option>Utilities</option>
+                  <option>Inventory Purchase</option>
+                  <option>Salary</option>
+                  <option>Marketing</option>
+                  <option>Maintenance</option>
+                </select>
+              </div>
+              <div>
+                <label>Amount (KES) *</label
+                ><input
+                  type="number"
+                  id="expenseAmount"
+                  required
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Date *</label
+                ><input
+                  type="date"
+                  id="expenseDate"
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Payment Method</label
+                ><select
+                  id="expenseMethod"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                  <option>M-Pesa</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label>Description</label
+                ><textarea
+                  id="expenseDesc"
+                  rows="2"
+                  class="w-full p-2.5 border rounded-xl"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button
+                type="button"
+                id="cancelExpenseBtn"
+                class="px-6 py-2.5 border rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-red-600 text-white rounded-xl"
+              >
+                Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="recordPaymentModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Record
+            Payment
+          </h3>
+          <button
+            id="closeRecordPaymentModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="recordPaymentForm" class="space-y-5">
+            <div
+              id="paymentPlanInfo"
+              class="bg-emerald-50 p-4 rounded-xl text-sm"
+            ></div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Payment Amount (KES) <span class="text-red-500">*</span></label
+              ><input
+                type="number"
+                id="paymentAmount"
+                required
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                placeholder="Enter amount"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Payment Method</label
+              ><select
+                id="paymentMethod"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              >
+                <option>M-Pesa</option>
+                <option>Airtel Money</option>
+                <option>Bank Transfer</option>
+                <option>Cash</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Reference / Transaction ID (Optional)</label
+              ><input
+                type="text"
+                id="paymentRef"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                placeholder="e.g., M-Pesa confirmation code"
+              />
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelRecordPaymentBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Record Payment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="remindModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div class="px-6 py-5 border-b flex justify-between items-center">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-paper-plane text-emerald-600 mr-2"></i>Send
+            Reminder
+          </h3>
+          <button
+            id="closeRemindModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <div id="remindPlanInfo" class="mb-4 text-sm text-gray-600"></div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold mb-1"
+                >SMS / WhatsApp Message</label
+              ><textarea
+                id="reminderMessage"
+                rows="4"
+                class="w-full px-4 py-2.5 border rounded-xl"
+                placeholder="Custom reminder message..."
+              ></textarea>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button id="cancelRemindBtn" class="px-4 py-2 border rounded-lg">
+                Cancel</button
+              ><button
+                id="sendReminderBtn"
+                class="px-4 py-2 bg-emerald-600 text-white rounded-lg"
+              >
+                <i class="fas fa-paper-plane mr-2"></i>Send Reminder
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="createPlanModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-file-invoice text-emerald-600 mr-2"></i>Create
+            Payment Plan
+          </h3>
+          <button
+            id="closeCreatePlanModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="createPlanForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="planCustomerName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Full name"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Order ID <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="planOrderId"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="ORD-XXXXX"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Total Amount (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="planTotalAmount"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="e.g., 15000"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Number of Installments
+                  <span class="text-red-500">*</span></label
+                ><select
+                  id="planInstallments"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="3">3 months</option>
+                  <option value="6">6 months</option>
+                  <option value="9">9 months</option>
+                  <option value="12">12 months</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Method</label
+                ><select
+                  id="planPaymentMethod"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>M-Pesa</option>
+                  <option>Airtel Money</option>
+                  <option>Bank Transfer</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Start Date</label
+                ><input
+                  type="date"
+                  id="planStartDate"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+            </div>
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl"
+            >
+              <p class="text-sm text-emerald-800">
+                <i class="fas fa-info-circle mr-2"></i>Monthly installment
+                amount will be calculated automatically.
+              </p>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelCreatePlanBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Create Plan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="reportDetailModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[85vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800" id="reportDetailTitle">
+            <i class="fas fa-chart-line text-emerald-600 mr-2"></i>Report
+            Details
+          </h3>
+          <button
+            id="closeReportDetailModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="reportDetailContent" class="p-6"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-end bg-gray-50 rounded-b-2xl"
+        >
+          <button
+            id="printReportBtn"
+            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition"
+          >
+            <i class="fas fa-print mr-2"></i>Print</button
+          ><button
+            id="exportReportDataBtn"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            <i class="fas fa-download mr-2"></i>Export Data</button
+          ><button
+            id="closeReportDetailFooter"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Complete merged script with all modules
+      const VALID_EMAIL = "admin@lipamdogo.com";
+      const VALID_PASSWORD = "admin123";
+      let currentTab = "dashboard";
+
+      // Login functions
+      function initAdminDashboard() {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminApp").style.display = "block";
+        renderCurrentTab();
+        initSidebar();
+      }
+      function logout() {
+        localStorage.removeItem("lipamdogo_auth");
+        sessionStorage.removeItem("lipamdogo_auth_temp");
+        document.getElementById("adminApp").style.display = "none";
+        document.getElementById("loginSection").style.display = "flex";
+      }
+
+      // Check saved session
+      const saved = localStorage.getItem("lipamdogo_auth");
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.email === VALID_EMAIL && data.remember) initAdminDashboard();
+        } catch (e) {}
+      } else if (sessionStorage.getItem("lipamdogo_auth_temp"))
+        initAdminDashboard();
+
+      // Login form handlers
+      document.getElementById("loginForm")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+          if (document.getElementById("rememberMe").checked)
+            localStorage.setItem(
+              "lipamdogo_auth",
+              JSON.stringify({ email, remember: true }),
+            );
+          else sessionStorage.setItem("lipamdogo_auth_temp", "true");
+          initAdminDashboard();
+        } else {
+          document.getElementById("errorText").innerText =
+            "Invalid credentials";
+          document.getElementById("errorMessage").classList.remove("hidden");
+          setTimeout(
+            () =>
+              document.getElementById("errorMessage").classList.add("hidden"),
+            2000,
+          );
+        }
+      });
+      document
+        .getElementById("togglePassword")
+        ?.addEventListener("click", () => {
+          const pwd = document.getElementById("password");
+          const type = pwd.type === "password" ? "text" : "password";
+          pwd.type = type;
+        });
+
+      // Sidebar
+      function initSidebar() {
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            document
+              .querySelectorAll(".nav-item")
+              .forEach((n) => n.classList.remove("active"));
+            item.classList.add("active");
+            currentTab = item.getAttribute("data-tab");
+            renderCurrentTab();
+            if (window.innerWidth < 1024) closeMobileSidebar();
+          });
+        });
+        document.getElementById("logoutBtn")?.addEventListener("click", logout);
+        const toggle = document.getElementById("mobileMenuToggle");
+        const overlay = document.getElementById("mobileOverlay");
+        const sidebar = document.getElementById("mainSidebar");
+        function openMobileSidebar() {
+          sidebar?.classList.add("mobile-open");
+          overlay?.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+        function closeMobileSidebar() {
+          sidebar?.classList.remove("mobile-open");
+          overlay?.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+        toggle?.addEventListener("click", openMobileSidebar);
+        overlay?.addEventListener("click", closeMobileSidebar);
+      }
+
+      // Data stores for modules
+      let products = JSON.parse(
+        localStorage.getItem("boyalone_products_catalog") ||
+          JSON.stringify([
+            {
+              id: 1,
+              name: "Premium Denim Jacket",
+              category: "Men's Clothing",
+              buyPrice: 1800,
+              sellPrice: 3500,
+              stock: 45,
+              size: "L",
+              supplier: "Fashion Hub Ltd",
+              imageUrl:
+                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+              description: "Classic denim jacket",
+            },
+            {
+              id: 2,
+              name: "Floral Summer Dress",
+              category: "Women's Clothing",
+              buyPrice: 1200,
+              sellPrice: 2900,
+              stock: 28,
+              size: "M",
+              supplier: "Style Africa",
+              imageUrl:
+                "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+              description: "Lightweight floral dress",
+            },
+          ]),
+      );
+      let inventoryItems = [
+        {
+          id: "1",
+          product: "Denim Jacket - Blue (M)",
+          sku: "DJ-BLU-M",
+          locations: [
+            { name: "Main Store", stock: 25, reorderPoint: 10 },
+            { name: "Warehouse A", stock: 15, reorderPoint: 20 },
+          ],
+          totalStock: 40,
+          reorderPoint: 30,
+          status: "healthy",
+          lastRestocked: "2026-04-05",
+        },
+        {
+          id: "2",
+          product: "Summer Dress - Floral (S)",
+          sku: "SD-FLR-S",
+          locations: [
+            { name: "Main Store", stock: 3, reorderPoint: 10 },
+            { name: "Warehouse A", stock: 2, reorderPoint: 15 },
+          ],
+          totalStock: 5,
+          reorderPoint: 25,
+          status: "critical",
+          lastRestocked: "2026-03-28",
+        },
+        {
+          id: "3",
+          product: "Cotton T-Shirt - White (L)",
+          sku: "CT-WHT-L",
+          locations: [
+            { name: "Main Store", stock: 45, reorderPoint: 15 },
+            { name: "Warehouse A", stock: 78, reorderPoint: 25 },
+          ],
+          totalStock: 123,
+          reorderPoint: 40,
+          status: "healthy",
+          lastRestocked: "2026-04-07",
+        },
+        {
+          id: "4",
+          product: "Slim Fit Jeans - Black (32)",
+          sku: "SJ-BLK-32",
+          locations: [
+            { name: "Main Store", stock: 0, reorderPoint: 12 },
+            { name: "Warehouse A", stock: 0, reorderPoint: 20 },
+          ],
+          totalStock: 0,
+          reorderPoint: 32,
+          status: "reorder",
+          lastRestocked: "2026-03-15",
+        },
+      ];
+      let ordersData = [
+        {
+          id: "ORD-12847",
+          customer: "Sarah Mwangi",
+          email: "sarah@example.com",
+          phone: "+254712345678",
+          items: 3,
+          total: 12450,
+          paymentType: "installment",
+          status: "processing",
+          createdAt: "2026-04-09",
+          installmentPlan: "6 months",
+          shippingAddress: "Nairobi",
+          lineItems: [{ name: "Jacket", qty: 1, price: 3500 }],
+        },
+        {
+          id: "ORD-12846",
+          customer: "John Kamau",
+          email: "john@example.com",
+          phone: "+254722456789",
+          items: 1,
+          total: 6500,
+          paymentType: "full",
+          status: "shipped",
+          createdAt: "2026-04-08",
+          shippingAddress: "Mombasa",
+          lineItems: [{ name: "Boots", qty: 1, price: 6500 }],
+        },
+      ];
+      let customersData = [
+        {
+          id: "CUST-001",
+          name: "Sarah Mwangi",
+          email: "sarah@email.com",
+          phone: "+254712345678",
+          totalOrders: 24,
+          totalSpent: 125400,
+          activeInstallments: 2,
+          paymentScore: 95,
+          riskLevel: "low",
+          segment: "VIP",
+          joinedDate: "2025-06-15",
+          lastPurchase: "2026-04-09",
+          address: "Nairobi",
+        },
+        {
+          id: "CUST-002",
+          name: "John Kamau",
+          email: "john@email.com",
+          phone: "+254723456789",
+          totalOrders: 12,
+          totalSpent: 67800,
+          activeInstallments: 1,
+          paymentScore: 72,
+          riskLevel: "medium",
+          segment: "Regular",
+          joinedDate: "2025-08-22",
+          lastPurchase: "2026-04-08",
+          address: "Mombasa",
+        },
+      ];
+      let successTransactions = [
+        {
+          id: "TXN-001",
+          refCode: "INV-1001",
+          paymentMethod: "M-Pesa",
+          transCode: "QWK2L3M4",
+          amount: 2075,
+          status: "Success",
+          customer: "Sarah Mwangi",
+          date: "2026-04-11",
+          notes: "Installment",
+        },
+        {
+          id: "TXN-002",
+          refCode: "INV-1002",
+          paymentMethod: "Cash",
+          transCode: "",
+          amount: 6500,
+          status: "Success",
+          customer: "John Kamau",
+          date: "2026-04-10",
+          notes: "Full payment",
+        },
+      ];
+      let expensesList = [
+        {
+          id: "EXP-001",
+          category: "Rent",
+          amount: 50000,
+          date: "2026-04-01",
+          method: "Bank Transfer",
+          description: "April rent",
+        },
+        {
+          id: "EXP-002",
+          category: "Utilities",
+          amount: 12500,
+          date: "2026-04-05",
+          method: "M-Pesa",
+          description: "Electricity",
+        },
+      ];
+      let paymentPlansData = [
+        {
+          id: "PAY-001",
+          customer: "Sarah Mwangi",
+          orderId: "ORD-12847",
+          totalAmount: 12450,
+          paidAmount: 6225,
+          remainingAmount: 6225,
+          installments: 6,
+          installmentAmount: 2075,
+          frequency: "monthly",
+          nextPaymentDate: "2026-05-09",
+          status: "active",
+          paymentMethod: "M-Pesa",
+          startDate: "2026-01-09",
+          daysOverdue: 0,
+          phone: "+254712345678",
+        },
+        {
+          id: "PAY-002",
+          customer: "John Kamau",
+          orderId: "ORD-12823",
+          totalAmount: 8900,
+          paidAmount: 2967,
+          remainingAmount: 5933,
+          installments: 9,
+          installmentAmount: 989,
+          frequency: "monthly",
+          nextPaymentDate: "2026-04-07",
+          status: "overdue",
+          daysOverdue: 4,
+          paymentMethod: "M-Pesa",
+          startDate: "2025-12-07",
+          phone: "+254723456789",
+        },
+      ];
+
+      // Placeholder render functions (full implementations from original modules would go here)
+      function renderDashboard(container) {
+        container.innerHTML = `<div class="space-y-6 fade-in"><div class="flex justify-between items-center"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-emerald-600 mr-2"></i>Executive Dashboard</h1><p class="text-gray-500">Real-time business intelligence</p></div><button id="refreshDashboardBtn" class="px-4 py-2 bg-emerald-600 text-white rounded-xl">Refresh</button></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="bg-white rounded-xl p-5"><p class="text-gray-500">Total Revenue</p><p class="text-2xl font-bold">KES 1.85M</p></div><div class="bg-white rounded-xl p-5"><p class="text-gray-500">Total Orders</p><p class="text-2xl font-bold">847</p></div><div class="bg-white rounded-xl p-5"><p class="text-gray-500">Active Customers</p><p class="text-2xl font-bold">1,247</p></div><div class="bg-white rounded-xl p-5"><p class="text-gray-500">Avg Order Value</p><p class="text-2xl font-bold">KES 2,180</p></div></div><div class="bg-white rounded-xl p-6"><div style="height: 300px;"><canvas id="dashChart"></canvas></div></div></div>`;
+        setTimeout(() => {
+          const ctx = document.getElementById("dashChart")?.getContext("2d");
+          if (ctx)
+            new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                datasets: [
+                  {
+                    label: "Revenue",
+                    data: [125, 142, 168, 189, 210, 245, 268],
+                    borderColor: "#10b981",
+                    tension: 0.3,
+                  },
+                ],
+              },
+            });
+        }, 100);
+      }
+      function renderCatalog(container) {
+        container.innerHTML = `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold"><i class="fas fa-tags text-emerald-600 mr-2"></i>Product Catalog</h1><button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ Add Product</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="productsGrid"></div></div>`;
+        const grid = document.getElementById("productsGrid");
+        grid.innerHTML = products
+          .map(
+            (p) =>
+              `<div class="bg-white rounded-xl p-4 shadow-sm"><img src="${p.imageUrl}" class="w-full h-40 object-cover rounded-lg mb-3"><h3 class="font-bold">${p.name}</h3><p class="text-sm text-gray-500">${p.category} | ${p.size}</p><div class="flex justify-between mt-2"><span class="font-bold text-emerald-600">KES ${p.sellPrice}</span><span>Stock: ${p.stock}</span></div><div class="flex gap-2 mt-3"><button class="editProductBtn bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">Edit</button><button class="deleteProductBtn bg-red-600 text-white px-3 py-1 rounded-lg text-sm">Delete</button></div></div>`,
+          )
+          .join("");
+      }
+      function renderInventory(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="bg-white rounded-xl p-4">Healthy: ${inventoryItems.filter((i) => i.status === "healthy").length}</div><div class="bg-white rounded-xl p-4">Low Stock: ${inventoryItems.filter((i) => i.status === "low").length}</div><div class="bg-white rounded-xl p-4">Critical: ${inventoryItems.filter((i) => i.status === "critical").length}</div><div class="bg-white rounded-xl p-4">Reorder: ${inventoryItems.filter((i) => i.status === "reorder").length}</div></div><div class="space-y-4" id="inventoryList">${inventoryItems.map((item) => `<div class="bg-white rounded-xl p-5"><div class="flex justify-between"><h3 class="font-bold">${item.product}</h3><span class="status-badge status-${item.status}">${item.status}</span></div><p class="text-sm text-gray-500">SKU: ${item.sku} | Total: ${item.totalStock} units</p><div class="grid grid-cols-2 gap-3 mt-3">${item.locations.map((loc) => `<div class="bg-gray-50 p-2 rounded"><p class="font-medium">${loc.name}</p><p>Stock: ${loc.stock} / ${loc.reorderPoint} units</p></div>`).join("")}</div></div>`).join("")}</div></div>`;
+      }
+      function renderOrders(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-tasks text-emerald-600 mr-2"></i>Order Pipeline</h1><div class="bg-white rounded-xl overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3">Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>${ordersData.map((o) => `<tr class="border-t"><td class="p-3">${o.id}</td><td>${o.customer}</td><td>KES ${o.total}</td><td><span class="px-2 py-1 bg-${o.status === "processing" ? "blue" : o.status === "shipped" ? "purple" : "yellow"}-100 rounded-full text-xs">${o.status}</span></td><td>${o.createdAt}</td></tr>`).join("")}</tbody></td></div><button id="addOrderBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ Add Order</button></div>`;
+      }
+      function renderCustomers(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-users text-emerald-600 mr-2"></i>Customer Hub</h1><div class="grid grid-cols-1 md:grid-cols-2 gap-4">${customersData.map((c) => `<div class="bg-white rounded-xl p-5"><div class="flex justify-between"><h3 class="font-bold">${c.name}</h3><span class="px-2 py-1 bg-purple-100 rounded-full text-xs">${c.segment}</span></div><p>${c.email} | ${c.phone}</p><p>Orders: ${c.totalOrders} | Spent: KES ${c.totalSpent}</p></div>`).join("")}</div><button id="addCustomerBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ Add Customer</button></div>`;
+      }
+      function renderTransactions(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-usd text-emerald-600 mr-2"></i>Transaction Hub</h1><div class="bg-white rounded-xl overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3">Ref</th><th>Method</th><th>Amount</th><th>Status</th><th>Customer</th><th>Date</th></tr></thead><tbody>${successTransactions.map((t) => `<tr class="border-t"><td class="p-3">${t.refCode}</td><td>${t.paymentMethod}</td><td>KES ${t.amount}</td><td><span class="text-green-600">${t.status}</span></td><td>${t.customer}</td><td>${t.date}</td></tr>`).join("")}</tbody></table></div><button id="addTransactionBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ New Transaction</button></div>`;
+      }
+      function renderInstallments(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Lipa Mdogo Core</h1><div class="grid grid-cols-1 gap-4">${paymentPlansData.map((p) => `<div class="bg-white rounded-xl p-5"><div class="flex justify-between"><h3 class="font-bold">${p.customer}</h3><span class="px-2 py-1 ${p.status === "active" ? "bg-green-100" : "bg-red-100"} rounded-full text-xs">${p.status}</span></div><p>Total: KES ${p.totalAmount} | Paid: KES ${p.paidAmount} | Remaining: KES ${p.remainingAmount}</p><p>Next Payment: ${new Date(p.nextPaymentDate).toLocaleDateString()}</p><div class="flex gap-2 mt-3"><button class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-sm">Record Payment</button><button class="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm">Remind</button></div></div>`).join("")}</div><button id="createPlanBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ Create Payment Plan</button></div>`;
+      }
+      function renderAnalytics(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-chart-pie text-emerald-600 mr-2"></i>Analytics Engine</h1><div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="bg-white rounded-xl p-5">Total Revenue: KES 14.7M</div><div class="bg-white rounded-xl p-5">Total Orders: 2,054</div><div class="bg-white rounded-xl p-5">Active Customers: 1,247</div><div class="bg-white rounded-xl p-5">Avg Order Value: KES 7,156</div></div><div class="bg-white rounded-xl p-6"><div style="height: 300px;"><canvas id="analyticsChart"></canvas></div></div></div>`;
+        setTimeout(() => {
+          const ctx = document
+            .getElementById("analyticsChart")
+            ?.getContext("2d");
+          if (ctx)
+            new Chart(ctx, {
+              type: "bar",
+              data: {
+                labels: ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+                datasets: [
+                  {
+                    label: "Revenue (M)",
+                    data: [1.85, 2.1, 2.45, 2.2, 2.35, 2.68],
+                    backgroundColor: "#10b981",
+                  },
+                ],
+              },
+            });
+        }, 100);
+      }
+      function renderReports(container) {
+        container.innerHTML = `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-file-alt text-emerald-600 mr-2"></i>Reports Center</h1><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white rounded-xl p-5"><h3 class="font-bold">Sales Report</h3><p>Monthly revenue, top products, trends</p><button class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">Generate Report</button></div><div class="bg-white rounded-xl p-5"><h3 class="font-bold">Inventory Report</h3><p>Stock levels, low stock alerts</p><button class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">Generate Report</button></div><div class="bg-white rounded-xl p-5"><h3 class="font-bold">Customer Report</h3><p>Segmentation, lifetime value</p><button class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">Generate Report</button></div><div class="bg-white rounded-xl p-5"><h3 class="font-bold">Payment Report</h3><p>Method breakdown, success rates</p><button class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">Generate Report</button></div></div><button id="exportMasterBtn" class="bg-gray-800 text-white px-4 py-2 rounded-xl w-full">Export Master Report</button></div>`;
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") renderDashboard(container);
+        else if (currentTab === "catalog") renderCatalog(container);
+        else if (currentTab === "inventory") renderInventory(container);
+        else if (currentTab === "orders") renderOrders(container);
+        else if (currentTab === "customers") renderCustomers(container);
+        else if (currentTab === "transactions") renderTransactions(container);
+        else if (currentTab === "installments") renderInstallments(container);
+        else if (currentTab === "analytics") renderAnalytics(container);
+        else if (currentTab === "reports") renderReports(container);
+        attachCommonHandlers();
+      }
+
+      function attachCommonHandlers() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => alert("Add product"));
+        document
+          .getElementById("addOrderBtn")
+          ?.addEventListener("click", () => alert("Add order"));
+        document
+          .getElementById("addCustomerBtn")
+          ?.addEventListener("click", () => alert("Add customer"));
+        document
+          .getElementById("addTransactionBtn")
+          ?.addEventListener("click", () => alert("Add transaction"));
+        document
+          .getElementById("createPlanBtn")
+          ?.addEventListener("click", () => alert("Create plan"));
+        document
+          .getElementById("exportMasterBtn")
+          ?.addEventListener("click", () => alert("Master report exported"));
+        document
+          .getElementById("refreshDashboardBtn")
+          ?.addEventListener("click", () => alert("Dashboard refreshed"));
+      }
+
+      if (document.getElementById("adminApp").style.display === "block")
+        initSidebar();
+    </script>
+  </body>
+</html>

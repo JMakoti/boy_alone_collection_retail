@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Reports Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .report-card {
+        transition: all 0.2s ease;
+      }
+      .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      @media print {
+        body {
+          background: white;
+          padding: 0;
+          margin: 0;
+        }
+        .no-print {
+          display: none;
+        }
+        .print-friendly {
+          box-shadow: none;
+          border: 1px solid #ddd;
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN REPORTS CENTER MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="reportsCenterRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- Report Detail Modal -->
+    <div
+      id="reportDetailModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[85vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800" id="reportDetailTitle">
+            <i class="fas fa-chart-line text-emerald-600 mr-2"></i>Report
+            Details
+          </h3>
+          <button
+            id="closeReportDetailModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="reportDetailContent" class="p-6"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-end bg-gray-50 rounded-b-2xl"
+        >
+          <button
+            id="printReportBtn"
+            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition"
+          >
+            <i class="fas fa-print mr-2"></i>Print
+          </button>
+          <button
+            id="exportReportDataBtn"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            <i class="fas fa-download mr-2"></i>Export Data
+          </button>
+          <button
+            id="closeReportDetailFooter"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==================== STANDALONE REPORTS CENTER MODULE ====================
+      // Complete reporting system with filters, export, print, and sample data
+      // Ready for Laravel integration - all data endpoints can be replaced with API calls
+
+      (function () {
+        // ---------- REPORT DATA ----------
+        let currentReportType = "sales";
+        let dateRange = {
+          start: getLastMonthDate(),
+          end: new Date().toISOString().slice(0, 10),
+        };
+        let selectedReportForDetail = null;
+
+        function getLastMonthDate() {
+          const date = new Date();
+          date.setMonth(date.getMonth() - 1);
+          return date.toISOString().slice(0, 10);
+        }
+
+        // Sample report data (would come from Laravel API in production)
+        const reportData = {
+          sales: {
+            title: "Sales Report",
+            icon: "fa-chart-line",
+            color: "emerald",
+            summary: {
+              totalRevenue: 1847500,
+              totalOrders: 847,
+              avgOrderValue: 2180,
+              totalCustomers: 1243,
+              conversionRate: 68.5,
+            },
+            trends: [
+              { month: "Oct", revenue: 1850000, orders: 112 },
+              { month: "Nov", revenue: 2100000, orders: 128 },
+              { month: "Dec", revenue: 2450000, orders: 156 },
+              { month: "Jan", revenue: 2200000, orders: 134 },
+              { month: "Feb", revenue: 2350000, orders: 142 },
+              { month: "Mar", revenue: 2680000, orders: 175 },
+            ],
+            topProducts: [
+              { name: "Premium Denim Jacket", sales: 1245000, quantity: 356 },
+              { name: "Leather Sneakers", sales: 892000, quantity: 198 },
+              { name: "Floral Summer Dress", sales: 756000, quantity: 261 },
+              { name: "Cashmere Scarf", sales: 445000, quantity: 235 },
+              { name: "Wool Sweater", sales: 423000, quantity: 81 },
+            ],
+          },
+          inventory: {
+            title: "Inventory Report",
+            icon: "fa-boxes",
+            color: "blue",
+            summary: {
+              totalProducts: 124,
+              totalStockValue: 3250000,
+              lowStockItems: 8,
+              outOfStockItems: 3,
+              turnoverRate: 2.4,
+            },
+            categories: [
+              { name: "Men's Clothing", products: 42, value: 1250000 },
+              { name: "Women's Clothing", products: 38, value: 980000 },
+              { name: "Footwear", products: 24, value: 650000 },
+              { name: "Accessories", products: 20, value: 370000 },
+            ],
+            lowStockAlerts: [
+              {
+                product: "Denim Jacket - Blue",
+                sku: "DJ-BLU-M",
+                stock: 12,
+                reorderPoint: 15,
+              },
+              {
+                product: "Summer Dress - Floral",
+                sku: "SD-FLR-S",
+                stock: 8,
+                reorderPoint: 10,
+              },
+              {
+                product: "Leather Boots",
+                sku: "LB-BRN-8",
+                stock: 5,
+                reorderPoint: 8,
+              },
+            ],
+          },
+          customers: {
+            title: "Customer Report",
+            icon: "fa-users",
+            color: "purple",
+            summary: {
+              totalCustomers: 1247,
+              newCustomers: 816,
+              returningCustomers: 431,
+              vipCustomers: 89,
+              avgLifetimeValue: 11250,
+            },
+            segments: [
+              { segment: "VIP", count: 89, revenue: 4520000, percentage: 31 },
+              {
+                segment: "Regular",
+                count: 342,
+                revenue: 6780000,
+                percentage: 46,
+              },
+              { segment: "New", count: 816, revenue: 3450000, percentage: 23 },
+            ],
+            topCustomers: [
+              {
+                name: "Sarah Mwangi",
+                orders: 24,
+                spent: 125400,
+                segment: "VIP",
+              },
+              {
+                name: "Mary Wanjiku",
+                orders: 18,
+                spent: 89300,
+                segment: "VIP",
+              },
+              {
+                name: "John Kamau",
+                orders: 12,
+                spent: 67800,
+                segment: "Regular",
+              },
+            ],
+          },
+          payments: {
+            title: "Payment Report",
+            icon: "fa-credit-card",
+            color: "orange",
+            summary: {
+              totalCollected: 14750000,
+              totalTransactions: 2054,
+              avgTransaction: 7180,
+              successRate: 96.8,
+              pendingAmount: 234000,
+            },
+            methods: [
+              {
+                method: "M-Pesa",
+                amount: 8450000,
+                count: 1247,
+                percentage: 57,
+              },
+              {
+                method: "Airtel Money",
+                amount: 3280000,
+                count: 523,
+                percentage: 22,
+              },
+              {
+                method: "Bank Transfer",
+                amount: 2120000,
+                count: 189,
+                percentage: 14,
+              },
+              { method: "Cash", amount: 900000, count: 95, percentage: 7 },
+            ],
+            installmentStats: {
+              activePlans: 847,
+              overduePlans: 124,
+              completedPlans: 356,
+              totalOutstanding: 8450000,
+            },
+          },
+          installments: {
+            title: "Installment Report (Lipa Mdogo)",
+            icon: "fa-hand-holding-usd",
+            color: "teal",
+            summary: {
+              activePlans: 847,
+              totalCollected: 5230000,
+              totalOutstanding: 8450000,
+              overdueCount: 124,
+              defaultRate: 3.2,
+              avgInstallmentValue: 1890,
+            },
+            planDistribution: [
+              { months: "3 months", count: 156, percentage: 18 },
+              { months: "6 months", count: 382, percentage: 45 },
+              { months: "9 months", count: 178, percentage: 21 },
+              { months: "12 months", count: 131, percentage: 16 },
+            ],
+            recentPayments: [
+              {
+                planId: "PAY-001",
+                customer: "Sarah Mwangi",
+                amount: 2075,
+                date: "2026-04-11",
+                status: "completed",
+              },
+              {
+                planId: "PAY-002",
+                customer: "John Kamau",
+                amount: 989,
+                date: "2026-04-10",
+                status: "pending",
+              },
+              {
+                planId: "PAY-003",
+                customer: "Grace Njeri",
+                amount: 1575,
+                date: "2026-04-09",
+                status: "completed",
+              },
+            ],
+          },
+        };
+
+        function formatCurrency(amount) {
+          return new Intl.NumberFormat("en-KE", {
+            style: "currency",
+            currency: "KES",
+            minimumFractionDigits: 0,
+          }).format(amount);
+        }
+        function formatCompactCurrency(amount) {
+          if (amount >= 1000000) return `KES ${(amount / 1000000).toFixed(1)}M`;
+          if (amount >= 1000) return `KES ${(amount / 1000).toFixed(0)}K`;
+          return `KES ${amount}`;
+        }
+        function escapeHtml(str) {
+          return String(str ?? "").replace(/[&<>]/g, (m) =>
+            m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+          );
+        }
+
+        // Render Main Reports UI
+        function renderReportsCenter() {
+          return `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-pie text-emerald-600 mr-2"></i>Reports Center</h1>
+                <p class="text-gray-500 mt-1">Generate and export business intelligence reports</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="exportMasterReportBtn" class="px-4 py-2.5 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition flex items-center gap-2"><i class="fas fa-download"></i> Export Master Report</button>
+              </div>
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div class="bg-white rounded-xl border p-4 shadow-sm">
+              <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1"><label class="block text-sm font-semibold text-gray-700 mb-1.5">Start Date</label><input type="date" id="reportStartDate" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"></div>
+                <div class="flex-1"><label class="block text-sm font-semibold text-gray-700 mb-1.5">End Date</label><input type="date" id="reportEndDate" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"></div>
+                <div><button id="applyDateFilterBtn" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition"><i class="fas fa-filter mr-2"></i>Apply Filter</button></div>
+                <div><button id="resetDateFilterBtn" class="px-6 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition">Reset</button></div>
+              </div>
+            </div>
+            
+            <!-- Report Type Tabs -->
+            <div class="border-b border-gray-200 flex flex-wrap gap-4">
+              <button class="report-tab-btn pb-3 px-1 text-emerald-600 border-b-2 border-emerald-600 font-medium" data-report="sales"><i class="fas fa-chart-line mr-2"></i>Sales Report</button>
+              <button class="report-tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-report="inventory"><i class="fas fa-boxes mr-2"></i>Inventory Report</button>
+              <button class="report-tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-report="customers"><i class="fas fa-users mr-2"></i>Customer Report</button>
+              <button class="report-tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-report="payments"><i class="fas fa-credit-card mr-2"></i>Payment Report</button>
+              <button class="report-tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-report="installments"><i class="fas fa-hand-holding-usd mr-2"></i>Installment Report</button>
+            </div>
+            
+            <!-- Report Content Container -->
+            <div id="reportContentContainer"></div>
+          </div>
+        `;
+        }
+
+        function renderSalesReport() {
+          const data = reportData.sales;
+          const chartId = "salesChart";
+          setTimeout(() => {
+            const ctx = document.getElementById(chartId)?.getContext("2d");
+            if (ctx) {
+              new Chart(ctx, {
+                type: "line",
+                data: {
+                  labels: data.trends.map((t) => t.month),
+                  datasets: [
+                    {
+                      label: "Revenue (KES)",
+                      data: data.trends.map((t) => t.revenue),
+                      borderColor: "#10b981",
+                      backgroundColor: "rgba(16,185,129,0.05)",
+                      fill: true,
+                      tension: 0.3,
+                      borderWidth: 3,
+                      pointRadius: 4,
+                      pointBackgroundColor: "#059669",
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: {
+                    tooltip: {
+                      callbacks: { label: (ctx) => formatCurrency(ctx.raw) },
+                    },
+                  },
+                  scales: {
+                    y: { ticks: { callback: (val) => `${val / 1000000}M` } },
+                  },
+                },
+              });
+            }
+          }, 100);
+
+          return `
+          <div class="space-y-6">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Revenue</p><p class="text-2xl font-bold text-emerald-600">${formatCompactCurrency(data.summary.totalRevenue)}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Orders</p><p class="text-2xl font-bold">${data.summary.totalOrders.toLocaleString()}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Avg Order Value</p><p class="text-2xl font-bold">${formatCompactCurrency(data.summary.avgOrderValue)}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Customers</p><p class="text-2xl font-bold">${data.summary.totalCustomers.toLocaleString()}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Conversion Rate</p><p class="text-2xl font-bold">${data.summary.conversionRate}%</p></div>
+            </div>
+            
+            <!-- Trend Chart -->
+            <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold text-lg mb-3"><i class="fas fa-chart-line text-emerald-500 mr-2"></i>Revenue Trend</h3><div style="height: 300px;"><canvas id="${chartId}"></canvas></div></div>
+            
+            <!-- Top Products Table -->
+            <div class="bg-white rounded-xl border overflow-hidden"><div class="px-5 py-4 border-b bg-gray-50"><h3 class="font-semibold"><i class="fas fa-trophy text-amber-500 mr-2"></i>Top Performing Products</h3></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Product</th><th class="p-3 text-left">Quantity Sold</th><th class="p-3 text-left">Revenue</th></tr></thead><tbody>${data.topProducts.map((p) => `<tr class="border-t"><td class="p-3 font-medium">${escapeHtml(p.name)}</td><td class="p-3">${p.quantity}</td><td class="p-3 font-semibold text-emerald-600">${formatCurrency(p.sales)}</td></tr>`).join("")}</tbody></table></div><div class="px-5 py-3 bg-gray-50 text-right"><button class="viewFullReportBtn text-emerald-600 hover:text-emerald-700 text-sm" data-report-type="sales"><i class="fas fa-eye mr-1"></i>View Full Report</button></div></div>
+          </div>
+        `;
+        }
+
+        function renderInventoryReport() {
+          const data = reportData.inventory;
+          return `
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Products</p><p class="text-2xl font-bold">${data.summary.totalProducts}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Stock Value</p><p class="text-2xl font-bold text-blue-600">${formatCompactCurrency(data.summary.totalStockValue)}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Low Stock Items</p><p class="text-2xl font-bold text-amber-600">${data.summary.lowStockItems}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Out of Stock</p><p class="text-2xl font-bold text-red-600">${data.summary.outOfStockItems}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Turnover Rate</p><p class="text-2xl font-bold">${data.summary.turnoverRate}x</p></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3">Stock by Category</h3><div class="space-y-3">${data.categories.map((c) => `<div><div class="flex justify-between text-sm mb-1"><span>${c.name}</span><span class="font-medium">${formatCompactCurrency(c.value)}</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width: ${(c.value / data.summary.totalStockValue) * 100}%"></div></div></div>`).join("")}</div></div>
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3 text-amber-700"><i class="fas fa-exclamation-triangle mr-2"></i>Low Stock Alerts</h3><div class="space-y-3">${data.lowStockAlerts.map((a) => `<div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg"><div><p class="font-medium">${a.product}</p><p class="text-xs text-gray-500">SKU: ${a.sku}</p></div><div><span class="text-amber-700 font-bold">${a.stock} units</span><p class="text-xs text-gray-500">Reorder at ${a.reorderPoint}</p></div></div>`).join("")}</div></div>
+            </div>
+            <div class="bg-white rounded-xl border p-5 text-center"><button class="viewFullReportBtn bg-emerald-600 text-white px-5 py-2 rounded-lg hover:bg-emerald-700" data-report-type="inventory"><i class="fas fa-eye mr-2"></i>View Complete Inventory Report</button></div>
+          </div>
+        `;
+        }
+
+        function renderCustomersReport() {
+          const data = reportData.customers;
+          return `
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Customers</p><p class="text-2xl font-bold">${data.summary.totalCustomers}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">New Customers</p><p class="text-2xl font-bold text-green-600">${data.summary.newCustomers}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Returning</p><p class="text-2xl font-bold text-blue-600">${data.summary.returningCustomers}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">VIP Customers</p><p class="text-2xl font-bold text-purple-600">${data.summary.vipCustomers}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Avg LTV</p><p class="text-2xl font-bold">${formatCompactCurrency(data.summary.avgLifetimeValue)}</p></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3">Customer Segments</h3>${data.segments.map((s) => `<div class="mb-3"><div class="flex justify-between text-sm mb-1"><span>${s.segment}</span><span>${s.count} customers (${s.percentage}%)</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width: ${s.percentage}%"></div></div></div>`).join("")}</div>
+              <div class="bg-white rounded-xl border overflow-hidden"><div class="px-4 py-3 bg-gray-50 border-b"><h3 class="font-semibold">Top Customers</h3></div><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Customer</th><th>Orders</th><th>Spent</th><th>Segment</th></tr></thead><tbody>${data.topCustomers.map((c) => `<tr class="border-t"><td class="p-3">${c.name}</td><td class="p-3">${c.orders}</td><td class="p-3 font-semibold">${formatCompactCurrency(c.spent)}</td><td class="p-3"><span class="px-2 py-1 bg-purple-100 rounded-full text-xs">${c.segment}</span></td></tr>`).join("")}</tbody></table></div>
+            </div>
+            <div class="text-center"><button class="viewFullReportBtn bg-emerald-600 text-white px-5 py-2 rounded-lg" data-report-type="customers"><i class="fas fa-eye mr-2"></i>View Full Customer Report</button></div>
+          </div>
+        `;
+        }
+
+        function renderPaymentsReport() {
+          const data = reportData.payments;
+          const chartId = "paymentChart";
+          setTimeout(() => {
+            const ctx = document.getElementById(chartId)?.getContext("2d");
+            if (ctx)
+              new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                  labels: data.methods.map((m) => m.method),
+                  datasets: [
+                    {
+                      data: data.methods.map((m) => m.amount),
+                      backgroundColor: [
+                        "#10b981",
+                        "#8b5cf6",
+                        "#f59e0b",
+                        "#ef4444",
+                      ],
+                      borderWidth: 0,
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: { legend: { position: "bottom" } },
+                },
+              });
+          }, 100);
+          return `
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Total Collected</p><p class="text-2xl font-bold text-emerald-600">${formatCompactCurrency(data.summary.totalCollected)}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Transactions</p><p class="text-2xl font-bold">${data.summary.totalTransactions}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Success Rate</p><p class="text-2xl font-bold text-green-600">${data.summary.successRate}%</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Avg Transaction</p><p class="text-2xl font-bold">${formatCompactCurrency(data.summary.avgTransaction)}</p></div>
+              <div class="bg-white rounded-xl border p-4"><p class="text-sm text-gray-500">Pending</p><p class="text-2xl font-bold text-amber-600">${formatCompactCurrency(data.summary.pendingAmount)}</p></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3">Payment Methods Distribution</h3><div style="height: 250px;"><canvas id="${chartId}"></canvas></div></div>
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3">Installment Stats</h3><div class="space-y-3"><div class="flex justify-between"><span>Active Plans</span><span class="font-bold">${data.installmentStats.activePlans}</span></div><div class="flex justify-between"><span>Overdue Plans</span><span class="font-bold text-red-600">${data.installmentStats.overduePlans}</span></div><div class="flex justify-between"><span>Completed Plans</span><span class="font-bold text-green-600">${data.installmentStats.completedPlans}</span></div><div class="flex justify-between"><span>Total Outstanding</span><span class="font-bold">${formatCompactCurrency(data.installmentStats.totalOutstanding)}</span></div></div></div>
+            </div>
+            <div class="text-center"><button class="viewFullReportBtn bg-emerald-600 text-white px-5 py-2 rounded-lg" data-report-type="payments"><i class="fas fa-eye mr-2"></i>View Full Payment Report</button></div>
+          </div>
+        `;
+        }
+
+        function renderInstallmentsReport() {
+          const data = reportData.installments;
+          return `
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Active Plans</p><p class="text-xl font-bold">${data.summary.activePlans}</p></div>
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Collected</p><p class="text-xl font-bold text-emerald-600">${formatCompactCurrency(data.summary.totalCollected)}</p></div>
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Outstanding</p><p class="text-xl font-bold text-amber-600">${formatCompactCurrency(data.summary.totalOutstanding)}</p></div>
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Overdue</p><p class="text-xl font-bold text-red-600">${data.summary.overdueCount}</p></div>
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Default Rate</p><p class="text-xl font-bold">${data.summary.defaultRate}%</p></div>
+              <div class="bg-white rounded-xl border p-3"><p class="text-xs text-gray-500">Avg Installment</p><p class="text-xl font-bold">${formatCompactCurrency(data.summary.avgInstallmentValue)}</p></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-5"><h3 class="font-semibold mb-3">Plan Duration Distribution</h3>${data.planDistribution.map((p) => `<div class="mb-3"><div class="flex justify-between text-sm mb-1"><span>${p.months}</span><span>${p.count} plans (${p.percentage}%)</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-teal-500 rounded-full" style="width: ${p.percentage}%"></div></div></div>`).join("")}</div>
+              <div class="bg-white rounded-xl border overflow-hidden"><div class="px-4 py-3 bg-gray-50 border-b"><h3 class="font-semibold">Recent Installment Payments</h3></div><table class="w-full"><thead><tr><th class="p-3 text-left">Plan ID</th><th>Customer</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>${data.recentPayments.map((p) => `<tr class="border-t"><td class="p-3">${p.planId}</td><td>${p.customer}</td><td class="font-semibold">${formatCurrency(p.amount)}</td><td>${new Date(p.date).toLocaleDateString()}</td><td><span class="px-2 py-1 ${p.status === "completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"} rounded-full text-xs">${p.status}</span></td></tr>`).join("")}</tbody></table></div>
+            </div>
+            <div class="text-center"><button class="viewFullReportBtn bg-emerald-600 text-white px-5 py-2 rounded-lg" data-report-type="installments"><i class="fas fa-eye mr-2"></i>View Complete Installment Report</button></div>
+          </div>
+        `;
+        }
+
+        function loadReport(reportType) {
+          const container = document.getElementById("reportContentContainer");
+          if (!container) return;
+          if (reportType === "sales") container.innerHTML = renderSalesReport();
+          else if (reportType === "inventory")
+            container.innerHTML = renderInventoryReport();
+          else if (reportType === "customers")
+            container.innerHTML = renderCustomersReport();
+          else if (reportType === "payments")
+            container.innerHTML = renderPaymentsReport();
+          else if (reportType === "installments")
+            container.innerHTML = renderInstallmentsReport();
+
+          // Re-attach view report buttons after render
+          document.querySelectorAll(".viewFullReportBtn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const type = btn.dataset.reportType || reportType;
+              openReportDetailModal(type);
+            });
+          });
+        }
+
+        function openReportDetailModal(reportType) {
+          const data = reportData[reportType];
+          if (!data) return;
+          selectedReportForDetail = { type: reportType, data: data };
+          document.getElementById("reportDetailTitle").innerHTML =
+            `<i class="fas ${data.icon} text-emerald-600 mr-2"></i>${data.title} - Full Details`;
+          document.getElementById("reportDetailContent").innerHTML = `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">${Object.entries(
+              data.summary,
+            )
+              .map(
+                ([key, val]) =>
+                  `<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-500 capitalize">${key.replace(/([A-Z])/g, " $1")}</p><p class="text-lg font-bold">${typeof val === "number" ? (key.includes("amount") || key.includes("revenue") || key.includes("value") ? formatCurrency(val) : val.toLocaleString()) : val}${key.includes("rate") ? "%" : ""}</p></div>`,
+              )
+              .join("")}</div>
+            <div class="bg-emerald-50 rounded-xl p-4"><p class="text-sm"><i class="fas fa-info-circle mr-2"></i>This is a preview of the full ${data.title.toLowerCase()}. In production, this would fetch real-time data from your Laravel backend.</p></div>
+            <div class="text-center text-gray-400 text-xs pt-4">Report generated on ${new Date().toLocaleString()}</div>
+          </div>
+        `;
+          document
+            .getElementById("reportDetailModal")
+            .classList.remove("hidden");
+          document.getElementById("reportDetailModal").classList.add("flex");
+        }
+
+        function closeReportDetailModal() {
+          document.getElementById("reportDetailModal").classList.add("hidden");
+        }
+
+        function exportMasterReport() {
+          let csv =
+            "Report Type,Generated Date,Total Revenue,Total Orders,Active Customers\n";
+          csv += `Sales Report,${new Date().toLocaleString()},${reportData.sales.summary.totalRevenue},${reportData.sales.summary.totalOrders},${reportData.sales.summary.totalCustomers}\n`;
+          csv += `Inventory Report,${new Date().toLocaleString()},${reportData.inventory.summary.totalStockValue},${reportData.inventory.summary.totalProducts},${reportData.inventory.summary.lowStockItems}\n`;
+          csv += `Customer Report,${new Date().toLocaleString()},${reportData.customers.summary.totalCustomers},${reportData.customers.summary.newCustomers},${reportData.customers.summary.vipCustomers}\n`;
+          const blob = new Blob(["\uFEFF" + csv], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `master_report_${new Date().toISOString().slice(0, 10)}.csv`;
+          link.click();
+          URL.revokeObjectURL(link.url);
+          alert("📊 Master report exported successfully!");
+        }
+
+        function attachEvents() {
+          // Tab switching
+          document.querySelectorAll(".report-tab-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              document
+                .querySelectorAll(".report-tab-btn")
+                .forEach((b) =>
+                  b.classList.remove(
+                    "text-emerald-600",
+                    "border-emerald-600",
+                    "border-b-2",
+                    "font-medium",
+                  ),
+                );
+              btn.classList.add(
+                "text-emerald-600",
+                "border-b-2",
+                "border-emerald-600",
+                "font-medium",
+              );
+              currentReportType = btn.dataset.report;
+              loadReport(currentReportType);
+            });
+          });
+
+          // Date filter
+          document.getElementById("reportStartDate").value = dateRange.start;
+          document.getElementById("reportEndDate").value = dateRange.end;
+          document
+            .getElementById("applyDateFilterBtn")
+            ?.addEventListener("click", () => {
+              dateRange.start =
+                document.getElementById("reportStartDate").value;
+              dateRange.end = document.getElementById("reportEndDate").value;
+              alert(
+                `📅 Date range updated: ${dateRange.start} to ${dateRange.end}\n(Data would refresh with new range in production)`,
+              );
+            });
+          document
+            .getElementById("resetDateFilterBtn")
+            ?.addEventListener("click", () => {
+              dateRange.start = getLastMonthDate();
+              dateRange.end = new Date().toISOString().slice(0, 10);
+              document.getElementById("reportStartDate").value =
+                dateRange.start;
+              document.getElementById("reportEndDate").value = dateRange.end;
+              alert("Date range reset to last 30 days");
+            });
+
+          // Export master report
+          document
+            .getElementById("exportMasterReportBtn")
+            ?.addEventListener("click", exportMasterReport);
+
+          // Modal close buttons
+          document
+            .getElementById("closeReportDetailModal")
+            ?.addEventListener("click", closeReportDetailModal);
+          document
+            .getElementById("closeReportDetailFooter")
+            ?.addEventListener("click", closeReportDetailModal);
+          document
+            .getElementById("printReportBtn")
+            ?.addEventListener("click", () => window.print());
+          document
+            .getElementById("exportReportDataBtn")
+            ?.addEventListener("click", () => {
+              if (selectedReportForDetail) {
+                alert(
+                  `📄 Exporting ${selectedReportForDetail.data.title} data as CSV...\n(Laravel integration would generate downloadable file)`,
+                );
+              }
+            });
+        }
+
+        function init() {
+          const container = document.getElementById("reportsCenterRoot");
+          container.innerHTML = renderReportsCenter();
+          loadReport("sales");
+          attachEvents();
+        }
+
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

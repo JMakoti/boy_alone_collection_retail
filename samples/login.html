@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Enterprise Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      /* Left side - Logo (now on left) */
+      .left-side {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        z-index: 10;
+      }
+      /* Right side - Form Card (overlaps left side) */
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 20;
+        padding: 2rem;
+      }
+      .logo-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 30;
+        transition: transform 0.3s ease;
+      }
+      /* Overlap effect: form card extends into left side (overlaps logo) */
+      @media (min-width: 1024px) {
+        .right-side {
+          justify-content: flex-start;
+          padding-left: 0;
+        }
+        .form-card {
+          transform: translateX(-40px);
+          margin-left: -20px;
+        }
+        .left-side {
+          margin-right: -20px;
+          justify-content: flex-end;
+          padding-right: 0;
+        }
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+          padding: 2rem;
+        }
+        .form-card {
+          transform: none;
+          margin: 0 auto;
+        }
+        .logo-image {
+          max-width: 200px;
+        }
+      }
+      @media (min-width: 1024px) {
+        .form-card .img-container1 {
+          display: none;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-8px);
+        }
+        75% {
+          transform: translateX(8px);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="split-layout">
+      <!-- Left Side: Logo Image (BOY ALONE COLLECTION) -->
+      <div class="left-side">
+        <div class="logo-container">
+          <!-- SVG Logo as requested: BOY ALONE COLLECTION -->
+          <img src="../images/balogo.png" alt="BOY ALONE COLLECTION" />
+        </div>
+      </div>
+
+      <!-- Right Side: Form Card (overlaps logo) -->
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div
+              class="img-container1 inline-flex items-center justify-center w-16 h-16  mb-4"
+            >
+              <img src="../images/balogo.png" alt="BOY ALONE COLLECTION" />
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm mt-1">
+              Sign in to access your dashboard
+            </p>
+          </div>
+
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2">
+                <i class="fas fa-envelope mr-2 text-emerald-400"></i>Email
+                Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2">
+                <i class="fas fa-lock mr-2 text-emerald-400"></i>Password
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all pr-12"
+                />
+                <button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500"
+                />
+                <span class="ml-2 text-sm text-gray-300">Remember me</span>
+              </label>
+              <a
+                href="#"
+                id="forgotPassword"
+                class="text-sm text-emerald-400 hover:text-emerald-300 transition"
+                >Forgot password?</a
+              >
+            </div>
+
+            <button
+              type="submit"
+              id="loginBtn"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-arrow-right-to-bracket"></i>
+              Sign In
+            </button>
+          </form>
+
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-2">Demo Credentials</p>
+            <div
+              class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"
+            >
+              <p>
+                <span class="text-emerald-400">Email:</span> admin@lipamdogo.com
+              </p>
+              <p><span class="text-emerald-400">Password:</span> admin123</p>
+            </div>
+          </div>
+
+          <div id="errorMessage" class="mt-4 hidden">
+            <div
+              class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"
+            >
+              <p class="text-red-300 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i
+                ><span id="errorText">Invalid credentials</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard Container (hidden until login) -->
+    <div id="adminApp" class="hidden"></div>
+
+    <script>
+      // Admin Dashboard HTML (full suite)
+      function getAdminDashboardHTML() {
+        return `
+        <div class="flex min-h-screen">
+          <aside class="w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto z-40">
+            <div class="p-6 border-b border-gray-100">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12  flex items-center justify-center"><img src="../images/balogo.png" alt="BOY ALONE COLLECTION" /></div>
+                <div><h1 class="text-2xl font-bold text-gray-800">Boy<span class="text-emerald-600">Alone</span></h1><p class="text-xs text-gray-500">Enterprise Admin Suite</p></div>
+              </div>
+            </div>
+            <nav class="p-4 space-y-1.5">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard"><i class="fas fa-chart-line w-5"></i><span>Executive Dashboard</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="catalog"><i class="fas fa-tags w-5"></i><span>Product Catalog</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="inventory"><i class="fas fa-boxes w-5"></i><span>Inventory Intelligence</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="orders"><i class="fas fa-tasks w-5"></i><span>Order Pipeline</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="customers"><i class="fas fa-users w-5"></i><span>Customer Hub</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="transactions"><i class="fas fa-usd w-5"></i><span>Transaction Hub</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="installments"><i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo Core</span></div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all" data-tab="analytics"><i class="fas fa-chart-pie w-5"></i><span>Analytics Engine</span></div>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-emerald-700"></i></div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800" id="userDisplayName">Store Manager</p><p class="text-xs text-gray-500">Role: Admin · Full Access</p></div>
+                <button id="logoutBtn" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-sign-out-alt"></i></button>
+              </div>
+            </div>
+          </aside>
+          <main class="flex-1 min-h-screen p-4 lg:p-8 bg-gradient-to-br from-gray-50 to-gray-100"><div id="pageRenderer" class="fade-in"></div></main>
+        </div>
+      `;
+      }
+
+      function renderDashboard() {
+        return `<div class="space-y-6"><div><h1 class="text-3xl font-bold text-gray-800">Executive Dashboard</h1><p class="text-gray-500">Real-time KPIs & business insights</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-emerald-600 text-xl"></i></div><p class="text-gray-500 mt-4">Daily Sales</p><p class="text-2xl font-bold">KES 184,200</p><span class="text-green-600 text-sm">+12%</span></div><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-percentage text-blue-600 text-xl"></i></div><p class="text-gray-500 mt-4">Installment Collection</p><p class="text-2xl font-bold">78%</p></div><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-users text-purple-600 text-xl"></i></div><p class="text-gray-500 mt-4">Active Customers</p><p class="text-2xl font-bold">1,247</p></div><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center"><i class="fas fa-box text-amber-600 text-xl"></i></div><p class="text-gray-500 mt-4">Avg Order Value</p><p class="text-2xl font-bold">KES 7,156</p></div></div></div>`;
+      }
+      function renderCatalog() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Product Catalog</h2><p class="text-gray-500 mt-2">Manage products and inventory</p><button class="mt-4 bg-emerald-600 text-white px-4 py-2 rounded-xl">Add Product</button></div>`;
+      }
+      function renderInventory() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Inventory Intelligence</h2><div class="grid grid-cols-2 gap-4 mt-4"><div class="p-4 bg-gray-50 rounded-xl">Denim Jacket: 45 units</div><div class="p-4 bg-gray-50 rounded-xl">Summer Dress: 28 units</div></div></div>`;
+      }
+      function renderOrders() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Order Pipeline</h2><p>Order management system</p></div>`;
+      }
+      function renderCustomers() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Customer Hub</h2><p>Customer 360° view</p></div>`;
+      }
+      function renderTransactions() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Transaction Hub</h2><p>Payment transactions</p></div>`;
+      }
+      function renderInstallments() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Lipa Mdogo Core</h2><p>Installment payment plans</p></div>`;
+      }
+      function renderAnalytics() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Analytics Engine</h2><p>Business insights</p><canvas id="sampleChart" height="200"></canvas></div><script>setTimeout(()=>{const ctx=document.getElementById('sampleChart')?.getContext('2d');if(ctx)new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Revenue',data:[120,145,178]}]}});},100);<\/script>`;
+      }
+
+      let currentTab = "dashboard";
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (currentTab === "catalog")
+          container.innerHTML = renderCatalog();
+        else if (currentTab === "inventory")
+          container.innerHTML = renderInventory();
+        else if (currentTab === "orders") container.innerHTML = renderOrders();
+        else if (currentTab === "customers")
+          container.innerHTML = renderCustomers();
+        else if (currentTab === "transactions")
+          container.innerHTML = renderTransactions();
+        else if (currentTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (currentTab === "analytics")
+          container.innerHTML = renderAnalytics();
+        attachNavEvents();
+      }
+
+      function attachNavEvents() {
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.removeEventListener("click", navClickHandler);
+          item.addEventListener("click", navClickHandler);
+        });
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.removeEventListener("click", logoutHandler);
+          logoutBtn.addEventListener("click", logoutHandler);
+        }
+      }
+
+      function navClickHandler(e) {
+        const target = e.currentTarget;
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) =>
+            n.classList.remove("bg-emerald-50", "text-emerald-700"),
+          );
+        target.classList.add("bg-emerald-50", "text-emerald-700");
+        currentTab = target.getAttribute("data-tab");
+        renderCurrentTab();
+      }
+
+      function logoutHandler() {
+        localStorage.removeItem("lipamdogo_auth");
+        sessionStorage.removeItem("lipamdogo_auth_temp");
+        document.getElementById("adminApp").classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+        document.querySelector(".split-layout").style.display = "flex";
+        document.querySelector(".split-layout").style.opacity = "1";
+      }
+
+      function initAdminDashboard(userEmail) {
+        const adminContainer = document.getElementById("adminApp");
+        adminContainer.innerHTML = getAdminDashboardHTML();
+        adminContainer.classList.remove("hidden");
+        document.querySelector(".split-layout").style.display = "none";
+        document.body.classList.add("overflow-hidden");
+        const userDisplay = document.getElementById("userDisplayName");
+        if (userDisplay && userEmail) {
+          userDisplay.innerText = userEmail.split("@")[0] || "Store Manager";
+        }
+        renderCurrentTab();
+      }
+
+      // Login validation
+      const VALID_EMAIL = "admin@lipamdogo.com";
+      const VALID_PASSWORD = "admin123";
+
+      const loginForm = document.getElementById("loginForm");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const togglePassword = document.getElementById("togglePassword");
+      const errorDiv = document.getElementById("errorMessage");
+      const errorText = document.getElementById("errorText");
+      const rememberCheckbox = document.getElementById("rememberMe");
+
+      function checkSavedSession() {
+        const saved = localStorage.getItem("lipamdogo_auth");
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.email === VALID_EMAIL && data.remember) {
+              initAdminDashboard(data.email);
+              return true;
+            }
+          } catch (e) {}
+        }
+        if (sessionStorage.getItem("lipamdogo_auth_temp")) {
+          initAdminDashboard(VALID_EMAIL);
+          return true;
+        }
+        return false;
+      }
+
+      function showError(message) {
+        errorText.innerText = message;
+        errorDiv.classList.remove("hidden");
+        errorDiv.classList.add("shake");
+        setTimeout(() => errorDiv.classList.remove("shake"), 500);
+      }
+
+      function hideError() {
+        errorDiv.classList.add("hidden");
+      }
+
+      function validateLogin(email, password) {
+        if (!email || !password) {
+          showError("Please enter both email and password");
+          return false;
+        }
+        if (email !== VALID_EMAIL) {
+          showError("Invalid email address");
+          return false;
+        }
+        if (password !== VALID_PASSWORD) {
+          showError("Invalid password");
+          return false;
+        }
+        return true;
+      }
+
+      togglePassword.addEventListener("click", () => {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+        togglePassword.innerHTML =
+          type === "password"
+            ? '<i class="fas fa-eye"></i>'
+            : '<i class="fas fa-eye-slash"></i>';
+      });
+
+      document
+        .getElementById("forgotPassword")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          alert(
+            "Password reset link would be sent to your email. Demo: Use admin@lipamdogo.com / admin123",
+          );
+        });
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (validateLogin(email, password)) {
+          if (rememberCheckbox.checked) {
+            localStorage.setItem(
+              "lipamdogo_auth",
+              JSON.stringify({ email: email, remember: true }),
+            );
+          } else {
+            sessionStorage.setItem("lipamdogo_auth_temp", "true");
+          }
+
+          const btn = document.getElementById("loginBtn");
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+          btn.disabled = true;
+
+          setTimeout(() => {
+            initAdminDashboard(email);
+          }, 800);
+        } else {
+          loginForm.classList.add("shake");
+          setTimeout(() => loginForm.classList.remove("shake"), 500);
+        }
+      });
+
+      emailInput.addEventListener("focus", hideError);
+      passwordInput.addEventListener("focus", hideError);
+
+      // Check for existing session
+      if (!checkSavedSession()) {
+        // show login page normally
+      }
+    </script>
+  </body>
+</html>

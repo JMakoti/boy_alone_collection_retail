@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>
+      Boy Alone | Analytics Engine - Business Intelligence (Standalone)
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN ANALYTICS ENGINE MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="analyticsEngineRoot" class="max-w-7xl mx-auto"></div>
+
+    <script>
+      // ==================== STANDALONE ANALYTICS ENGINE MODULE ====================
+      // Business Intelligence dashboard with revenue trends, category analysis,
+      // customer segments, payment methods, and installment analytics.
+      // Fully independent, no external dependencies other than Tailwind, Chart.js, Fontawesome.
+
+      (function () {
+        // ---------- ANALYTICS DATA ----------
+        const revenueData = [
+          {
+            month: "Oct",
+            revenue: 1850000,
+            installments: 680000,
+            fullPayments: 1170000,
+          },
+          {
+            month: "Nov",
+            revenue: 2100000,
+            installments: 820000,
+            fullPayments: 1280000,
+          },
+          {
+            month: "Dec",
+            revenue: 2450000,
+            installments: 950000,
+            fullPayments: 1500000,
+          },
+          {
+            month: "Jan",
+            revenue: 2200000,
+            installments: 890000,
+            fullPayments: 1310000,
+          },
+          {
+            month: "Feb",
+            revenue: 2350000,
+            installments: 920000,
+            fullPayments: 1430000,
+          },
+          {
+            month: "Mar",
+            revenue: 2680000,
+            installments: 1050000,
+            fullPayments: 1630000,
+          },
+        ];
+
+        const categoryData = [
+          { name: "Dresses", value: 3850000, color: "#3b82f6" },
+          { name: "Tops", value: 2940000, color: "#8b5cf6" },
+          { name: "Bottoms", value: 2650000, color: "#ec4899" },
+          { name: "Outerwear", value: 2180000, color: "#f59e0b" },
+          { name: "Footwear", value: 1890000, color: "#10b981" },
+          { name: "Accessories", value: 1240000, color: "#6366f1" },
+        ];
+
+        const customerSegmentData = [
+          { segment: "VIP", customers: 89, revenue: 4520000 },
+          { segment: "Regular", customers: 342, revenue: 6780000 },
+          { segment: "New", customers: 816, revenue: 3450000 },
+        ];
+
+        const paymentMethodData = [
+          { method: "M-Pesa", transactions: 1247, amount: 8450000 },
+          { method: "Airtel Money", transactions: 523, amount: 3280000 },
+          { method: "Bank Transfer", transactions: 189, amount: 2120000 },
+          { method: "Cash", transactions: 95, amount: 900000 },
+        ];
+
+        let revenueChart = null;
+        let pieChart = null;
+        let segmentChart = null;
+
+        function formatCurrency(amount) {
+          return new Intl.NumberFormat("en-KE", {
+            style: "currency",
+            currency: "KES",
+            minimumFractionDigits: 0,
+          }).format(amount);
+        }
+
+        function formatCompactCurrency(amount) {
+          if (amount >= 1000000) return `KES ${(amount / 1000000).toFixed(1)}M`;
+          if (amount >= 1000) return `KES ${(amount / 1000).toFixed(0)}K`;
+          return `KES ${amount}`;
+        }
+
+        // Destroy existing charts to avoid duplicates
+        function destroyCharts() {
+          if (revenueChart) {
+            revenueChart.destroy();
+            revenueChart = null;
+          }
+          if (pieChart) {
+            pieChart.destroy();
+            pieChart = null;
+          }
+          if (segmentChart) {
+            segmentChart.destroy();
+            segmentChart = null;
+          }
+        }
+
+        // Initialize all charts
+        function initCharts() {
+          destroyCharts();
+
+          // Revenue Stacked Bar Chart
+          const revenueCtx = document
+            .getElementById("revenueChart")
+            ?.getContext("2d");
+          if (revenueCtx) {
+            revenueChart = new Chart(revenueCtx, {
+              type: "bar",
+              data: {
+                labels: revenueData.map((d) => d.month),
+                datasets: [
+                  {
+                    label: "Full Payments",
+                    data: revenueData.map((d) => d.fullPayments),
+                    backgroundColor: "#3b82f6",
+                    borderRadius: 6,
+                    barPercentage: 0.7,
+                  },
+                  {
+                    label: "Installments",
+                    data: revenueData.map((d) => d.installments),
+                    backgroundColor: "#8b5cf6",
+                    borderRadius: 6,
+                    barPercentage: 0.7,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) =>
+                        `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`,
+                    },
+                  },
+                  legend: {
+                    position: "top",
+                    labels: { boxWidth: 12, font: { size: 11 } },
+                  },
+                },
+                scales: {
+                  y: {
+                    ticks: {
+                      callback: (val) => `${val / 1000000}M`,
+                      stepSize: 500000,
+                    },
+                    grid: { color: "#e5e7eb" },
+                  },
+                },
+              },
+            });
+          }
+
+          // Pie Chart for Categories
+          const pieCtx = document.getElementById("pieChart")?.getContext("2d");
+          if (pieCtx) {
+            pieChart = new Chart(pieCtx, {
+              type: "pie",
+              data: {
+                labels: categoryData.map((c) => c.name),
+                datasets: [
+                  {
+                    data: categoryData.map((c) => c.value),
+                    backgroundColor: categoryData.map((c) => c.color),
+                    borderWidth: 0,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: { boxWidth: 10, font: { size: 10 } },
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) =>
+                        `${ctx.label}: ${formatCurrency(ctx.raw)} (${((ctx.raw / categoryData.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%)`,
+                    },
+                  },
+                },
+              },
+            });
+          }
+
+          // Customer Segment Horizontal Bar Chart
+          const segmentCtx = document
+            .getElementById("segmentBarChart")
+            ?.getContext("2d");
+          if (segmentCtx) {
+            segmentChart = new Chart(segmentCtx, {
+              type: "bar",
+              data: {
+                labels: customerSegmentData.map((s) => s.segment),
+                datasets: [
+                  {
+                    label: "Revenue (KES)",
+                    data: customerSegmentData.map((s) => s.revenue),
+                    backgroundColor: "#8b5cf6",
+                    borderRadius: 8,
+                  },
+                ],
+              },
+              options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  tooltip: {
+                    callbacks: { label: (ctx) => formatCurrency(ctx.raw) },
+                  },
+                  legend: { position: "top" },
+                },
+                scales: {
+                  x: {
+                    ticks: { callback: (val) => `${val / 1000000}M` },
+                    grid: { color: "#e5e7eb" },
+                  },
+                },
+              },
+            });
+          }
+        }
+
+        // Render main analytics UI
+        function renderAnalyticsEngine() {
+          const totalRevenue = revenueData.reduce(
+            (sum, d) => sum + d.revenue,
+            0,
+          );
+          const totalOrders = 2054;
+          const activeCustomers = 1247;
+          const avgOrderValue = totalRevenue / totalOrders;
+          const installmentPercentage = (
+            (revenueData.reduce((sum, d) => sum + d.installments, 0) /
+              totalRevenue) *
+            100
+          ).toFixed(1);
+          const defaultRate = 3.2;
+          const retentionRate = 76;
+
+          return `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-pie text-emerald-600 mr-2"></i>Analytics Engine</h1>
+                <p class="text-gray-500 mt-1">Business intelligence & performance metrics</p>
+              </div>
+              <div class="flex gap-2">
+                <select id="dateRangeSelect" class="px-4 py-2 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 text-sm">
+                  <option value="last-6-months">Last 6 Months</option>
+                  <option value="last-3-months">Last 3 Months</option>
+                  <option value="last-year">Last Year</option>
+                </select>
+                <button id="exportAnalyticsBtn" class="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition flex items-center gap-2 text-sm"><i class="fas fa-download"></i> Export Report</button>
+              </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-emerald-600 mb-2"><i class="fas fa-dollar-sign text-lg"></i><p class="text-sm font-medium">Total Revenue</p></div><p class="text-2xl font-bold">${formatCompactCurrency(totalRevenue)}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+18.5% vs last period</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-shopping-bag text-lg"></i><p class="text-sm font-medium">Total Orders</p></div><p class="text-2xl font-bold">${totalOrders.toLocaleString()}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+12.3%</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-users text-lg"></i><p class="text-sm font-medium">Active Customers</p></div><p class="text-2xl font-bold">${activeCustomers.toLocaleString()}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+8.7%</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-receipt text-lg"></i><p class="text-sm font-medium">Avg Order Value</p></div><p class="text-2xl font-bold">${formatCompactCurrency(avgOrderValue)}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+5.2%</span></div></div>
+            </div>
+
+            <!-- Revenue Trends Chart -->
+            <div class="bg-white rounded-xl border p-6 shadow-sm">
+              <div class="mb-4"><h2 class="font-semibold text-lg">Revenue Trends</h2><p class="text-sm text-gray-500 mt-0.5">Breakdown of full payments vs installment revenue (Oct - Mar)</p></div>
+              <div style="height: 360px;"><canvas id="revenueChart"></canvas></div>
+            </div>
+
+            <!-- Category & Segment Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <div class="mb-4"><h2 class="font-semibold text-lg">Sales by Category</h2><p class="text-sm text-gray-500">Last 6 months performance</p></div>
+                <div style="height: 260px;"><canvas id="pieChart"></canvas></div>
+                <div class="mt-5 space-y-2 pt-3 border-t" id="categoryLegend"></div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <div class="mb-4"><h2 class="font-semibold text-lg">Customer Segments</h2><p class="text-sm text-gray-500">Revenue by customer tier</p></div>
+                <div style="height: 260px;"><canvas id="segmentBarChart"></canvas></div>
+                <div class="mt-5 pt-3 border-t space-y-3" id="segmentDetails"></div>
+              </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="bg-white rounded-xl border p-6 shadow-sm">
+              <div class="mb-4"><h2 class="font-semibold text-lg">Payment Methods</h2><p class="text-sm text-gray-500">Transaction volume and amounts</p></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="paymentMethodsGrid"></div>
+            </div>
+
+            <!-- Installment Analytics Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-calendar-week text-emerald-500 mr-2"></i>Plan Duration Preference</h3>
+                <div class="space-y-4">
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">6 Months</span><span class="text-sm font-medium text-blue-600">45%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:45%"></div></div></div>
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">9 Months</span><span class="text-sm font-medium text-purple-600">32%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:32%"></div></div></div>
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">12 Months</span><span class="text-sm font-medium text-green-600">23%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-green-500 rounded-full" style="width:23%"></div></div></div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-chart-line text-emerald-500 mr-2"></i>Installment Insights</h3>
+                <div class="text-center"><p class="text-4xl font-bold text-emerald-600 mb-2">${installmentPercentage}%</p><p class="text-sm text-gray-500 mb-4">of total revenue from installments</p></div>
+                <div class="pt-4 border-t space-y-2"><div class="flex justify-between text-sm"><span class="text-gray-500">Interest income</span><span class="font-medium">${formatCurrency(1240000)}</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Default losses</span><span class="font-medium text-red-600">${formatCurrency(89000)}</span></div><div class="flex justify-between text-sm pt-2"><span class="text-gray-500">Default rate</span><span class="font-medium text-red-600">${defaultRate}%</span></div></div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-heart text-emerald-500 mr-2"></i>Customer Retention</h3>
+                <div class="text-center"><p class="text-4xl font-bold text-blue-600 mb-2">${retentionRate}%</p><p class="text-sm text-gray-500 mb-4">Repeat customers rate</p></div>
+                <div class="pt-4 border-t space-y-2"><div class="flex justify-between text-sm"><span class="text-gray-500">New customers (LTM)</span><span class="font-medium">816</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Returning customers</span><span class="font-medium">2,598</span></div><div class="flex justify-between text-sm pt-2"><span class="text-gray-500">Customer LTV</span><span class="font-medium">${formatCurrency(11250)}</span></div></div>
+              </div>
+            </div>
+
+            <!-- Footer Insight -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-sm text-gray-700 border border-emerald-100 flex flex-wrap justify-between items-center">
+              <span><i class="fas fa-lightbulb text-emerald-600 mr-2"></i>📊 Key insight: Installment plans contribute ${installmentPercentage}% of revenue with ${retentionRate}% customer retention rate.</span>
+              <span class="text-xs text-gray-500">Data updated: ${new Date().toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+        }
+
+        function populateDynamicContent() {
+          // Category legend
+          const legendContainer = document.getElementById("categoryLegend");
+          if (legendContainer) {
+            const totalCategoryValue = categoryData.reduce(
+              (a, b) => a + b.value,
+              0,
+            );
+            legendContainer.innerHTML = categoryData
+              .map(
+                (cat) => `
+            <div class="flex items-center justify-between hover:bg-gray-50 p-1 rounded-lg transition">
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:${cat.color}"></div><span class="text-sm">${cat.name}</span></div>
+              <span class="text-sm font-medium">${formatCompactCurrency(cat.value)} (${((cat.value / totalCategoryValue) * 100).toFixed(1)}%)</span>
+            </div>
+          `,
+              )
+              .join("");
+          }
+
+          // Segment details
+          const segmentDetails = document.getElementById("segmentDetails");
+          if (segmentDetails) {
+            segmentDetails.innerHTML = customerSegmentData
+              .map(
+                (seg) => `
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+              <div><p class="font-medium">${seg.segment}</p><p class="text-xs text-gray-500">${seg.customers} customers</p></div>
+              <p class="font-semibold text-emerald-700">${formatCompactCurrency(seg.revenue)}</p>
+            </div>
+          `,
+              )
+              .join("");
+          }
+
+          // Payment methods grid
+          const paymentGrid = document.getElementById("paymentMethodsGrid");
+          if (paymentGrid) {
+            paymentGrid.innerHTML = paymentMethodData
+              .map(
+                (m) => `
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition">
+              <div class="flex items-center justify-between mb-2"><p class="text-sm font-semibold text-gray-700">${m.method}</p><i class="fas ${m.method === "M-Pesa" ? "fa-mobile-alt" : m.method === "Cash" ? "fa-money-bill-wave" : m.method === "Bank Transfer" ? "fa-university" : "fa-mobile-alt"} text-gray-400"></i></div>
+              <p class="text-2xl font-bold text-gray-800 mb-1">${formatCompactCurrency(m.amount)}</p>
+              <p class="text-xs text-gray-500">${m.transactions.toLocaleString()} transactions</p>
+            </div>
+          `,
+              )
+              .join("");
+          }
+        }
+
+        function attachEvents() {
+          const exportBtn = document.getElementById("exportAnalyticsBtn");
+          if (exportBtn) {
+            exportBtn.addEventListener("click", () => {
+              alert(
+                "📊 Analytics report exported as CSV/PDF with all charts and metrics.\n\nIn production, this would generate a comprehensive business intelligence report.",
+              );
+            });
+          }
+
+          const dateRangeSelect = document.getElementById("dateRangeSelect");
+          if (dateRangeSelect) {
+            dateRangeSelect.addEventListener("change", (e) => {
+              alert(
+                `📅 Date range changed to: ${e.target.options[e.target.selectedIndex].text} (demo mode - data remains sample for preview)`,
+              );
+            });
+          }
+        }
+
+        // Handle window resize to redraw charts
+        let resizeTimeout;
+        function handleResize() {
+          if (resizeTimeout) clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            if (document.getElementById("revenueChart")) {
+              initCharts();
+            }
+          }, 250);
+        }
+
+        // Full render function
+        function renderFullModule() {
+          const container = document.getElementById("analyticsEngineRoot");
+          container.innerHTML = renderAnalyticsEngine();
+
+          // Initialize charts after DOM is ready
+          setTimeout(() => {
+            initCharts();
+            populateDynamicContent();
+          }, 50);
+
+          attachEvents();
+
+          // Add resize listener
+          window.removeEventListener("resize", handleResize);
+          window.addEventListener("resize", handleResize);
+        }
+
+        // Initialization
+        function init() {
+          renderFullModule();
+        }
+
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

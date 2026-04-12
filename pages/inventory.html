@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Inventory Intelligence Suite</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .inventory-card:hover {
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12);
+        border-color: #cbd5e1;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN INVENTORY MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="inventoryModuleRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- ==================== MODALS (Standalone) ==================== -->
+    <!-- Adjust Stock Modal -->
+    <div
+      id="adjustModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-sliders-h text-emerald-600 mr-2"></i>Adjust Stock
+          </h3>
+          <button
+            id="closeAdjustModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600" id="adjustProductName"></p>
+          <input
+            type="number"
+            id="adjustQuantity"
+            placeholder="New stock quantity (absolute value)"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          />
+          <select
+            id="adjustLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Main Store">Main Store</option>
+            <option value="Warehouse A">Warehouse A</option>
+          </select>
+          <div class="flex gap-3 pt-2">
+            <button
+              id="confirmAdjustBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-check mr-1"></i> Apply
+            </button>
+            <button
+              id="cancelAdjustBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Stock Modal -->
+    <div
+      id="transferModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-exchange-alt text-emerald-600 mr-2"></i>Transfer
+            Stock
+          </h3>
+          <button
+            id="closeTransferModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="font-medium text-gray-800" id="transferProductName"></p>
+          <select
+            id="fromLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Main Store">Main Store</option>
+            <option value="Warehouse A">Warehouse A</option>
+          </select>
+          <select
+            id="toLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="Warehouse A">Warehouse A</option>
+            <option value="Main Store">Main Store</option>
+          </select>
+          <input
+            type="number"
+            id="transferQty"
+            placeholder="Quantity to transfer"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          />
+          <div class="flex gap-3">
+            <button
+              id="confirmTransferBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-exchange-alt mr-1"></i> Transfer
+            </button>
+            <button
+              id="cancelTransferBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==================== STANDALONE INVENTORY INTELLIGENCE MODULE ====================
+      // Fully independent, can be dropped into Laravel blade or any project.
+      // Removed "Outlet" location - now only Main Store & Warehouse A
+      // Changed "min" label to "units" for reorder point indicators
+
+      (function () {
+        // ---------- INVENTORY DATA (Outlet removed) ----------
+        let inventoryItems = [
+          {
+            id: "1",
+            product: "Denim Jacket - Blue (M)",
+            sku: "DJ-BLU-M",
+            locations: [
+              { name: "Main Store", stock: 25, reorderPoint: 10 },
+              { name: "Warehouse A", stock: 15, reorderPoint: 20 },
+            ],
+            totalStock: 40,
+            reorderPoint: 30,
+            status: "healthy",
+            lastRestocked: "2026-04-05",
+          },
+          {
+            id: "2",
+            product: "Summer Dress - Floral (S)",
+            sku: "SD-FLR-S",
+            locations: [
+              { name: "Main Store", stock: 3, reorderPoint: 10 },
+              { name: "Warehouse A", stock: 2, reorderPoint: 15 },
+            ],
+            totalStock: 5,
+            reorderPoint: 25,
+            status: "critical",
+            lastRestocked: "2026-03-28",
+          },
+          {
+            id: "3",
+            product: "Cotton T-Shirt - White (L)",
+            sku: "CT-WHT-L",
+            locations: [
+              { name: "Main Store", stock: 45, reorderPoint: 15 },
+              { name: "Warehouse A", stock: 78, reorderPoint: 25 },
+            ],
+            totalStock: 123,
+            reorderPoint: 40,
+            status: "healthy",
+            lastRestocked: "2026-04-07",
+          },
+          {
+            id: "4",
+            product: "Slim Fit Jeans - Black (32)",
+            sku: "SJ-BLK-32",
+            locations: [
+              { name: "Main Store", stock: 0, reorderPoint: 12 },
+              { name: "Warehouse A", stock: 0, reorderPoint: 20 },
+            ],
+            totalStock: 0,
+            reorderPoint: 32,
+            status: "reorder",
+            lastRestocked: "2026-03-15",
+          },
+          {
+            id: "5",
+            product: "Leather Boots - Brown (8)",
+            sku: "LB-BRN-8",
+            locations: [
+              { name: "Main Store", stock: 8, reorderPoint: 8 },
+              { name: "Warehouse A", stock: 12, reorderPoint: 15 },
+            ],
+            totalStock: 20,
+            reorderPoint: 23,
+            status: "low",
+            lastRestocked: "2026-04-02",
+          },
+        ];
+
+        let currentSelectedLocation = "all";
+        let currentSearchTerm = "";
+        let activeTransferItem = null;
+        let activeAdjustItem = null;
+
+        // Helper: recalc total stock and update status dynamically
+        function recalcTotalStock(item) {
+          item.totalStock = item.locations.reduce(
+            (sum, loc) => sum + loc.stock,
+            0,
+          );
+          if (item.totalStock === 0) item.status = "reorder";
+          else if (item.totalStock <= 5) item.status = "critical";
+          else if (item.totalStock <= item.reorderPoint * 0.6)
+            item.status = "low";
+          else item.status = "healthy";
+          if (item.totalStock < item.reorderPoint && item.totalStock > 0)
+            item.status = "low";
+          if (item.totalStock === 0) item.status = "reorder";
+          return item;
+        }
+
+        // Recalculate all items
+        function recalcAllItems() {
+          inventoryItems.forEach((item) => recalcTotalStock(item));
+        }
+
+        function getFilteredItems() {
+          let filtered = [...inventoryItems];
+          if (currentSearchTerm.trim() !== "") {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = filtered.filter(
+              (i) =>
+                i.product.toLowerCase().includes(term) ||
+                i.sku.toLowerCase().includes(term),
+            );
+          }
+          if (currentSelectedLocation !== "all") {
+            filtered = filtered.filter((item) =>
+              item.locations.some(
+                (loc) => loc.name === currentSelectedLocation,
+              ),
+            );
+          }
+          return filtered;
+        }
+
+        function computeStats(filteredItems = null) {
+          const items = filteredItems || inventoryItems;
+          return {
+            healthy: items.filter((i) => i.status === "healthy").length,
+            low: items.filter((i) => i.status === "low").length,
+            critical: items.filter((i) => i.status === "critical").length,
+            reorder: items.filter((i) => i.status === "reorder").length,
+          };
+        }
+
+        function escapeHtml(str) {
+          return String(str ?? "").replace(/[&<>]/g, (m) =>
+            m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+          );
+        }
+
+        // ---------- RENDER MAIN UI ----------
+        function renderInventoryUI() {
+          const filtered = getFilteredItems();
+          const stats = computeStats(filtered);
+
+          const html = `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1>
+                <p class="text-gray-500 mt-1">Multi-location stock visibility | Main Store & Warehouse A only</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="globalTransferBtn" class="px-4 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2 font-medium"><i class="fas fa-exchange-alt"></i> Transfer Stock</button>
+                <button id="globalAdjustBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-xl hover:shadow-md transition flex items-center gap-2"><i class="fas fa-plus-circle"></i> Adjust Stock</button>
+              </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-medium">Healthy</p></div><p class="text-2xl font-bold">${stats.healthy}</p></div>
+              <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-medium">Low Stock</p></div><p class="text-2xl font-bold">${stats.low}</p></div>
+              <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-medium">Critical</p></div><p class="text-2xl font-bold">${stats.critical}</p></div>
+              <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-medium">Reorder Now</p></div><p class="text-2xl font-bold">${stats.reorder}</p></div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+              <div class="flex flex-col lg:flex-row gap-4">
+                <div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500"></div>
+                <div><select id="locationFilterSelect" class="px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-emerald-500"><option value="all">All Locations</option><option value="Main Store">Main Store</option><option value="Warehouse A">Warehouse A</option></select></div>
+              </div>
+            </div>
+            
+            <!-- Inventory Items List -->
+            <div class="space-y-4" id="inventoryListContainer">
+              ${filtered
+                .map((item) => {
+                  const statusClass = {
+                    healthy: "status-healthy",
+                    low: "status-low",
+                    critical: "status-critical",
+                    reorder: "status-reorder",
+                  }[item.status];
+                  const statusIcon = {
+                    healthy: "fa-check-circle",
+                    low: "fa-chart-line",
+                    critical: "fa-exclamation-triangle",
+                    reorder: "fa-exclamation-circle",
+                  }[item.status];
+                  const statusLabel = {
+                    healthy: "Healthy",
+                    low: "Low Stock",
+                    critical: "Critical",
+                    reorder: "Reorder Now",
+                  }[item.status];
+                  return `
+                  <div class="bg-white rounded-xl border border-gray-100 p-5 hover-scale transition-all inventory-card" data-item-id="${item.id}">
+                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+                      <div class="flex-1">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                          <div><h3 class="font-bold text-lg text-gray-800">${escapeHtml(item.product)}</h3><p class="text-sm text-gray-500 mt-0.5">SKU: ${item.sku}</p></div>
+                          <span class="status-badge ${statusClass}"><i class="fas ${statusIcon} text-xs"></i> ${statusLabel}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          ${item.locations
+                            .map((loc) => {
+                              const isLow = loc.stock <= loc.reorderPoint;
+                              const lowBg = isLow
+                                ? "bg-amber-50 border-amber-200"
+                                : "bg-gray-50 border-gray-100";
+                              return `
+                              <div class="p-3 rounded-xl border ${lowBg}">
+                                <div class="flex items-center gap-2 mb-1"><i class="fas fa-map-marker-alt text-gray-500 text-xs"></i><p class="text-sm font-medium">${loc.name}</p></div>
+                                <div class="flex items-baseline gap-2"><p class="text-xl font-bold ${isLow ? "text-amber-700" : "text-gray-800"}">${loc.stock}</p><p class="text-xs text-gray-500">/ ${loc.reorderPoint} units</p></div>
+                              </div>
+                            `;
+                            })
+                            .join("")}
+                        </div>
+                      </div>
+                      <div class="lg:w-48 space-y-3">
+                        <div class="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-100"><p class="text-sm text-gray-600 mb-1">Total Stock</p><p class="text-3xl font-bold text-emerald-800">${item.totalStock}</p><p class="text-xs text-gray-500 mt-1">Reorder at ${item.reorderPoint} units</p></div>
+                        <div class="text-xs text-gray-400 text-center">Last restocked: ${new Date(item.lastRestocked).toLocaleDateString()}</div>
+                        <div class="flex gap-2"><button class="adjustStockBtn flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition" data-id="${item.id}"><i class="fas fa-edit"></i> Adjust</button><button class="transferStockBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" data-id="${item.id}"><i class="fas fa-exchange-alt"></i> Transfer</button></div>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                })
+                .join("")}
+              ${filtered.length === 0 ? '<div class="bg-white rounded-xl p-8 text-center text-gray-500"><i class="fas fa-box-open text-4xl mb-2 opacity-50"></i><p>No inventory items match your filters.</p></div>' : ""}
+            </div>
+            <div class="text-xs text-gray-400 border-t pt-4 mt-2 flex justify-between"><span><i class="fas fa-database"></i> Real-time inventory intelligence | AI reorder suggestions active</span><button id="bulkReorderBtn" class="text-emerald-600 underline hover:text-emerald-800">Generate Purchase Orders for Low Stock</button></div>
+          </div>
+        `;
+
+          document.getElementById("inventoryModuleRoot").innerHTML = html;
+          attachInventoryEvents();
+        }
+
+        function attachInventoryEvents() {
+          // Search input
+          const searchInput = document.getElementById("searchInventoryInput");
+          if (searchInput) {
+            searchInput.value = currentSearchTerm;
+            searchInput.addEventListener("input", (e) => {
+              currentSearchTerm = e.target.value;
+              renderInventoryUI();
+            });
+          }
+          // Location filter
+          const locationSelect = document.getElementById(
+            "locationFilterSelect",
+          );
+          if (locationSelect) {
+            locationSelect.value = currentSelectedLocation;
+            locationSelect.addEventListener("change", (e) => {
+              currentSelectedLocation = e.target.value;
+              renderInventoryUI();
+            });
+          }
+          // Adjust buttons
+          document.querySelectorAll(".adjustStockBtn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = btn.getAttribute("data-id");
+              activeAdjustItem = inventoryItems.find((i) => i.id === id);
+              if (activeAdjustItem) {
+                document.getElementById("adjustProductName").innerText =
+                  `${activeAdjustItem.product} (${activeAdjustItem.sku})`;
+                document
+                  .getElementById("adjustModal")
+                  .classList.remove("hidden");
+                document.getElementById("adjustModal").classList.add("flex");
+                document.getElementById("adjustQuantity").value = "";
+                document.getElementById("adjustLocation").value = "Main Store";
+              }
+            });
+          });
+          // Transfer buttons
+          document.querySelectorAll(".transferStockBtn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = btn.getAttribute("data-id");
+              activeTransferItem = inventoryItems.find((i) => i.id === id);
+              if (activeTransferItem) {
+                document.getElementById("transferProductName").innerText =
+                  activeTransferItem.product;
+                document
+                  .getElementById("transferModal")
+                  .classList.remove("hidden");
+                document.getElementById("transferModal").classList.add("flex");
+                document.getElementById("fromLocation").value = "Main Store";
+                document.getElementById("toLocation").value = "Warehouse A";
+                document.getElementById("transferQty").value = "";
+              }
+            });
+          });
+          // Global buttons
+          const globalTransfer = document.getElementById("globalTransferBtn");
+          const globalAdjust = document.getElementById("globalAdjustBtn");
+          if (globalTransfer)
+            globalTransfer.addEventListener("click", () => {
+              alert(
+                "⚡ Quick transfer: Use 'Transfer' button on any product card to move stock between Main Store and Warehouse A.",
+              );
+            });
+          if (globalAdjust)
+            globalAdjust.addEventListener("click", () => {
+              alert(
+                "📦 Bulk stock adjustment: Use per-item 'Adjust' button to update inventory levels with audit trail.",
+              );
+            });
+          // Bulk reorder
+          const bulkReorder = document.getElementById("bulkReorderBtn");
+          if (bulkReorder)
+            bulkReorder.addEventListener("click", () => {
+              const lowItems = inventoryItems.filter(
+                (i) =>
+                  i.status === "low" ||
+                  i.status === "critical" ||
+                  i.status === "reorder",
+              );
+              alert(
+                `📄 Purchase order draft generated for ${lowItems.length} items: ${lowItems.map((i) => i.product).join(", ")}`,
+              );
+            });
+        }
+
+        // ---------- MODAL HANDLERS ----------
+        function setupModals() {
+          // Adjust Modal
+          const confirmAdjust = document.getElementById("confirmAdjustBtn");
+          const cancelAdjust = document.getElementById("cancelAdjustBtn");
+          const closeAdjustModalBtn = document.getElementById(
+            "closeAdjustModalBtn",
+          );
+          const closeAdjust = () => {
+            document.getElementById("adjustModal").classList.add("hidden");
+          };
+          if (confirmAdjust)
+            confirmAdjust.addEventListener("click", () => {
+              if (!activeAdjustItem) return;
+              const newQtyRaw = document.getElementById("adjustQuantity").value;
+              const locationName =
+                document.getElementById("adjustLocation").value;
+              if (
+                !newQtyRaw ||
+                isNaN(parseInt(newQtyRaw)) ||
+                parseInt(newQtyRaw) < 0
+              ) {
+                alert("Enter valid quantity (non-negative integer).");
+                return;
+              }
+              const newQty = parseInt(newQtyRaw);
+              const locIndex = activeAdjustItem.locations.findIndex(
+                (l) => l.name === locationName,
+              );
+              if (locIndex !== -1) {
+                activeAdjustItem.locations[locIndex].stock = newQty;
+                recalcTotalStock(activeAdjustItem);
+                renderInventoryUI();
+                closeAdjust();
+              } else {
+                alert("Location mismatch");
+              }
+            });
+          if (cancelAdjust) cancelAdjust.addEventListener("click", closeAdjust);
+          if (closeAdjustModalBtn)
+            closeAdjustModalBtn.addEventListener("click", closeAdjust);
+
+          // Transfer Modal
+          const confirmTransfer = document.getElementById("confirmTransferBtn");
+          const cancelTransfer = document.getElementById("cancelTransferBtn");
+          const closeTransferModalBtn = document.getElementById(
+            "closeTransferModalBtn",
+          );
+          const closeTransfer = () => {
+            document.getElementById("transferModal").classList.add("hidden");
+          };
+          if (confirmTransfer)
+            confirmTransfer.addEventListener("click", () => {
+              if (!activeTransferItem) return;
+              const fromLoc = document.getElementById("fromLocation").value;
+              const toLoc = document.getElementById("toLocation").value;
+              const qty = parseInt(
+                document.getElementById("transferQty").value,
+              );
+              if (isNaN(qty) || qty <= 0) {
+                alert("Enter valid positive quantity.");
+                return;
+              }
+              if (fromLoc === toLoc) {
+                alert("Source and destination cannot be the same.");
+                return;
+              }
+              const fromIdx = activeTransferItem.locations.findIndex(
+                (l) => l.name === fromLoc,
+              );
+              const toIdx = activeTransferItem.locations.findIndex(
+                (l) => l.name === toLoc,
+              );
+              if (fromIdx === -1 || toIdx === -1) {
+                alert("Invalid locations");
+                return;
+              }
+              if (activeTransferItem.locations[fromIdx].stock < qty) {
+                alert(
+                  `Insufficient stock in ${fromLoc}. Available: ${activeTransferItem.locations[fromIdx].stock}`,
+                );
+                return;
+              }
+              activeTransferItem.locations[fromIdx].stock -= qty;
+              activeTransferItem.locations[toIdx].stock += qty;
+              recalcTotalStock(activeTransferItem);
+              renderInventoryUI();
+              closeTransfer();
+            });
+          if (cancelTransfer)
+            cancelTransfer.addEventListener("click", closeTransfer);
+          if (closeTransferModalBtn)
+            closeTransferModalBtn.addEventListener("click", closeTransfer);
+
+          // Click outside modals to close
+          window.addEventListener("click", (e) => {
+            const adjustModal = document.getElementById("adjustModal");
+            const transferModal = document.getElementById("transferModal");
+            if (e.target === adjustModal) adjustModal.classList.add("hidden");
+            if (e.target === transferModal)
+              transferModal.classList.add("hidden");
+          });
+        }
+
+        // ---------- INITIALIZATION ----------
+        function init() {
+          recalcAllItems();
+          renderInventoryUI();
+          setupModals();
+        }
+
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

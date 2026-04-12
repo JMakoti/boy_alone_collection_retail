@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Sidebar Navigation Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Sidebar fixes - 100vh with proper flex layout */
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+      }
+
+      /* Sidebar content wrapper - handles scrolling of nav only */
+      .sidebar-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0; /* Critical for flex overflow */
+      }
+
+      /* Navigation wrapper - scrollable area */
+      .nav-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+        scrollbar-width: thin;
+      }
+
+      .nav-wrapper::-webkit-scrollbar {
+        width: 5px;
+      }
+      .nav-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .nav-wrapper::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      /* Header and footer - fixed, never scroll */
+      .sidebar-header {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .sidebar-footer {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        background: white;
+      }
+
+      /* Navigation items */
+      .nav-item {
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border-radius: 0.75rem;
+        margin-bottom: 0.375rem;
+      }
+      .nav-item:hover {
+        background: #f0fdf4;
+        color: #059669;
+      }
+      .nav-item.active {
+        background: #ecfdf5;
+        color: #059669;
+        font-weight: 600;
+      }
+
+      /* Mobile styles */
+      @media (max-width: 1024px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .mobile-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 35;
+          display: none;
+        }
+        .mobile-overlay.active {
+          display: block;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!-- Mobile Menu Toggle Button -->
+    <button
+      id="mobileMenuToggle"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay"></div>
+
+    <!-- SIDEBAR COMPONENT - 100vh with proper flex layout, nav scrollable -->
+    <aside id="mainSidebar" class="sidebar-fixed">
+      <!-- Header - Fixed, never scrolls -->
+      <div class="sidebar-header">
+        <div class="flex items-center gap-3">
+          <div
+            class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
+          >
+            <img
+              src="../images/balogo.png"
+              alt="BOY ALONE COLLECTION"
+              onerror="
+                this.src = 'https://placehold.co/64x64?text=BA';
+                this.onerror = null;
+              "
+            />
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">
+              Boy<span class="text-emerald-600">Alone</span>
+            </h1>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Enterprise Admin Suite v2.0
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Navigation Area -->
+      <div class="sidebar-content">
+        <div class="nav-wrapper">
+          <nav class="space-y-1">
+            <div
+              class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="dashboard"
+            >
+              <i class="fas fa-chart-line w-5 text-lg"></i
+              ><span>Executive Dashboard</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="catalog"
+            >
+              <i class="fas fa-tags w-5 text-lg"></i
+              ><span>Product Catalog</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="inventory"
+            >
+              <i class="fas fa-boxes w-5 text-lg"></i
+              ><span>Inventory Intelligence</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="orders"
+            >
+              <i class="fas fa-tasks w-5 text-lg"></i
+              ><span>Order Pipeline</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="customers"
+            >
+              <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="transactions"
+            >
+              <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="installments"
+            >
+              <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+              ><span>Lipa Mdogo Core</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="analytics"
+            >
+              <i class="fas fa-chart-pie w-5 text-lg"></i
+              ><span>Analytics Engine</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="reports"
+            >
+              <i class="fas fa-file-alt w-5 text-lg"></i
+              ><span>Reports Center</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="promotions"
+            >
+              <i class="fas fa-tags w-5 text-lg"></i><span>Promotions</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="support"
+            >
+              <i class="fas fa-headset w-5 text-lg"></i
+              ><span>Support Tickets</span>
+            </div>
+            <div
+              class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              data-tab="settings"
+            >
+              <i class="fas fa-cog w-5 text-lg"></i><span>Settings</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Footer - Fixed, never scrolls -->
+      <div class="sidebar-footer">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center flex-shrink-0"
+          >
+            <i class="fas fa-user-shield text-emerald-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-gray-800 truncate">
+              Store Manager
+            </p>
+            <p class="text-xs text-gray-500 truncate">
+              Role: Admin · Full Access
+            </p>
+          </div>
+          <button
+            id="logoutBtn"
+            class="text-gray-400 hover:text-red-500 transition-all flex-shrink-0"
+          >
+            <i class="fas fa-sign-out-alt text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="lg:ml-[280px] min-h-screen">
+      <div id="mainContent" class="p-4 lg:p-8 fade-in">
+        <div class="bg-white rounded-2xl shadow-sm p-8">
+          <div class="text-center">
+            <i class="fas fa-chart-line text-emerald-500 text-5xl mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800" id="contentTitle">
+              Executive Dashboard
+            </h2>
+            <p class="text-gray-500 mt-2" id="contentDescription">
+              Welcome to Boy Alone Enterprise Admin Suite. Select a module from
+              the sidebar.
+            </p>
+          </div>
+          <div class="mt-6 p-4 bg-gray-50 rounded-xl text-center">
+            <p class="text-sm text-gray-600">
+              <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+              Sidebar component: 100vh height with fixed header/footer |
+              Navigation area scrolls independently
+            </p>
+            <p class="text-xs text-gray-400 mt-2">
+              ✨ Fully independent and ready for Laravel Blade integration
+            </p>
+          </div>
+
+          <!-- Dynamic content area -->
+          <div id="dynamicContent" class="mt-6"></div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // ==================== STANDALONE SIDEBAR COMPONENT ====================
+      // 100vh sidebar with proper flex layout - header/footer fixed, nav scrolls
+      // Ready to be embedded into Laravel Blade templates
+
+      (function () {
+        let currentTab = "dashboard";
+
+        // Navigation items configuration
+        const navItems = [
+          {
+            tab: "dashboard",
+            name: "Executive Dashboard",
+            icon: "fa-chart-line",
+            description: "Real-time KPIs, analytics, and business overview",
+          },
+          {
+            tab: "catalog",
+            name: "Product Catalog",
+            icon: "fa-tags",
+            description: "Manage products, inventory, pricing, and categories",
+          },
+          {
+            tab: "inventory",
+            name: "Inventory Intelligence",
+            icon: "fa-boxes",
+            description: "Multi-location stock tracking and reorder management",
+          },
+          {
+            tab: "orders",
+            name: "Order Pipeline",
+            icon: "fa-tasks",
+            description: "Track and manage customer orders",
+          },
+          {
+            tab: "customers",
+            name: "Customer Hub",
+            icon: "fa-users",
+            description: "Customer 360° view and relationship management",
+          },
+          {
+            tab: "transactions",
+            name: "Transaction Hub",
+            icon: "fa-usd",
+            description: "Payment history and transaction reconciliation",
+          },
+          {
+            tab: "installments",
+            name: "Lipa Mdogo Core",
+            icon: "fa-hand-holding-usd",
+            description: "Installment payment plans management",
+          },
+          {
+            tab: "analytics",
+            name: "Analytics Engine",
+            icon: "fa-chart-pie",
+            description: "Business intelligence and performance metrics",
+          },
+          {
+            tab: "reports",
+            name: "Reports Center",
+            icon: "fa-file-alt",
+            description: "Generate and export business reports",
+          },
+          {
+            tab: "promotions",
+            name: "Promotions",
+            icon: "fa-tags",
+            description: "Manage discounts, coupons, and special offers",
+          },
+          {
+            tab: "support",
+            name: "Support Tickets",
+            icon: "fa-headset",
+            description: "Customer support and ticket management",
+          },
+          {
+            tab: "settings",
+            name: "Settings",
+            icon: "fa-cog",
+            description: "System configuration and preferences",
+          },
+        ];
+
+        // Update main content based on selected tab
+        function updateMainContent(tabId) {
+          const navItem = navItems.find((item) => item.tab === tabId);
+          if (!navItem) return;
+
+          const contentTitle = document.getElementById("contentTitle");
+          const contentDescription =
+            document.getElementById("contentDescription");
+          const dynamicContent = document.getElementById("dynamicContent");
+
+          if (contentTitle) contentTitle.textContent = navItem.name;
+          if (contentDescription)
+            contentDescription.textContent = navItem.description;
+
+          if (dynamicContent) {
+            let extraHtml = "";
+            switch (tabId) {
+              case "dashboard":
+                extraHtml = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4"><p class="text-sm text-gray-600">Total Revenue</p><p class="text-2xl font-bold text-emerald-700">KES 1.85M</p><p class="text-xs text-green-600 mt-1">↑ 12.5% vs last month</p></div>
+                  <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4"><p class="text-sm text-gray-600">Active Orders</p><p class="text-2xl font-bold text-blue-700">847</p><p class="text-xs text-green-600 mt-1">↑ 8.2%</p></div>
+                  <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4"><p class="text-sm text-gray-600">Active Customers</p><p class="text-2xl font-bold text-purple-700">1,247</p><p class="text-xs text-green-600 mt-1">↑ 5.4%</p></div>
+                </div>
+              `;
+                break;
+              case "catalog":
+                extraHtml = `
+                <div class="mt-4 bg-gray-50 rounded-xl p-4">
+                  <div class="flex justify-between items-center mb-3"><p class="font-semibold"><i class="fas fa-box text-emerald-500 mr-2"></i>Product Summary</p><button class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm">➕ Add Product</button></div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                    <div class="bg-white rounded-lg p-2"><p class="text-xs text-gray-500">Total Products</p><p class="text-xl font-bold">124</p></div>
+                    <div class="bg-white rounded-lg p-2"><p class="text-xs text-gray-500">Categories</p><p class="text-xl font-bold">6</p></div>
+                    <div class="bg-white rounded-lg p-2"><p class="text-xs text-gray-500">Low Stock</p><p class="text-xl font-bold text-amber-600">8</p></div>
+                    <div class="bg-white rounded-lg p-2"><p class="text-xs text-gray-500">Out of Stock</p><p class="text-xl font-bold text-red-600">3</p></div>
+                  </div>
+                </div>
+              `;
+                break;
+              case "inventory":
+                extraHtml = `
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="bg-amber-50 rounded-xl p-4 border border-amber-200"><p class="font-semibold text-amber-800"><i class="fas fa-exclamation-triangle mr-2"></i>Low Stock Alerts</p><p class="text-sm mt-2">• Denim Jacket: 12 units left</p><p class="text-sm">• Summer Dress: 8 units left</p><p class="text-sm">• Leather Boots: 5 units left</p></div>
+                  <div class="bg-green-50 rounded-xl p-4 border border-green-200"><p class="font-semibold text-green-800"><i class="fas fa-check-circle mr-2"></i>Healthy Stock</p><p class="text-sm mt-2">• T-Shirts: 156 units</p><p class="text-sm">• Sneakers: 89 units</p><p class="text-sm">• Hoodies: 67 units</p></div>
+                </div>
+              `;
+                break;
+              case "orders":
+                extraHtml = `
+                <div class="mt-4 bg-white border rounded-xl overflow-hidden">
+                  <table class="w-full">
+                    <thead class="bg-gray-50"><tr><th class="p-3 text-left text-sm">Order ID</th><th class="p-3 text-left">Customer</th><th class="p-3 text-left">Amount</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Date</th></tr></thead>
+                    <tbody>
+                      <tr class="border-t"><td class="p-3">#ORD-001</td><td>Sarah Mwangi</td><td class="font-semibold">KES 12,450</td><td><span class="px-2 py-1 bg-yellow-100 rounded-full text-xs">Processing</span></td><td class="text-sm text-gray-500">2026-04-11</td></tr>
+                      <tr class="border-t"><td class="p-3">#ORD-002</td><td>John Kamau</td><td class="font-semibold">KES 6,500</td><td><span class="px-2 py-1 bg-green-100 rounded-full text-xs">Delivered</span></td><td class="text-sm text-gray-500">2026-04-10</td></tr>
+                      <tr class="border-t"><td class="p-3">#ORD-003</td><td>Grace Njeri</td><td class="font-semibold">KES 18,900</td><td><span class="px-2 py-1 bg-blue-100 rounded-full text-xs">Shipped</span></td><td class="text-sm text-gray-500">2026-04-09</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              `;
+                break;
+              default:
+                extraHtml = `
+                <div class="mt-4 p-4 bg-emerald-50 rounded-xl">
+                  <p class="text-sm text-gray-700"><i class="fas fa-info-circle text-emerald-500 mr-2"></i>Module "${navItem.name}" is ready for integration with Laravel backend.</p>
+                  <p class="text-xs text-gray-500 mt-2">API endpoints and data fetching can be configured here.</p>
+                </div>
+              `;
+            }
+            dynamicContent.innerHTML = extraHtml;
+          }
+        }
+
+        // Set active tab in sidebar
+        function setActiveTab(tabId) {
+          document.querySelectorAll(".nav-item").forEach((item) => {
+            if (item.getAttribute("data-tab") === tabId) {
+              item.classList.add("active");
+            } else {
+              item.classList.remove("active");
+            }
+          });
+        }
+
+        // Handle navigation click
+        function handleNavClick(tabId) {
+          currentTab = tabId;
+          setActiveTab(tabId);
+          updateMainContent(tabId);
+
+          // Close mobile sidebar if open
+          if (window.innerWidth < 1024) {
+            closeMobileSidebar();
+          }
+
+          // Store current tab in session storage
+          sessionStorage.setItem("currentAdminTab", tabId);
+        }
+
+        // Mobile sidebar functions
+        const sidebar = document.getElementById("mainSidebar");
+        const overlay = document.getElementById("mobileOverlay");
+        const mobileToggle = document.getElementById("mobileMenuToggle");
+
+        function openMobileSidebar() {
+          if (sidebar) {
+            sidebar.classList.add("mobile-open");
+            if (overlay) overlay.classList.add("active");
+            document.body.style.overflow = "hidden";
+          }
+        }
+
+        function closeMobileSidebar() {
+          if (sidebar) {
+            sidebar.classList.remove("mobile-open");
+            if (overlay) overlay.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        }
+
+        function toggleMobileSidebar() {
+          if (sidebar && sidebar.classList.contains("mobile-open")) {
+            closeMobileSidebar();
+          } else {
+            openMobileSidebar();
+          }
+        }
+
+        // Attach event listeners to nav items
+        function attachNavEvents() {
+          document.querySelectorAll(".nav-item").forEach((item) => {
+            const tabId = item.getAttribute("data-tab");
+            item.removeEventListener("click", () => {});
+            item.addEventListener("click", () => handleNavClick(tabId));
+          });
+        }
+
+        // Logout handler
+        function handleLogout() {
+          if (confirm("Are you sure you want to logout?")) {
+            sessionStorage.removeItem("currentAdminTab");
+            alert(
+              "Logout functionality - Redirect to login page in production",
+            );
+            // window.location.href = '/logout';
+          }
+        }
+
+        // Restore last active tab
+        function restoreLastTab() {
+          const savedTab = sessionStorage.getItem("currentAdminTab");
+          if (savedTab && navItems.some((item) => item.tab === savedTab)) {
+            handleNavClick(savedTab);
+          } else {
+            handleNavClick("dashboard");
+          }
+        }
+
+        // Initialize component
+        function init() {
+          attachNavEvents();
+
+          // Mobile toggle button
+          if (mobileToggle) {
+            mobileToggle.addEventListener("click", toggleMobileSidebar);
+          }
+
+          // Overlay click to close
+          if (overlay) {
+            overlay.addEventListener("click", closeMobileSidebar);
+          }
+
+          // Logout button
+          const logoutBtn = document.getElementById("logoutBtn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", handleLogout);
+          }
+
+          // Restore last active tab
+          restoreLastTab();
+
+          // Ensure sidebar is properly positioned on resize
+          window.addEventListener("resize", () => {
+            if (window.innerWidth >= 1024) {
+              if (sidebar) sidebar.classList.remove("mobile-open");
+              if (overlay) overlay.classList.remove("active");
+              document.body.style.overflow = "";
+            }
+          });
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", init);
+        } else {
+          init();
+        }
+      })();
+    </script>
+
+    <!-- Integration Note for Laravel Developers -->
+    <div class="fixed bottom-4 right-4 z-50 hidden lg:block">
+      <div
+        class="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg opacity-75 hover:opacity-100 transition"
+      >
+        <i class="fas fa-code mr-1"></i> Made By JMakoti
+      </div>
+    </div>
+  </body>
+</html>

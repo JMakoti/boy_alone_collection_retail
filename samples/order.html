@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Lipa Mdogo | Complete Enterprise Retail Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      @media (max-width: 1024px) {
+        .sidebar-mobile {
+          transform: translateX(-100%);
+          position: fixed;
+          z-index: 50;
+          transition: 0.3s;
+        }
+        .sidebar-mobile.open {
+          transform: translateX(0);
+        }
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <button
+      id="mobileMenuBtn"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex min-h-screen relative">
+      <aside
+        id="sidebar"
+        class="sidebar-mobile lg:translate-x-0 w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto scrollbar-custom z-40"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                Boy<span class="text-emerald-600">Alone</span>
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Enterprise Admin Suite v2.0
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1.5">
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-chart-line w-5 text-lg"></i
+            ><span>Executive Dashboard</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="catalog"
+          >
+            <i class="fas fa-tags w-5 text-lg"></i><span>Product Catalog</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="inventory"
+          >
+            <i class="fas fa-boxes w-5 text-lg"></i
+            ><span>Inventory Intelligence</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold"
+            data-tab="orders"
+          >
+            <i class="fas fa-tasks w-5 text-lg"></i><span>Order Pipeline</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="customers"
+          >
+            <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="transactions"
+          >
+            <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="installments"
+          >
+            <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+            ><span>Lipa Mdogo Core</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="analytics"
+          >
+            <i class="fas fa-chart-pie w-5 text-lg"></i
+            ><span>Analytics Engine</span>
+          </div>
+        </nav>
+        <div
+          class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white mt-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-gray-800">Store Manager</p>
+              <p class="text-xs text-gray-500">Role: Admin · Full Access</p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </aside>
+
+      <main class="flex-1 lg:ml-0 min-h-screen">
+        <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+      </main>
+    </div>
+
+    <!-- Existing Modals (Product, Delete, Payment, Default) -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl"
+        >
+          <div class="flex justify-between items-center">
+            <h3 class="text-2xl font-bold" id="modalTitle">
+              <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+              Product
+            </h3>
+            <button
+              id="closeProductModalBtn"
+              class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <form id="productForm" class="space-y-5">
+            <input type="hidden" id="productId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category</label
+                ><select
+                  id="prodCategory"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Buy Price (KES)</label
+                ><input
+                  type="number"
+                  id="prodBuyPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Sell Price (KES)</label
+                ><input
+                  type="number"
+                  id="prodSellPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Stock Quantity</label
+                ><input
+                  type="number"
+                  id="prodStock"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Size</label
+                ><select
+                  id="prodSize"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Supplier</label
+                ><input
+                  type="text"
+                  id="prodSupplier"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Image URL</label
+                ><input
+                  type="url"
+                  id="prodImage"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Description</label
+              ><textarea
+                id="prodDesc"
+                rows="3"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              ></textarea>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center">
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Delete Product</h3>
+        <p class="text-gray-500 mb-6">
+          Are you sure you want to delete this product? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="paymentModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold">
+              <i class="fas fa-calendar-plus text-emerald-600 mr-2"></i>New
+              Payment Plan
+            </h3>
+            <button
+              id="closeModalBtn"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          <input
+            type="text"
+            id="planCustomer"
+            placeholder="Customer Name"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          /><input
+            type="number"
+            id="planAmount"
+            placeholder="Total Amount (KES)"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          /><select
+            id="planTerms"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="3">3 Weekly Payments</option>
+            <option value="6">6 Weekly Payments</option>
+          </select>
+          <div class="bg-emerald-50 p-3 rounded-xl">
+            <p class="text-sm font-medium text-emerald-800">
+              💡 Estimated weekly: KES <span id="weeklyEstimate">0</span>
+            </p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex gap-3 justify-end">
+          <button id="closeModalBtn2" class="px-4 py-2 border rounded-xl">
+            Cancel</button
+          ><button
+            id="confirmPlanBtn"
+            class="px-6 py-2 bg-emerald-600 text-white rounded-xl"
+          >
+            Create Plan
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="defaultModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6">
+        <h3 class="font-bold text-xl mb-2">Handle Payment Default</h3>
+        <p class="mb-4 text-gray-500">Escalation & recovery actions</p>
+        <div class="space-y-2">
+          <button
+            class="w-full p-3 bg-yellow-100 text-yellow-800 rounded-xl font-medium"
+          >
+            Send SMS Reminder</button
+          ><button
+            class="w-full p-3 bg-blue-100 text-blue-800 rounded-xl font-medium"
+          >
+            Restructure Payment Plan</button
+          ><button
+            class="w-full p-3 bg-red-100 text-red-800 rounded-xl font-medium"
+          >
+            Mark for Collections
+          </button>
+        </div>
+        <button
+          id="closeDefaultModal"
+          class="mt-4 w-full p-3 bg-gray-100 rounded-xl font-medium"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- NEW: Manual Add Order Modal (replaces view order modal) -->
+    <div
+      id="addOrderModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-cart-plus text-emerald-600 mr-2"></i>Manual Add
+            Order
+          </h3>
+          <button
+            id="closeAddOrderModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="addOrderForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="orderCustomerName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="orderEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number</label
+                ><input
+                  type="tel"
+                  id="orderPhone"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="orderAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Type <span class="text-red-500">*</span></label
+                ><select
+                  id="orderPaymentType"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="full">Full Payment</option>
+                  <option value="installment">Installment (Lipa Mdogo)</option>
+                </select>
+              </div>
+              <div id="installmentPlanDiv" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Installment Plan</label
+                ><select
+                  id="orderInstallmentPlan"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="3 months">3 Months</option>
+                  <option value="6 months">6 Months</option>
+                  <option value="9 months">9 Months</option>
+                  <option value="12 months">12 Months</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Order Status <span class="text-red-500">*</span></label
+                ><select
+                  id="orderStatus"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Line Items Section -->
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-semibold text-gray-700"
+                  >Order Items</label
+                ><button
+                  type="button"
+                  id="addLineItemBtn"
+                  class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-200"
+                >
+                  <i class="fas fa-plus mr-1"></i>Add Item
+                </button>
+              </div>
+              <div id="lineItemsContainer" class="space-y-3">
+                <div
+                  class="line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl"
+                >
+                  <div class="col-span-5">
+                    <input
+                      type="text"
+                      placeholder="Product name"
+                      class="item-name w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2">
+                    <input
+                      type="number"
+                      placeholder="Qty"
+                      class="item-qty w-full px-3 py-2 border rounded-lg text-sm"
+                      value="1"
+                    />
+                  </div>
+                  <div class="col-span-3">
+                    <input
+                      type="number"
+                      placeholder="Price (KES)"
+                      class="item-price w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2 text-right">
+                    <button
+                      type="button"
+                      class="remove-item text-red-500 hover:text-red-700"
+                    >
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 text-right font-semibold text-gray-700">
+                Total Amount:
+                <span id="orderTotalPreview" class="text-emerald-700 text-xl"
+                  >KES 0</span
+                >
+              </div>
+            </div>
+
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelOrderBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-check-circle mr-2"></i>Create Order
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let activeTab = "orders";
+      let products = [
+        {
+          id: 1,
+          name: "Premium Denim Jacket",
+          category: "Men's Clothing",
+          buyPrice: 1800,
+          sellPrice: 3500,
+          stock: 45,
+          size: "L",
+          supplier: "Fashion Hub Ltd",
+          image:
+            "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+          description: "Classic denim jacket",
+        },
+        {
+          id: 2,
+          name: "Floral Summer Dress",
+          category: "Women's Clothing",
+          buyPrice: 1200,
+          sellPrice: 2900,
+          stock: 28,
+          size: "M",
+          supplier: "Style Africa",
+          image:
+            "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+          description: "Lightweight floral dress",
+        },
+      ];
+      let paymentPlans = [
+        {
+          id: 1,
+          customer: "Alice Mwangi",
+          total: 3200,
+          paid: 1200,
+          status: "active",
+          nextDue: "2025-04-12",
+        },
+        {
+          id: 2,
+          customer: "Brian Otieno",
+          total: 6700,
+          paid: 0,
+          status: "default",
+          nextDue: "2025-03-30",
+        },
+      ];
+      let deleteTargetId = null;
+
+      // Enhanced order data with line items & shipping info
+      let ordersData = [
+        {
+          id: "ORD-12847",
+          customer: "Sarah Mwangi",
+          email: "sarah.mwangi@example.com",
+          phone: "+254 712 345 678",
+          items: 3,
+          total: 12450,
+          paymentType: "installment",
+          status: "processing",
+          createdAt: "2026-04-09",
+          installmentPlan: "6 months",
+          shippingAddress: "123 Kimathi Street, Nairobi",
+          lineItems: [
+            { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+            { name: "Leather Sneakers", qty: 1, price: 4500 },
+            { name: "Cashmere Scarf", qty: 1, price: 4450 },
+          ],
+        },
+        {
+          id: "ORD-12846",
+          customer: "John Kamau",
+          email: "john.kamau@example.com",
+          phone: "+254 722 456 789",
+          items: 1,
+          total: 6500,
+          paymentType: "full",
+          status: "shipped",
+          createdAt: "2026-04-08",
+          shippingAddress: "45 Moi Avenue, Mombasa",
+          lineItems: [{ name: "Leather Boots", qty: 1, price: 6500 }],
+        },
+        {
+          id: "ORD-12845",
+          customer: "Grace Njeri",
+          email: "grace.njeri@example.com",
+          phone: "+254 733 567 890",
+          items: 5,
+          total: 18900,
+          paymentType: "installment",
+          status: "pending",
+          createdAt: "2026-04-08",
+          installmentPlan: "12 months",
+          shippingAddress: "78 Ngong Road, Nairobi",
+          lineItems: [
+            { name: "Floral Summer Dress", qty: 2, price: 5800 },
+            { name: "Slim Fit Jeans", qty: 2, price: 7800 },
+            { name: "Leather Belt", qty: 1, price: 5300 },
+          ],
+        },
+        {
+          id: "ORD-12844",
+          customer: "Peter Omondi",
+          email: "peter.omondi@example.com",
+          phone: "+254 744 678 901",
+          items: 2,
+          total: 7800,
+          paymentType: "full",
+          status: "delivered",
+          createdAt: "2026-04-07",
+          shippingAddress: "12 Kenyatta Avenue, Kisumu",
+          lineItems: [{ name: "Cotton T-Shirt", qty: 2, price: 3900 }],
+        },
+        {
+          id: "ORD-12843",
+          customer: "Mary Wanjiku",
+          email: "mary.wanjiku@example.com",
+          phone: "+254 755 789 012",
+          items: 4,
+          total: 15200,
+          paymentType: "installment",
+          status: "processing",
+          createdAt: "2026-04-07",
+          installmentPlan: "9 months",
+          shippingAddress: "99 Thika Road, Kiambu",
+          lineItems: [
+            { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+            { name: "Leather Sneakers", qty: 1, price: 4500 },
+            { name: "Wool Sweater", qty: 2, price: 7200 },
+          ],
+        },
+        {
+          id: "ORD-12842",
+          customer: "David Otieno",
+          email: "david.otieno@example.com",
+          phone: "+254 766 890 123",
+          items: 1,
+          total: 3200,
+          paymentType: "full",
+          status: "cancelled",
+          createdAt: "2026-04-06",
+          shippingAddress: "55 Kisii Road, Kisii",
+          lineItems: [{ name: "Running Shoes", qty: 1, price: 3200 }],
+        },
+      ];
+
+      function generateOrderId() {
+        const lastId =
+          ordersData.length > 0
+            ? Math.max(...ordersData.map((o) => parseInt(o.id.split("-")[1])))
+            : 12842;
+        return `ORD-${lastId + 1}`;
+      }
+
+      function calculateTotalFromItems() {
+        let total = 0;
+        document.querySelectorAll(".line-item").forEach((item) => {
+          const qty = parseFloat(item.querySelector(".item-qty")?.value) || 0;
+          const price =
+            parseFloat(item.querySelector(".item-price")?.value) || 0;
+          total += qty * price;
+        });
+        document.getElementById("orderTotalPreview").innerText =
+          `KES ${total.toLocaleString()}`;
+        return total;
+      }
+
+      function attachLineItemEvents() {
+        document
+          .querySelectorAll(".item-qty, .item-price")
+          .forEach((el) =>
+            el.addEventListener("input", () => calculateTotalFromItems()),
+          );
+        document.querySelectorAll(".remove-item").forEach((btn) =>
+          btn.addEventListener("click", function () {
+            const lineItem = this.closest(".line-item");
+            if (document.querySelectorAll(".line-item").length > 1)
+              lineItem.remove();
+            else {
+              lineItem.querySelector(".item-name").value = "";
+              lineItem.querySelector(".item-qty").value = 1;
+              lineItem.querySelector(".item-price").value = "";
+            }
+            calculateTotalFromItems();
+          }),
+        );
+      }
+
+      function resetAddOrderModal() {
+        document.getElementById("addOrderForm").reset();
+        const container = document.getElementById("lineItemsContainer");
+        container.innerHTML = `<div class="line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl"><div class="col-span-5"><input type="text" placeholder="Product name" class="item-name w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2"><input type="number" placeholder="Qty" class="item-qty w-full px-3 py-2 border rounded-lg text-sm" value="1"></div><div class="col-span-3"><input type="number" placeholder="Price (KES)" class="item-price w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2 text-right"><button type="button" class="remove-item text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button></div></div>`;
+        attachLineItemEvents();
+        calculateTotalFromItems();
+        document.getElementById("installmentPlanDiv").classList.add("hidden");
+        document.getElementById("orderPaymentType").value = "full";
+      }
+
+      function openAddOrderModal() {
+        resetAddOrderModal();
+        document.getElementById("addOrderModal").classList.remove("hidden");
+        document.getElementById("addOrderModal").classList.add("flex");
+      }
+
+      function addNewOrder(formData) {
+        const lineItems = [];
+        document.querySelectorAll(".line-item").forEach((item) => {
+          const name = item.querySelector(".item-name")?.value;
+          const qty = parseInt(item.querySelector(".item-qty")?.value) || 0;
+          const price =
+            parseFloat(item.querySelector(".item-price")?.value) || 0;
+          if (name && qty > 0 && price > 0)
+            lineItems.push({ name, qty, price });
+        });
+        if (lineItems.length === 0) {
+          alert("Please add at least one valid order item");
+          return false;
+        }
+        const total = lineItems.reduce((sum, i) => sum + i.qty * i.price, 0);
+        const newOrder = {
+          id: generateOrderId(),
+          customer: formData.customerName,
+          email: formData.email,
+          phone: formData.phone,
+          items: lineItems.reduce((s, i) => s + i.qty, 0),
+          total: total,
+          paymentType: formData.paymentType,
+          status: formData.status,
+          createdAt: new Date().toISOString().slice(0, 10),
+          shippingAddress: formData.address,
+          lineItems: lineItems,
+        };
+        if (formData.paymentType === "installment")
+          newOrder.installmentPlan = formData.installmentPlan;
+        ordersData.unshift(newOrder);
+        return true;
+      }
+
+      function renderOrdersList() {
+        const totalOrders = ordersData.length;
+        const pendingCount = ordersData.filter(
+          (o) => o.status === "pending",
+        ).length;
+        const processingCount = ordersData.filter(
+          (o) => o.status === "processing",
+        ).length;
+        const shippedCount = ordersData.filter(
+          (o) => o.status === "shipped",
+        ).length;
+        const deliveredCount = ordersData.filter(
+          (o) => o.status === "delivered",
+        ).length;
+
+        return `
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div><h1 class="text-3xl font-bold text-gray-800">Order Management</h1><p class="text-gray-500 mt-1">Track, manage and manually add customer orders</p></div>
+            <div class="flex gap-2"><button id="addOrderManuallyBtn" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg transition flex items-center gap-2"><i class="fas fa-plus-circle"></i> Manual Add Order</button><button id="refreshOrdersBtn" class="px-4 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition"><i class="fas fa-sync-alt"></i> Refresh</button><button id="exportOrdersBtn" class="px-4 py-2.5 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition"><i class="fas fa-download"></i> Export</button></div>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-sm text-gray-500">Total Orders</p><p class="text-2xl font-semibold mt-1">${totalOrders}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-sm text-gray-500">Pending</p><p class="text-2xl font-semibold mt-1 text-amber-600">${pendingCount}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-sm text-gray-500">Processing</p><p class="text-2xl font-semibold mt-1 text-blue-600">${processingCount}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-sm text-gray-500">Shipped</p><p class="text-2xl font-semibold mt-1 text-purple-600">${shippedCount}</p></div>
+            <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-sm text-gray-500">Delivered</p><p class="text-2xl font-semibold mt-1 text-green-600">${deliveredCount}</p></div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="orderSearchInput" placeholder="Search by ID, customer, email or phone..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"></div><select id="statusFilterSelect" class="px-4 py-2.5 border border-gray-200 rounded-xl bg-white"><option value="all">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50 border-b border-gray-200"><tr><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Order ID</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Customer</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Items</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Total</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Payment</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-600"></th></tr></thead><tbody id="ordersTableBody" class="divide-y divide-gray-100"></tbody></table></div><div id="noOrdersMsg" class="hidden p-8 text-center text-gray-400"><i class="fas fa-inbox text-3xl mb-2"></i><p>No orders match your search</p></div></div>
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 flex justify-between items-center flex-wrap gap-2"><span class="text-sm font-medium"><i class="fas fa-chart-line"></i> Installment orders insight: ${Math.round((ordersData.filter((o) => o.paymentType === "installment").length / totalOrders) * 100)}% of orders</span><button id="bulkOrderActionBtn" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">Bulk Update Status</button></div>
+        </div>
+      `;
+      }
+
+      function renderOrdersTableBody(filteredOrders) {
+        const tbody = document.getElementById("ordersTableBody");
+        const noMsg = document.getElementById("noOrdersMsg");
+        if (!tbody) return;
+        if (filteredOrders.length === 0) {
+          tbody.innerHTML = "";
+          if (noMsg) noMsg.classList.remove("hidden");
+          return;
+        }
+        if (noMsg) noMsg.classList.add("hidden");
+        tbody.innerHTML = filteredOrders
+          .map((order) => {
+            let statusColor =
+              order.status === "delivered"
+                ? "bg-green-100 text-green-700"
+                : order.status === "shipped"
+                  ? "bg-purple-100 text-purple-700"
+                  : order.status === "processing"
+                    ? "bg-blue-100 text-blue-700"
+                    : order.status === "cancelled"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-amber-100 text-amber-700";
+            return `<tr class="hover:bg-gray-50 transition"><td class="px-6 py-4 font-medium text-gray-800">${order.id}</td><td class="px-6 py-4 text-gray-700">${escapeHtml(order.customer)}<div class="text-xs text-gray-400">${order.email || ""}</div></td><td class="px-6 py-4 text-gray-500">${order.items}</td><td class="px-6 py-4 font-semibold text-emerald-700">KES ${order.total.toLocaleString()}</td><td class="px-6 py-4">${order.paymentType === "installment" ? `<span class="inline-flex px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Installment</span> ${order.installmentPlan ? `<p class="text-xs text-gray-500 mt-1">${order.installmentPlan}</p>` : ""}` : '<span class="text-gray-600 text-sm">Full Payment</span>'}</td><td class="px-6 py-4"><span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusColor}">${order.status}</span></td><td class="px-6 py-4 text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</td><td class="px-6 py-4"><button class="quickViewOrderBtn px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-emerald-50 transition" data-id="${order.id}"><i class="fas fa-eye mr-1"></i> Quick View</button></td></tr>`;
+          })
+          .join("");
+        document.querySelectorAll(".quickViewOrderBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const id = btn.getAttribute("data-id");
+            const order = ordersData.find((o) => o.id === id);
+            alert(
+              `📦 Order ${order.id}\nCustomer: ${order.customer}\nTotal: KES ${order.total}\nStatus: ${order.status}\nItems: ${order.lineItems.map((i) => `${i.name} x${i.qty}`).join(", ")}`,
+            );
+          }),
+        );
+      }
+
+      function filterOrders() {
+        const searchTerm =
+          document.getElementById("orderSearchInput")?.value.toLowerCase() ||
+          "";
+        const statusFilter =
+          document.getElementById("statusFilterSelect")?.value || "all";
+        let filtered = [...ordersData];
+        if (searchTerm)
+          filtered = filtered.filter(
+            (o) =>
+              o.id.toLowerCase().includes(searchTerm) ||
+              o.customer.toLowerCase().includes(searchTerm) ||
+              (o.email && o.email.toLowerCase().includes(searchTerm)) ||
+              (o.phone && o.phone.includes(searchTerm)),
+          );
+        if (statusFilter !== "all")
+          filtered = filtered.filter((o) => o.status === statusFilter);
+        renderOrdersTableBody(filtered);
+      }
+
+      function attachOrderEvents() {
+        document
+          .getElementById("orderSearchInput")
+          ?.addEventListener("input", filterOrders);
+        document
+          .getElementById("statusFilterSelect")
+          ?.addEventListener("change", filterOrders);
+        document
+          .getElementById("refreshOrdersBtn")
+          ?.addEventListener("click", () => {
+            const s = document.getElementById("orderSearchInput");
+            if (s) s.value = "";
+            const st = document.getElementById("statusFilterSelect");
+            if (st) st.value = "all";
+            filterOrders();
+          });
+        document
+          .getElementById("exportOrdersBtn")
+          ?.addEventListener("click", () =>
+            alert("📄 Order report exported as CSV."),
+          );
+        document
+          .getElementById("bulkOrderActionBtn")
+          ?.addEventListener("click", () =>
+            alert("Bulk status update: Select orders to update."),
+          );
+        document
+          .getElementById("addOrderManuallyBtn")
+          ?.addEventListener("click", () => openAddOrderModal());
+        filterOrders();
+      }
+
+      // Other tab renderers
+      function renderDashboard() {
+        return `<div class="mb-8"><h2 class="text-3xl font-bold text-gray-800">Executive Dashboard</h2><p class="text-gray-500">Real-time KPIs</p></div><div class="grid md:grid-cols-3 gap-6"><div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-emerald-600 text-xl"></i></div><p class="text-gray-500 mt-4">Daily Sales</p><p class="text-2xl font-bold">KES 184,200</p></div></div>`;
+      }
+      function renderCatalog() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Product Catalog</h2><button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">Add Product</button><table class="w-full mt-4"><thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody>${products.map((p) => `<tr><td>${p.name}</td><td>${p.sellPrice}</td><td>${p.stock}</td><td><button class="editProductBtn text-blue-600" data-id="${p.id}">Edit</button><button class="deleteProductBtn text-red-600 ml-2" data-id="${p.id}">Del</button></td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function renderInventory() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Inventory Intelligence</h2><div class="grid grid-cols-2 gap-4"><div class="p-4 bg-gray-50 rounded-xl">Denim Jacket: 45 units</div><div class="p-4 bg-gray-50 rounded-xl">Summer Dress: 28 units</div></div></div>`;
+      }
+      function renderCustomers() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Customer Hub</h2><input placeholder="Search customer" class="w-full p-2 border rounded-lg"></div>`;
+      }
+      function renderTransactions() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Transaction Hub</h2><p>Ledger reconciliation</p></div>`;
+      }
+      function renderInstallments() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Lipa Mdogo Core</h2><button id="createPlanMainBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">New Payment Plan</button><table class="w-full mt-4"><thead><tr><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>${paymentPlans.map((p) => `<tr><td>${p.customer}</td><td>${p.total}</td><td>${p.status}</td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function renderAnalytics() {
+        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold mb-4">Analytics Engine</h2><canvas id="salesTrend" height="200"></canvas></div><script>setTimeout(()=>{ const ctx=document.getElementById('salesTrend')?.getContext('2d'); if(ctx) new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Sales',data:[120,145,178],borderColor:'#059669'}]}}); },100);<\/script>`;
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (activeTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (activeTab === "catalog") container.innerHTML = renderCatalog();
+        else if (activeTab === "inventory")
+          container.innerHTML = renderInventory();
+        else if (activeTab === "orders") {
+          container.innerHTML = renderOrdersList();
+          attachOrderEvents();
+        } else if (activeTab === "customers")
+          container.innerHTML = renderCustomers();
+        else if (activeTab === "transactions")
+          container.innerHTML = renderTransactions();
+        else if (activeTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (activeTab === "analytics")
+          container.innerHTML = renderAnalytics();
+        attachCommonEvents();
+      }
+
+      function attachCommonEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal(null));
+        document.querySelectorAll(".editProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const p = products.find((p) => p.id == btn.dataset.id);
+            if (p) openProductModal(p);
+          }),
+        );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            deleteTargetId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+          }),
+        );
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (deleteTargetId) {
+              products = products.filter((p) => p.id !== deleteTargetId);
+              renderCurrentTab();
+            }
+            document.getElementById("deleteModal").classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        document
+          .getElementById("createPlanMainBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("paymentModal").classList.remove("hidden"),
+          );
+        document
+          .getElementById("confirmPlanBtn")
+          ?.addEventListener("click", () => {
+            alert("Plan created");
+            document.getElementById("paymentModal").classList.add("hidden");
+          });
+        document
+          .querySelectorAll("#closeModalBtn, #closeModalBtn2")
+          .forEach((btn) =>
+            btn?.addEventListener("click", () =>
+              document.getElementById("paymentModal").classList.add("hidden"),
+            ),
+          );
+        document
+          .getElementById("closeDefaultModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("defaultModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeAddOrderModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("addOrderModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelOrderBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("addOrderModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("orderPaymentType")
+          ?.addEventListener("change", (e) => {
+            const div = document.getElementById("installmentPlanDiv");
+            if (e.target.value === "installment")
+              div.classList.remove("hidden");
+            else div.classList.add("hidden");
+          });
+        document
+          .getElementById("addLineItemBtn")
+          ?.addEventListener("click", () => {
+            const container = document.getElementById("lineItemsContainer");
+            const newItem = document.createElement("div");
+            newItem.className =
+              "line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl";
+            newItem.innerHTML = `<div class="col-span-5"><input type="text" placeholder="Product name" class="item-name w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2"><input type="number" placeholder="Qty" class="item-qty w-full px-3 py-2 border rounded-lg text-sm" value="1"></div><div class="col-span-3"><input type="number" placeholder="Price (KES)" class="item-price w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2 text-right"><button type="button" class="remove-item text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button></div>`;
+            container.appendChild(newItem);
+            attachLineItemEvents();
+            calculateTotalFromItems();
+          });
+        document
+          .getElementById("addOrderForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const newOrderData = {
+              customerName: document.getElementById("orderCustomerName").value,
+              email: document.getElementById("orderEmail").value,
+              phone: document.getElementById("orderPhone").value,
+              address: document.getElementById("orderAddress").value,
+              paymentType: document.getElementById("orderPaymentType").value,
+              installmentPlan: document.getElementById("orderInstallmentPlan")
+                ?.value,
+              status: document.getElementById("orderStatus").value,
+            };
+            if (!newOrderData.customerName) {
+              alert("Customer name required");
+              return;
+            }
+            if (addNewOrder(newOrderData)) {
+              alert("✅ Order created successfully!");
+              document.getElementById("addOrderModal").classList.add("hidden");
+              renderCurrentTab();
+            } else
+              alert("Please add valid items with name, quantity and price.");
+          });
+      }
+
+      function openProductModal(product = null) {
+        const modal = document.getElementById("productModal");
+        if (product) {
+          document.getElementById("productId").value = product.id;
+          document.getElementById("prodName").value = product.name;
+          document.getElementById("prodCategory").value = product.category;
+          document.getElementById("prodBuyPrice").value = product.buyPrice;
+          document.getElementById("prodSellPrice").value = product.sellPrice;
+          document.getElementById("prodStock").value = product.stock;
+          document.getElementById("prodSize").value = product.size;
+          document.getElementById("prodSupplier").value =
+            product.supplier || "";
+          document.getElementById("prodImage").value = product.image || "";
+        } else document.getElementById("productForm").reset();
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+      function saveProductFromForm() {
+        const id = document.getElementById("productId").value;
+        const data = {
+          name: document.getElementById("prodName").value,
+          category: document.getElementById("prodCategory").value,
+          buyPrice: parseFloat(document.getElementById("prodBuyPrice").value),
+          sellPrice: parseFloat(document.getElementById("prodSellPrice").value),
+          stock: parseInt(document.getElementById("prodStock").value),
+          size: document.getElementById("prodSize").value,
+          supplier: document.getElementById("prodSupplier").value,
+          image: document.getElementById("prodImage").value,
+        };
+        if (!data.name) return alert("Name required");
+        if (id) {
+          const idx = products.findIndex((p) => p.id == id);
+          if (idx !== -1)
+            products[idx] = { ...products[idx], ...data, id: parseInt(id) };
+        } else products.push({ id: Date.now(), ...data });
+        document.getElementById("productModal").classList.add("hidden");
+        renderCurrentTab();
+      }
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      document.querySelectorAll(".nav-item").forEach((item) =>
+        item.addEventListener("click", function () {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) =>
+              n.classList.remove("bg-emerald-50", "text-emerald-700"),
+            );
+          this.classList.add("bg-emerald-50", "text-emerald-700");
+          activeTab = this.getAttribute("data-tab");
+          renderCurrentTab();
+        }),
+      );
+      document
+        .getElementById("mobileMenuBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("sidebar").classList.toggle("open"),
+        );
+      renderCurrentTab();
+    </script>
+  </body>
+</html>

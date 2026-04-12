@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Lipa Mdogo | Complete Enterprise Retail Admin Suite</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts + Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      @media (max-width: 1024px) {
+        .sidebar-mobile {
+          transform: translateX(-100%);
+          position: fixed;
+          z-index: 50;
+          transition: 0.3s;
+        }
+        .sidebar-mobile.open {
+          transform: translateX(0);
+        }
+      }
+      .kanban-column {
+        min-width: 280px;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 1rem;
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .modal-transition {
+        transition: all 0.3s ease;
+      }
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-active {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-default {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .status-processing {
+        background: #fef3c7;
+        color: #92400e;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!-- Mobile Toggle -->
+    <button
+      id="mobileMenuBtn"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <div class="flex min-h-screen relative">
+      <!-- Sidebar Navigation -->
+      <aside
+        id="sidebar"
+        class="sidebar-mobile lg:translate-x-0 w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto scrollbar-custom z-40"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                Boy<span class="text-emerald-600">Alone</span>
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Enterprise Admin Suite v2.0
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1.5">
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-chart-line w-5 text-lg"></i
+            ><span>Executive Dashboard</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="catalog"
+          >
+            <i class="fas fa-tags w-5 text-lg"></i><span>Product Catalog</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="inventory"
+          >
+            <i class="fas fa-boxes w-5 text-lg"></i
+            ><span>Inventory Intelligence</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="orders"
+          >
+            <i class="fas fa-tasks w-5 text-lg"></i><span>Order Pipeline</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="customers"
+          >
+            <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="transactions"
+          >
+            <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="installments"
+          >
+            <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+            ><span>Lipa Mdogo Core</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+            data-tab="analytics"
+          >
+            <i class="fas fa-chart-pie w-5 text-lg"></i
+            ><span>Analytics Engine</span>
+          </div>
+        </nav>
+        <div
+          class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white mt-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-gray-800">Store Manager</p>
+              <p class="text-xs text-gray-500">Role: Admin · Full Access</p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 lg:ml-0 min-h-screen">
+        <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+      </main>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Product Modal (Add/Edit) -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl"
+        >
+          <div class="flex justify-between items-center">
+            <h3 class="text-2xl font-bold" id="modalTitle">
+              <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+              Product
+            </h3>
+            <button
+              id="closeProductModalBtn"
+              class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <form id="productForm" class="space-y-5">
+            <input type="hidden" id="productId" value="" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category <span class="text-red-500">*</span></label
+                ><select
+                  id="prodCategory"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                  <option>Kids Wear</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Buy Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodBuyPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Sell Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodSellPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Stock Quantity <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodStock"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Size</label
+                ><select
+                  id="prodSize"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                  <option>XXL</option>
+                  <option>One Size</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Supplier</label
+                ><input
+                  type="text"
+                  id="prodSupplier"
+                  placeholder="e.g., Fashion Hub Ltd"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Image URL</label
+                ><input
+                  type="url"
+                  id="prodImage"
+                  placeholder="https://..."
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Description</label
+              ><textarea
+                id="prodDesc"
+                rows="3"
+                placeholder="Product details, materials, care instructions..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              ></textarea>
+            </div>
+            <div id="imagePreview" class="hidden mt-2">
+              <img
+                id="previewImg"
+                class="w-24 h-24 object-cover rounded-xl border shadow"
+              />
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium transition-all"
+              >
+                <i class="fas fa-save mr-2"></i>Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center">
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Delete Product</h3>
+        <p class="text-gray-500 mb-6">
+          Are you sure you want to delete this product? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Plan Modal -->
+    <div
+      id="paymentModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold">
+              <i class="fas fa-calendar-plus text-emerald-600 mr-2"></i>New
+              Payment Plan
+            </h3>
+            <button
+              id="closeModalBtn"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          <input
+            type="text"
+            id="planCustomer"
+            placeholder="Customer Name"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          />
+          <input
+            type="number"
+            id="planAmount"
+            placeholder="Total Amount (KES)"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          />
+          <select
+            id="planTerms"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          >
+            <option value="3">3 Weekly Payments</option>
+            <option value="6">6 Weekly Payments</option>
+            <option value="4">4 Monthly Payments</option>
+          </select>
+          <div class="bg-emerald-50 p-3 rounded-xl">
+            <p class="text-sm font-medium text-emerald-800">
+              💡 Estimated weekly: KES <span id="weeklyEstimate">0</span>
+            </p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex gap-3 justify-end">
+          <button id="closeModalBtn2" class="px-4 py-2 border rounded-xl">
+            Cancel</button
+          ><button
+            id="confirmPlanBtn"
+            class="px-6 py-2 bg-emerald-600 text-white rounded-xl"
+          >
+            Create Plan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Handle Default Modal -->
+    <div
+      id="defaultModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6">
+        <h3 class="font-bold text-xl mb-2">Handle Payment Default</h3>
+        <p class="mb-4 text-gray-500">Escalation & recovery actions</p>
+        <div class="space-y-2">
+          <button
+            class="w-full p-3 bg-yellow-100 text-yellow-800 rounded-xl font-medium"
+          >
+            Send SMS Reminder</button
+          ><button
+            class="w-full p-3 bg-blue-100 text-blue-800 rounded-xl font-medium"
+          >
+            Restructure Payment Plan</button
+          ><button
+            class="w-full p-3 bg-red-100 text-red-800 rounded-xl font-medium"
+          >
+            Mark for Collections
+          </button>
+        </div>
+        <button
+          id="closeDefaultModal"
+          class="mt-4 w-full p-3 bg-gray-100 rounded-xl font-medium"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let activeTab = "dashboard";
+
+      // ==================== PRODUCTS DATA ====================
+      let products = [
+        {
+          id: 1,
+          name: "Premium Denim Jacket",
+          category: "Men's Clothing",
+          buyPrice: 1800,
+          sellPrice: 3500,
+          stock: 45,
+          size: "L",
+          supplier: "Fashion Hub Ltd",
+          image:
+            "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+          description:
+            "Classic blue denim jacket, premium quality cotton, perfect for all seasons.",
+        },
+        {
+          id: 2,
+          name: "Floral Summer Dress",
+          category: "Women's Clothing",
+          buyPrice: 1200,
+          sellPrice: 2900,
+          stock: 28,
+          size: "M",
+          supplier: "Style Africa",
+          image:
+            "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+          description:
+            "Lightweight floral dress, breathable fabric, ideal for summer.",
+        },
+        {
+          id: 3,
+          name: "Leather Sneakers",
+          category: "Footwear",
+          buyPrice: 2200,
+          sellPrice: 4500,
+          stock: 32,
+          size: "42",
+          supplier: "Urban Kicks",
+          image:
+            "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop",
+          description: "Genuine leather sneakers, durable sole, comfort fit.",
+        },
+        {
+          id: 4,
+          name: "Cashmere Scarf",
+          category: "Accessories",
+          buyPrice: 800,
+          sellPrice: 1890,
+          stock: 67,
+          size: "One Size",
+          supplier: "Luxury Essentials",
+          image:
+            "https://images.unsplash.com/photo-1570427968961-0a6c3b6a2d6a?w=100&h=100&fit=crop",
+          description: "Soft cashmere scarf, elegant design.",
+        },
+      ];
+
+      let paymentPlans = [
+        {
+          id: 1,
+          customer: "Alice Mwangi",
+          total: 3200,
+          paid: 1200,
+          status: "active",
+          nextDue: "2025-04-12",
+        },
+        {
+          id: 2,
+          customer: "Brian Otieno",
+          total: 6700,
+          paid: 0,
+          status: "default",
+          nextDue: "2025-03-30",
+        },
+        {
+          id: 3,
+          customer: "Cynthia Wambui",
+          total: 8900,
+          paid: 4450,
+          status: "active",
+          nextDue: "2025-04-05",
+        },
+      ];
+
+      let deleteTargetId = null;
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (activeTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (activeTab === "catalog") container.innerHTML = renderCatalog();
+        else if (activeTab === "inventory")
+          container.innerHTML = renderInventory();
+        else if (activeTab === "orders") container.innerHTML = renderOrders();
+        else if (activeTab === "customers")
+          container.innerHTML = renderCustomers();
+        else if (activeTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (activeTab === "analytics") {
+          container.innerHTML = renderAnalytics();
+          initCharts();
+        }
+        attachTabEvents();
+      }
+
+      // ==================== EXECUTIVE DASHBOARD ====================
+      function renderDashboard() {
+        return `
+            <div class="mb-8"><h2 class="text-3xl font-bold text-gray-800">Executive Dashboard</h2><p class="text-gray-500 mt-1">Real-time KPIs, alerts & business insights</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+                ${[
+                  {
+                    icon: "chart-line",
+                    color: "emerald",
+                    title: "Daily Sales",
+                    value: "KES 184,200",
+                    trend: "+12%",
+                  },
+                  {
+                    icon: "percentage",
+                    color: "blue",
+                    title: "Installment Collection",
+                    value: "78%",
+                    trend: "+5%",
+                  },
+                  {
+                    icon: "exchange-alt",
+                    color: "purple",
+                    title: "Inventory Turnover",
+                    value: "2.4x",
+                    trend: "monthly",
+                  },
+                ]
+                  .map(
+                    (k) =>
+                      `<div class="bg-white rounded-2xl p-6 shadow-sm hover-scale border border-gray-100"><div class="flex justify-between items-start"><div class="w-12 h-12 bg-${k.color}-100 rounded-xl flex items-center justify-center"><i class="fas fa-${k.icon} text-${k.color}-600 text-xl"></i></div><span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">${k.trend}</span></div><p class="text-gray-500 text-sm mt-4">${k.title}</p><p class="text-2xl font-bold text-gray-800">${k.value}</p></div>`,
+                  )
+                  .join("")}
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border"><div class="p-6 border-b"><h3 class="font-bold text-lg"><i class="fas fa-bell text-emerald-600 mr-2"></i>Activity Feed</h3></div><div class="divide-y max-h-96 overflow-auto scrollbar-custom"><div class="p-4 border-l-4 border-red-500"><div class="flex gap-3"><i class="fas fa-box text-red-500 mt-1"></i><div><p class="font-medium">Inventory Alert: Denim Jacket low</p><p class="text-sm text-gray-500">Mombasa store - 12 units remaining</p><span class="text-xs text-red-600 font-medium">URGENT</span></div></div></div><div class="p-4 border-l-4 border-yellow-500"><div class="flex gap-3"><i class="fas fa-hand-holding-usd text-yellow-500 mt-1"></i><div><p class="font-medium">Payment Default: Brian Otieno</p><p class="text-sm text-gray-500">Missed 2 consecutive payments</p></div></div></div><div class="p-4"><div class="flex gap-3"><i class="fas fa-shopping-cart text-emerald-600 mt-1"></i><div><p class="font-medium">New Order #ORD-1003</p><p class="text-sm text-gray-500">KES 3,450 - Pending processing</p></div></div></div></div></div>
+                <div class="bg-white rounded-2xl shadow-sm border"><div class="p-6 border-b"><h3 class="font-bold text-lg"><i class="fas fa-bolt text-emerald-600 mr-2"></i>Quick Actions Panel</h3></div><div class="p-6 space-y-3"><button id="quickNewPlan" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-xl font-medium hover:shadow-lg"><i class="fas fa-plus mr-2"></i>New Payment Plan</button><button id="quickCollectPayment" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"><i class="fas fa-money-bill-wave mr-2"></i>Process Installment</button><button id="quickTransfer" class="w-full bg-purple-600 text-white py-3 rounded-xl font-medium"><i class="fas fa-arrows-alt mr-2"></i>Transfer Stock</button><button id="quickGenReport" class="w-full bg-gray-700 text-white py-3 rounded-xl font-medium"><i class="fas fa-chart-bar mr-2"></i>Generate Report</button></div></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden"><div class="p-6 border-b"><h3 class="font-bold text-lg"><i class="fas fa-exclamation-circle text-emerald-600 mr-2"></i>Alert Prioritization System</h3></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-red-50 p-4 rounded-xl border-l-4 border-red-500"><p class="font-bold text-red-800">Critical: Stock Out</p><p class="text-sm">Denim Jacket - Nairobi Hub</p></div><div class="bg-yellow-50 p-4 rounded-xl border-l-4 border-yellow-500"><p class="font-bold text-yellow-800">Warning: Default Risk</p><p class="text-sm">2 customers overdue >30 days</p></div><div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500"><p class="font-bold text-blue-800">Info: New Shipment</p><p class="text-sm">Arriving tomorrow - 450 units</p></div></div></div>`;
+      }
+
+      // ==================== PRODUCT CATALOG WITH FULL CRUD ====================
+      function renderCatalog() {
+        return `
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+                    <h2 class="text-2xl font-bold"><i class="fas fa-tags text-emerald-600 mr-2"></i>Product Catalog Management</h2>
+                    <button id="addProductBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg transition-all flex items-center gap-2"><i class="fas fa-plus"></i> Add New Product</button>
+                </div>
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl mb-6 flex items-center gap-4 flex-wrap"><span class="font-semibold"><i class="fas fa-sitemap"></i> Three-Tier Hierarchy:</span><span class="text-emerald-700">Department → Category → Subcategory</span><button class="bg-gray-200 px-3 py-1 rounded-lg text-sm">Filter by Dept</button></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b-2 border-gray-200"><tr><th class="p-3 text-left text-xs font-semibold text-gray-600">Image</th><th class="p-3 text-left">Product Name</th><th class="p-3 text-left">Category</th><th class="p-3 text-left">Buy Price</th><th class="p-3 text-left">Sell Price</th><th class="p-3 text-left">Stock</th><th class="p-3 text-left">Size</th><th class="p-3 text-left">Supplier</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="productsTableBody">${products.map((p) => `<tr class="border-b hover:bg-gray-50 transition"><td class="p-3"><img src="${p.image || "https://via.placeholder.com/48"}" class="product-image-preview" onerror="this.src='https://via.placeholder.com/48'"></td><td class="p-3 font-semibold">${escapeHtml(p.name)}</td><td class="p-3 text-gray-600">${p.category}</td><td class="p-3">KES ${p.buyPrice.toLocaleString()}</td><td class="p-3 font-bold text-emerald-600">KES ${p.sellPrice.toLocaleString()}</td><td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${p.stock < 20 ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}">${p.stock} units</span></td><td class="p-3">${p.size}</td><td class="p-3 text-gray-600">${p.supplier || "-"}</td><td class="p-3 text-center"><button class="editProductBtn text-blue-600 hover:text-blue-800 mr-3" data-id="${p.id}"><i class="fas fa-edit text-lg"></i></button><button class="deleteProductBtn text-red-600 hover:text-red-800" data-id="${p.id}"><i class="fas fa-trash-alt text-lg"></i></button></td></tr>`).join("")}</tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-sm text-gray-500 flex justify-between items-center"><span><i class="fas fa-info-circle"></i> Showing ${products.length} products | Bulk operations ready</span><button id="bulkInstallmentFlag" class="text-emerald-600 border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-medium">Set Installment Eligibility</button></div>
+            </div>`;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      function openProductModal(product = null) {
+        const modal = document.getElementById("productModal");
+        if (product) {
+          document.getElementById("modalTitle").innerHTML =
+            '<i class="fas fa-edit text-emerald-600 mr-2"></i>Edit Product';
+          document.getElementById("productId").value = product.id;
+          document.getElementById("prodName").value = product.name;
+          document.getElementById("prodCategory").value = product.category;
+          document.getElementById("prodBuyPrice").value = product.buyPrice;
+          document.getElementById("prodSellPrice").value = product.sellPrice;
+          document.getElementById("prodStock").value = product.stock;
+          document.getElementById("prodSize").value = product.size;
+          document.getElementById("prodSupplier").value =
+            product.supplier || "";
+          document.getElementById("prodImage").value = product.image || "";
+          document.getElementById("prodDesc").value = product.description || "";
+        } else {
+          document.getElementById("modalTitle").innerHTML =
+            '<i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New Product';
+          document.getElementById("productForm").reset();
+          document.getElementById("productId").value = "";
+        }
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function saveProductFromForm() {
+        const id = document.getElementById("productId").value;
+        const productData = {
+          name: document.getElementById("prodName").value,
+          category: document.getElementById("prodCategory").value,
+          buyPrice: parseFloat(document.getElementById("prodBuyPrice").value),
+          sellPrice: parseFloat(document.getElementById("prodSellPrice").value),
+          stock: parseInt(document.getElementById("prodStock").value),
+          size: document.getElementById("prodSize").value,
+          supplier: document.getElementById("prodSupplier").value,
+          image: document.getElementById("prodImage").value,
+          description: document.getElementById("prodDesc").value,
+        };
+        if (
+          !productData.name ||
+          isNaN(productData.buyPrice) ||
+          isNaN(productData.sellPrice)
+        ) {
+          alert("Please fill all required fields");
+          return false;
+        }
+        if (id) {
+          const index = products.findIndex((p) => p.id == id);
+          if (index !== -1)
+            products[index] = {
+              ...products[index],
+              ...productData,
+              id: parseInt(id),
+            };
+        } else {
+          const newId =
+            products.length > 0
+              ? Math.max(...products.map((p) => p.id)) + 1
+              : 5;
+          products.push({ id: newId, ...productData });
+        }
+        document.getElementById("productModal").classList.add("hidden");
+        renderCurrentTab();
+        return true;
+      }
+
+      function deleteProductById(id) {
+        products = products.filter((p) => p.id !== id);
+        renderCurrentTab();
+      }
+
+      // ==================== INVENTORY INTELLIGENCE ====================
+      function renderInventory() {
+        return `<div class="bg-white rounded-2xl shadow-sm p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h2><div class="grid lg:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-3">Multi-Location Stock</h3><div class="space-y-2"><div class="p-3 bg-gray-50 rounded-lg flex justify-between"><span>Denim Jacket</span><span>Nairobi: 45 | Mombasa: 12</span><button class="text-emerald-600">Transfer</button></div><div class="p-3 bg-gray-50 rounded-lg flex justify-between"><span>Summer Dress</span><span>Nairobi: 28 | Kisumu: 15</span><button class="text-emerald-600">Transfer</button></div></div><button id="autoReorderBtn" class="mt-4 bg-emerald-600 text-white px-4 py-2 rounded-xl w-full"><i class="fas fa-robot"></i> Predictive Reorder (AI)</button></div><div><h3 class="font-semibold mb-3">Mobile Barcode Scanner</h3><div class="border rounded-xl p-4"><input id="barcodeInput" placeholder="Scan barcode (offline ready)" class="w-full p-2 border rounded-lg mb-2"><button id="syncBarcode" class="bg-gray-800 text-white px-4 py-2 rounded-lg w-full">Sync Offline Data</button><div class="mt-4 p-3 bg-blue-50 rounded-lg"><i class="fas fa-chart-line"></i> Seasonal forecast: Summer demand +22%</div><button id="adjustInventoryBtn" class="mt-3 bg-purple-600 text-white px-3 py-1.5 rounded-lg text-sm w-full">Approval-based Adjustment</button></div></div></div></div>`;
+      }
+
+      // ==================== ORDER PIPELINE ====================
+      function renderOrders() {
+        return `<div class="bg-white rounded-2xl shadow-sm p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-tasks text-emerald-600 mr-2"></i>Order Pipeline (Kanban)</h2><div class="flex gap-4 overflow-x-auto pb-4"><div class="kanban-column"><h4 class="font-bold mb-3">📋 New Orders</h4><div class="bg-white p-3 rounded-lg shadow-sm mb-2">#ORD-1101 - KES 1,200 <button class="text-xs text-emerald-600 ml-2">Process</button></div><div class="bg-white p-3 rounded-lg shadow-sm">#ORD-1104 - KES 3,400</div></div><div class="kanban-column"><h4 class="font-bold mb-3">⚙️ Processing</h4><div class="bg-white p-3 rounded-lg shadow-sm">#ORD-1098 - KES 4,500 <button class="text-xs text-blue-600">Mark Shipped</button></div></div><div class="kanban-column"><h4 class="font-bold mb-3">🚚 Shipped</h4><div class="bg-white p-3 rounded-lg shadow-sm">#ORD-1095 - Tracking Live</div></div><div class="kanban-column"><h4 class="font-bold mb-3">↩️ Returns</h4><button id="processReturnBtn" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm w-full">Process Return/Exchange</button></div></div><div class="mt-4 flex gap-3"><button id="bulkOrderAction" class="bg-gray-700 text-white px-4 py-2 rounded-xl">Bulk Actions</button><div class="flex-1"><input placeholder="Customer communication template" class="w-full p-2 border rounded-xl"><button class="bg-emerald-600 text-white px-4 py-2 rounded-xl ml-2">Send</button></div></div></div>`;
+      }
+
+      // ==================== CUSTOMER HUB ====================
+      function renderCustomers() {
+        return `<div class="bg-white rounded-2xl shadow-sm p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-users text-emerald-600 mr-2"></i>Customer 360° Hub</h2><div class="grid lg:grid-cols-2 gap-6"><div><input placeholder="Search customer (NLP enabled)" class="w-full p-3 border rounded-xl mb-3"><div class="border rounded-xl p-4"><p class="font-bold text-lg">Alice Mwangi</p><p>Purchase history: 12 orders | KES 24,500 spent</p><p>Payment behavior: On-time (92%) | Risk: Low</p><div class="flex gap-2 mt-3"><button class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm">Send SMS</button><button class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm">Email Campaign</button></div></div></div><div><div class="bg-gray-50 p-4 rounded-xl"><h3 class="font-bold mb-2">Advanced Segmentation Engine</h3><select class="w-full p-2 border rounded-lg mb-2"><option>High LTV + Active Installment</option><option>At-risk default</option><option>New customers (30 days)</option></select><button class="bg-emerald-600 text-white px-4 py-2 rounded-xl w-full">Trigger Automated Campaign</button><div class="mt-3 text-sm text-gray-600"><i class="fas fa-chart-line"></i> Segment size: 1,240 customers | Loyalty points active</div></div></div></div></div>`;
+      }
+
+      // ==================== LIPA MDOGO CORE ====================
+      function renderInstallments() {
+        return `<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="p-6 border-b flex justify-between flex-wrap gap-3"><h2 class="text-2xl font-bold"><i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Lipa Mdogo Core</h2><button id="createPlanMainBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl"><i class="fas fa-plus"></i> Payment Plan Builder</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-4 text-left">Customer</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Status</th><th>Next Due</th><th>Actions</th></tr></thead><tbody>${paymentPlans.map((p) => `<tr class="border-b"><td class="p-4 font-medium">${p.customer}</td><td>KES ${p.total}</td><td>KES ${p.paid}</td><td class="font-bold">KES ${p.total - p.paid}</td><td><span class="status-badge ${p.status === "active" ? "status-active" : "status-default"}">${p.status}</span></td><td>${p.nextDue}</td><td><button class="collectPayment text-emerald-600 mr-3" data-id="${p.id}"><i class="fas fa-money-bill-wave"></i> Collect</button><button class="handleDefaultBtn text-red-600" data-id="${p.id}"><i class="fas fa-exclamation-triangle"></i> Default</button></td></tr>`).join("")}</tbody></table></div><div class="p-6 bg-gradient-to-r from-emerald-50 to-teal-50"><div class="grid md:grid-cols-3 gap-4"><div><i class="fas fa-mobile-alt text-emerald-600"></i> Mobile Money: M-Pesa / Airtel <span class="text-green-600 font-semibold">● Live</span><button id="syncMpesa" class="ml-2 text-sm bg-white px-2 py-1 rounded-lg">Sync</button></div><div><i class="fas fa-calendar-week"></i> Visual Payment Schedule <button id="viewScheduleBtn" class="text-emerald-600 ml-2">Preview</button></div><div><i class="fas fa-chart-line"></i> Credit Scoring <button id="creditApproveBtn" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm ml-2">Approve</button></div></div><div class="mt-4 p-3 bg-white rounded-lg"><strong>📊 Collections Dashboard:</strong> Recovery rate 86% | Recommended: Follow-up on 2 defaults</div></div></div>`;
+      }
+
+      // ==================== ANALYTICS ENGINE ====================
+      function renderAnalytics() {
+        return `<div class="bg-white rounded-2xl shadow-sm p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-chart-pie text-emerald-600 mr-2"></i>Advanced Analytics Engine</h2><div class="grid lg:grid-cols-2 gap-6"><div><canvas id="salesTrend" height="250"></canvas><canvas id="profitChart" height="200" class="mt-4"></canvas></div><div><div class="bg-gray-50 p-4 rounded-xl"><h3 class="font-bold">Custom Report Builder</h3><select class="w-full p-2 border rounded-lg mt-2"><option>Installment Profitability</option><option>Inventory Forecasting</option></select><button id="generateCustomReport" class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-xl w-full">Generate & Export</button><div class="mt-3"><label class="text-sm">Schedule automated reports</label><div class="flex gap-2 mt-1"><input type="time" class="border p-1.5 rounded"><button class="bg-gray-700 text-white px-3 py-1.5 rounded-lg">Set Delivery</button></div></div><div class="mt-3 text-sm"><i class="fas fa-download"></i> Export: CSV, PDF, Excel with formatting</div></div></div></div><div class="mt-4 p-4 bg-blue-50 rounded-xl"><i class="fas fa-chart-line"></i> <strong>Predictive Analytics:</strong> Inventory demand +18% next month | Customer default probability ↓2%</div></div>`;
+      }
+
+      function initCharts() {
+        const ctx1 = document.getElementById("salesTrend")?.getContext("2d");
+        const ctx2 = document.getElementById("profitChart")?.getContext("2d");
+        if (ctx1)
+          new Chart(ctx1, {
+            type: "line",
+            data: {
+              labels: ["Jan", "Feb", "Mar", "Apr"],
+              datasets: [
+                {
+                  label: "Sales (KES 000)",
+                  data: [120, 145, 178, 210],
+                  borderColor: "#059669",
+                  tension: 0.4,
+                },
+              ],
+            },
+          });
+        if (ctx2)
+          new Chart(ctx2, {
+            type: "bar",
+            data: {
+              labels: ["Installment Profit", "Cash Sales"],
+              datasets: [
+                {
+                  label: "Margin %",
+                  data: [18, 32],
+                  backgroundColor: "#0f3b3f",
+                },
+              ],
+            },
+          });
+      }
+
+      // ==================== EVENT ATTACHMENTS ====================
+      function attachTabEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal(null));
+        document.querySelectorAll(".editProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const product = products.find((p) => p.id == btn.dataset.id);
+            if (product) openProductModal(product);
+          }),
+        );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            deleteTargetId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+            document.getElementById("deleteModal").classList.add("flex");
+          }),
+        );
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (deleteTargetId) deleteProductById(deleteTargetId);
+            document.getElementById("deleteModal").classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        document
+          .getElementById("prodImage")
+          ?.addEventListener("input", function () {
+            const preview = document.getElementById("imagePreview");
+            const img = document.getElementById("previewImg");
+            if (this.value) {
+              img.src = this.value;
+              preview.classList.remove("hidden");
+            } else preview.classList.add("hidden");
+          });
+
+        document
+          .getElementById("quickNewPlan")
+          ?.addEventListener("click", () => {
+            document.getElementById("paymentModal").classList.remove("hidden");
+            document.getElementById("paymentModal").classList.add("flex");
+          });
+        document
+          .getElementById("quickCollectPayment")
+          ?.addEventListener("click", () =>
+            alert("💰 Process installment: Enter M-Pesa reference number"),
+          );
+        document
+          .getElementById("quickTransfer")
+          ?.addEventListener("click", () =>
+            alert("Stock transfer workflow initiated (offline sync available)"),
+          );
+        document
+          .getElementById("quickGenReport")
+          ?.addEventListener("click", () =>
+            alert("Financial performance report generated with drill-down"),
+          );
+        document
+          .getElementById("autoReorderBtn")
+          ?.addEventListener("click", () =>
+            alert("Predictive reorder triggered with supplier lead time"),
+          );
+        document
+          .getElementById("syncBarcode")
+          ?.addEventListener("click", () =>
+            alert("Offline barcode sync complete - 45 items updated"),
+          );
+        document
+          .getElementById("processReturnBtn")
+          ?.addEventListener("click", () =>
+            alert(
+              "Return processing for installment purchase with reason analytics",
+            ),
+          );
+        document
+          .getElementById("bulkOrderAction")
+          ?.addEventListener("click", () =>
+            alert("Bulk status update with confirmation safeguards"),
+          );
+        document
+          .getElementById("createPlanMainBtn")
+          ?.addEventListener("click", () => {
+            document.getElementById("paymentModal").classList.remove("hidden");
+            document.getElementById("paymentModal").classList.add("flex");
+          });
+        document
+          .getElementById("syncMpesa")
+          ?.addEventListener("click", () =>
+            alert("M-Pesa & Airtel Money real-time sync complete"),
+          );
+        document
+          .getElementById("creditApproveBtn")
+          ?.addEventListener("click", () =>
+            alert("Credit scoring approved - new payment plan created"),
+          );
+        document
+          .getElementById("generateCustomReport")
+          ?.addEventListener("click", () =>
+            alert("Report exported with formatting options"),
+          );
+        document
+          .querySelectorAll(".collectPayment")
+          .forEach(
+            (btn) =>
+              (btn.onclick = () =>
+                alert("Record payment: Automatic reminder system activated")),
+          );
+        document
+          .querySelectorAll(".handleDefaultBtn")
+          .forEach(
+            (btn) =>
+              (btn.onclick = () =>
+                document
+                  .getElementById("defaultModal")
+                  .classList.remove("hidden")),
+          );
+        document
+          .getElementById("closeDefaultModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("defaultModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("bulkInstallmentFlag")
+          ?.addEventListener("click", () =>
+            alert(
+              "Bulk installment eligibility flag applied with min payment thresholds",
+            ),
+          );
+        document
+          .getElementById("adjustInventoryBtn")
+          ?.addEventListener("click", () =>
+            alert(
+              "Approval-based inventory adjustment with audit trail initiated",
+            ),
+          );
+      }
+
+      function openPaymentModal() {
+        /* handled above */
+      }
+      document
+        .querySelectorAll("#closeModalBtn, #closeModalBtn2")
+        .forEach(
+          (btn) =>
+            (btn.onclick = () =>
+              document.getElementById("paymentModal").classList.add("hidden")),
+        );
+      document
+        .getElementById("confirmPlanBtn")
+        ?.addEventListener("click", () => {
+          alert("✅ Payment plan created with visual schedule");
+          document.getElementById("paymentModal").classList.add("hidden");
+        });
+      document
+        .getElementById("planAmount")
+        ?.addEventListener("input", function () {
+          let val = this.value || 0;
+          let terms = document.getElementById("planTerms").value;
+          document.getElementById("weeklyEstimate").innerText = Math.round(
+            val / terms,
+          );
+        });
+
+      document.querySelectorAll(".nav-item").forEach((item) =>
+        item.addEventListener("click", function () {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) =>
+              n.classList.remove("bg-emerald-50", "text-emerald-700"),
+            );
+          this.classList.add("bg-emerald-50", "text-emerald-700");
+          activeTab = this.getAttribute("data-tab");
+          renderCurrentTab();
+        }),
+      );
+      document
+        .getElementById("mobileMenuBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("sidebar").classList.toggle("open"),
+        );
+      renderCurrentTab();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Enterprise Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .left-side {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        z-index: 10;
+      }
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 20;
+        padding: 2rem;
+      }
+      .logo-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 30;
+        transition: transform 0.3s ease;
+      }
+      @media (min-width: 1024px) {
+        .right-side {
+          justify-content: flex-start;
+          padding-left: 0;
+        }
+        .form-card {
+          transform: translateX(-40px);
+          margin-left: -20px;
+        }
+        .left-side {
+          margin-right: -20px;
+          justify-content: flex-end;
+          padding-right: 0;
+        }
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+          padding: 2rem;
+        }
+        .form-card {
+          transform: none;
+          margin: 0 auto;
+        }
+      }
+      @media (min-width: 1024px) {
+        .form-card .img-container1 {
+          display: none;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy { background: #dcfce7; color: #166534; }
+      .status-low { background: #fef3c7; color: #92400e; }
+      .status-critical { background: #ffedd5; color: #9a3412; }
+      .status-reorder { background: #fee2e2; color: #991b1b; }
+      .inventory-card { transition: all 0.2s; }
+      .inventory-card:hover { box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12); border-color: #cbd5e1; }
+      .modal-backdrop {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+      }
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 50;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+      .main-content-scroll {
+        flex: 1;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        overflow-y: auto;
+      }
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 60;
+        background: white;
+        border-radius: 12px;
+        padding: 10px 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .main-content-scroll {
+          margin-left: 0;
+        }
+        .mobile-menu-toggle {
+          display: block;
+        }
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 45;
+          display: none;
+        }
+        .overlay-backdrop.active {
+          display: block;
+        }
+      }
+      .main-content-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .main-content-scroll::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
+      .main-content-scroll::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 10px;
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .file-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .file-upload-area:hover {
+        border-color: #10b981;
+        background: #f0fdf4;
+      }
+      .image-preview-circle {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div class="split-layout">
+      <div class="left-side">
+        <div class="logo-container">
+          <img src="../images/balogo.png" alt="BOY ALONE COLLECTION" onerror="this.src='https://placehold.co/400x200?text=BOY+ALONE';this.onerror=null;">
+        </div>
+      </div>
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="../images/balogo.png" alt="BOY ALONE COLLECTION" onerror="this.src='https://placehold.co/64x64?text=BA';this.onerror=null;">
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm mt-1">Sign in to access your dashboard</p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div><label class="block text-sm font-medium text-gray-200 mb-2"><i class="fas fa-envelope mr-2 text-emerald-400"></i>Email Address</label><input type="email" id="email" required placeholder="admin@lipamdogo.com" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all"></div>
+            <div><label class="block text-sm font-medium text-gray-200 mb-2"><i class="fas fa-lock mr-2 text-emerald-400"></i>Password</label><div class="relative"><input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all pr-12"><button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"><i class="fas fa-eye"></i></button></div></div>
+            <div class="flex items-center justify-between"><label class="flex items-center cursor-pointer"><input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500"><span class="ml-2 text-sm text-gray-300">Remember me</span></label><a href="#" id="forgotPassword" class="text-sm text-emerald-400 hover:text-emerald-300 transition">Forgot password?</a></div>
+            <button type="submit" id="loginBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Sign In</button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-white/10 text-center"><p class="text-xs text-gray-400 mb-2">Demo Credentials</p><div class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"><p><span class="text-emerald-400">Email:</span> admin@lipamdogo.com</p><p><span class="text-emerald-400">Password:</span> admin123</p></div></div>
+          <div id="errorMessage" class="mt-4 hidden"><div class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"><p class="text-red-300 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i><span id="errorText">Invalid credentials</span></p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD CONTAINER -->
+    <div id="adminApp" class="hidden"></div>
+
+    <!-- INVENTORY MODALS (Adjust & Transfer) -->
+    <div id="adjustModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-[100]"><div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold"><i class="fas fa-sliders-h text-emerald-600 mr-2"></i>Adjust Stock</h3><button id="closeAdjustModal" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div><div class="space-y-4"><p class="text-sm text-gray-600" id="adjustProductName"></p><input type="number" id="adjustQuantity" placeholder="New quantity (absolute value)" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"><select id="adjustLocation" class="w-full p-3 border border-gray-300 rounded-xl"><option>Main Store</option><option>Warehouse A</option><option>Outlet</option></select><div class="flex gap-3 pt-2"><button id="confirmAdjustBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition">Apply Adjustment</button><button id="cancelAdjustBtn" class="flex-1 border py-2 rounded-xl hover:bg-gray-50 transition">Cancel</button></div></div></div></div>
+    <div id="transferModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-[100]"><div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold"><i class="fas fa-exchange-alt text-emerald-600 mr-2"></i>Transfer Stock</h3><button id="closeTransferModal" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div><div class="space-y-4"><p class="font-medium text-gray-800" id="transferProductName"></p><select id="fromLocation" class="w-full p-3 border rounded-xl"><option>Main Store</option><option>Warehouse A</option><option>Outlet</option></select><select id="toLocation" class="w-full p-3 border rounded-xl"><option>Warehouse A</option><option>Main Store</option><option>Outlet</option></select><input type="number" id="transferQty" placeholder="Quantity to transfer" class="w-full p-3 border rounded-xl"><div class="flex gap-3"><button id="confirmTransferBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700">Transfer</button><button id="cancelTransferBtn" class="flex-1 border py-2 rounded-xl hover:bg-gray-50">Cancel</button></div></div></div></div>
+
+    <!-- Product Modal (Add/Edit with local image upload) -->
+    <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[100] overflow-y-auto py-8"><div class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"><div class="p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl"><div class="flex justify-between items-center"><h3 class="text-2xl font-bold" id="modalTitle"><i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New Product</h3><button id="closeProductModalBtn" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"><i class="fas fa-times text-xl"></i></button></div></div><div class="p-6"><form id="productForm" class="space-y-5"><input type="hidden" id="productId" value=""><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name <span class="text-red-500">*</span></label><input type="text" id="prodName" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Category <span class="text-red-500">*</span></label><select id="prodCategory" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"><option>Men's Clothing</option><option>Women's Clothing</option><option>Accessories</option><option>Footwear</option><option>Kids Wear</option></select></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Buy Price (KES) <span class="text-red-500">*</span></label><input type="number" id="prodBuyPrice" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Sell Price (KES) <span class="text-red-500">*</span></label><input type="number" id="prodSellPrice" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Stock Quantity <span class="text-red-500">*</span></label><input type="number" id="prodStock" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Size</label><select id="prodSize" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>One Size</option></select></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Supplier</label><input type="text" id="prodSupplier" placeholder="e.g., Fashion Hub Ltd" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Image <span class="text-emerald-600">(Upload)</span></label><div class="file-upload-area relative bg-gray-50 p-3 rounded-xl text-center"><input type="file" id="prodImageFile" accept="image/jpeg,image/png,image/jpg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><div class="flex flex-col items-center justify-center py-2"><i class="fas fa-cloud-upload-alt text-2xl text-emerald-500 mb-1"></i><p class="text-xs text-gray-500">Click or drag to upload</p><p class="text-[10px] text-gray-400 mt-1">JPG, PNG up to 2MB</p></div></div><div id="imagePreviewContainer" class="mt-3 hidden flex items-center gap-3 p-2 bg-gray-50 rounded-xl"><img id="imagePreviewLocal" class="image-preview-circle" alt="Preview"><div class="flex-1"><p class="text-sm font-medium" id="previewFileName">image.jpg</p><button type="button" id="removeImageBtn" class="text-xs text-red-500 hover:text-red-700 mt-1"><i class="fas fa-trash-alt"></i> Remove</button></div></div></div></div><div><label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label><textarea id="prodDesc" rows="3" placeholder="Product details..." class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"></textarea></div><div class="flex gap-3 justify-end pt-4"><button type="button" id="cancelProductBtn" class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">Cancel</button><button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium transition-all"><i class="fas fa-save mr-2"></i>Save Product</button></div></form></div></div></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[100]"><div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center"><div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i></div><h3 class="text-xl font-bold mb-2">Delete Product</h3><p class="text-gray-500 mb-6">Are you sure you want to delete this product? This action cannot be undone.</p><div class="flex gap-3"><button id="confirmDeleteBtn" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium">Delete</button><button id="cancelDeleteBtn" class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium">Cancel</button></div></div></div>
+
+    <script>
+      // ---------- DATA MODELS ----------
+      let products = [];
+      let inventoryItems = [];
+      
+      function loadInitialData() {
+        const storedProducts = localStorage.getItem("boyalone_products");
+        if (storedProducts) { products = JSON.parse(storedProducts); } 
+        else {
+          products = [
+            { id: 1, name: "Premium Denim Jacket", category: "Men's Clothing", buyPrice: 1800, sellPrice: 3500, stock: 45, size: "L", supplier: "Fashion Hub Ltd", imageData: null, imageUrl: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop", description: "Classic blue denim jacket." },
+            { id: 2, name: "Floral Summer Dress", category: "Women's Clothing", buyPrice: 1200, sellPrice: 2900, stock: 28, size: "M", supplier: "Style Africa", imageData: null, imageUrl: "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop", description: "Lightweight floral dress." },
+            { id: 3, name: "Leather Sneakers", category: "Footwear", buyPrice: 2200, sellPrice: 4500, stock: 32, size: "42", supplier: "Urban Kicks", imageData: null, imageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop", description: "Genuine leather sneakers." },
+            { id: 4, name: "Cashmere Scarf", category: "Accessories", buyPrice: 800, sellPrice: 1890, stock: 67, size: "One Size", supplier: "Luxury Essentials", imageData: null, imageUrl: "https://images.unsplash.com/photo-1570427968961-0a6c3b6a2d6a?w=100&h=100&fit=crop", description: "Soft cashmere scarf." }
+          ];
+        }
+        const storedInventory = localStorage.getItem("boyalone_inventory");
+        if (storedInventory) { inventoryItems = JSON.parse(storedInventory); } 
+        else {
+          inventoryItems = [
+            { id: "1", product: "Denim Jacket - Blue (M)", sku: "DJ-BLU-M", locations: [{ name: "Main Store", stock: 25, reorderPoint: 10 }, { name: "Warehouse A", stock: 15, reorderPoint: 20 }, { name: "Outlet", stock: 5, reorderPoint: 5 }], totalStock: 45, reorderPoint: 35, status: "healthy", lastRestocked: "2026-04-05" },
+            { id: "2", product: "Summer Dress - Floral (S)", sku: "SD-FLR-S", locations: [{ name: "Main Store", stock: 3, reorderPoint: 10 }, { name: "Warehouse A", stock: 2, reorderPoint: 15 }, { name: "Outlet", stock: 0, reorderPoint: 5 }], totalStock: 5, reorderPoint: 30, status: "critical", lastRestocked: "2026-03-28" },
+            { id: "3", product: "Cotton T-Shirt - White (L)", sku: "CT-WHT-L", locations: [{ name: "Main Store", stock: 45, reorderPoint: 15 }, { name: "Warehouse A", stock: 78, reorderPoint: 25 }, { name: "Outlet", stock: 23, reorderPoint: 10 }], totalStock: 146, reorderPoint: 50, status: "healthy", lastRestocked: "2026-04-07" },
+            { id: "4", product: "Slim Fit Jeans - Black (32)", sku: "SJ-BLK-32", locations: [{ name: "Main Store", stock: 0, reorderPoint: 12 }, { name: "Warehouse A", stock: 0, reorderPoint: 20 }, { name: "Outlet", stock: 0, reorderPoint: 8 }], totalStock: 0, reorderPoint: 40, status: "reorder", lastRestocked: "2026-03-15" },
+            { id: "5", product: "Leather Boots - Brown (8)", sku: "LB-BRN-8", locations: [{ name: "Main Store", stock: 8, reorderPoint: 8 }, { name: "Warehouse A", stock: 12, reorderPoint: 15 }, { name: "Outlet", stock: 3, reorderPoint: 5 }], totalStock: 23, reorderPoint: 28, status: "low", lastRestocked: "2026-04-02" },
+            { id: "6", product: "Cashmere Scarf - Beige", sku: "CS-BGE-OS", locations: [{ name: "Main Store", stock: 2, reorderPoint: 6 }, { name: "Warehouse A", stock: 1, reorderPoint: 8 }, { name: "Outlet", stock: 0, reorderPoint: 4 }], totalStock: 3, reorderPoint: 18, status: "critical", lastRestocked: "2026-04-01" }
+          ];
+          inventoryItems.forEach(item => recalcTotalStock(item));
+        }
+        persistData();
+      }
+      function persistData() { localStorage.setItem("boyalone_products", JSON.stringify(products)); localStorage.setItem("boyalone_inventory", JSON.stringify(inventoryItems)); }
+      function recalcTotalStock(item) { item.totalStock = item.locations.reduce((sum, loc) => sum + loc.stock, 0); if (item.totalStock === 0) item.status = "reorder"; else if (item.totalStock <= 5) item.status = "critical"; else if (item.totalStock <= item.reorderPoint * 0.5) item.status = "low"; else if (item.totalStock < item.reorderPoint) item.status = "low"; else item.status = "healthy"; return item; }
+      
+      let currentTab = "dashboard";
+      let deleteTargetId = null;
+      let currentSelectedLocation = "all";
+      let currentSearchTerm = "";
+      let activeTransferItem = null;
+      let activeAdjustItem = null;
+      
+      function getFilteredItems() { let filtered = [...inventoryItems]; if (currentSearchTerm.trim()) { const term = currentSearchTerm.toLowerCase(); filtered = filtered.filter(i => i.product.toLowerCase().includes(term) || i.sku.toLowerCase().includes(term)); } if (currentSelectedLocation !== "all") filtered = filtered.filter(item => item.locations.some(loc => loc.name === currentSelectedLocation)); return filtered; }
+      function computeStats(items) { const healthy = items.filter(i => i.status === "healthy").length; const low = items.filter(i => i.status === "low").length; const critical = items.filter(i => i.status === "critical").length; const reorder = items.filter(i => i.status === "reorder").length; return { healthy, low, critical, reorder }; }
+      function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;"); }
+      function getProductImageSrc(product) { if (product.imageData && product.imageData.startsWith("data:image")) return product.imageData; if (product.imageUrl && product.imageUrl.trim()) return product.imageUrl; return "https://via.placeholder.com/48?text=No+Img"; }
+      
+      // INVENTORY RENDER (Enhanced with full UI)
+      function renderFullInventory() {
+        const filtered = getFilteredItems();
+        const stats = computeStats(filtered);
+        return `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p></div><div class="flex gap-3"><button id="globalTransferInfoBtn" class="px-4 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2 font-medium shadow-sm"><i class="fas fa-exchange-alt text-emerald-600"></i> Bulk Transfer</button><button id="globalAdjustInfoBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-md transition flex items-center gap-2"><i class="fas fa-edit"></i> Adjust Stock</button></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-5"><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div></div><div class="bg-white rounded-xl border p-4"><div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div><div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div></div></div><div class="space-y-5" id="inventoryListContainer">${filtered.map(item => { const statusClass = { healthy: "status-healthy", low: "status-low", critical: "status-critical", reorder: "status-reorder" }[item.status]; const statusIcon = { healthy: "fa-check-circle", low: "fa-chart-line", critical: "fa-exclamation-triangle", reorder: "fa-exclamation-circle" }[item.status]; const statusLabel = { healthy: "Healthy", low: "Low Stock", critical: "Critical", reorder: "Reorder Now" }[item.status]; return `<div class="bg-white rounded-2xl border p-6 inventory-card shadow-sm"><div class="flex flex-col xl:flex-row gap-5"><div class="flex-1"><div class="flex flex-wrap items-start justify-between gap-4 mb-4"><div><h3 class="font-bold text-xl">${escapeHtml(item.product)}</h3><p class="text-sm text-gray-500 font-mono">SKU: ${item.sku}</p></div><span class="status-badge ${statusClass}"><i class="fas ${statusIcon} text-xs"></i> ${statusLabel}</span></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4">${item.locations.map(loc => `<div class="p-3 rounded-xl border ${loc.stock <= loc.reorderPoint ? "bg-amber-50 border-amber-200" : "bg-gray-50"}"><div class="flex items-center gap-2 mb-1"><i class="fas fa-map-marker-alt text-gray-500 text-sm"></i><p class="text-sm font-semibold">${loc.name}</p></div><div class="flex items-baseline justify-between"><span class="text-2xl font-bold ${loc.stock <= loc.reorderPoint ? "text-amber-700" : "text-gray-800"}">${loc.stock}</span><span class="text-xs text-gray-500">min: ${loc.reorderPoint}</span></div>${loc.stock <= loc.reorderPoint ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-circle"></i> Below reorder point</div>` : ""}</div>`).join("")}</div></div><div class="xl:w-56 space-y-3"><div class="bg-emerald-50 rounded-xl p-4 text-center border"><p class="text-sm text-gray-600 font-medium">📦 Total Stock</p><p class="text-3xl font-extrabold text-emerald-800">${item.totalStock}</p><p class="text-xs text-gray-500">Reorder threshold: ${item.reorderPoint}</p></div><div class="text-xs text-gray-400 text-center bg-gray-50 py-1 rounded-lg">Last restocked: ${new Date(item.lastRestocked).toLocaleDateString()}</div><div class="flex gap-2"><button class="adjustStockBtn flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 font-medium" data-id="${item.id}"><i class="fas fa-pen-alt mr-1"></i> Adjust</button><button class="transferStockBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700" data-id="${item.id}"><i class="fas fa-exchange-alt mr-1"></i> Transfer</button></div></div></div></div>`}).join("")}${filtered.length === 0 ? `<div class="bg-white rounded-2xl p-10 text-center text-gray-500"><i class="fas fa-box-open text-5xl mb-3 opacity-40"></i><p>No inventory matches your filters.</p></div>` : ""}</div><div class="bg-white/70 backdrop-blur-sm rounded-xl p-4 flex flex-wrap justify-between items-center text-xs text-gray-500 border"><span><i class="fas fa-robot text-emerald-500 mr-1"></i> AI Reorder Assistant: Items below reorder point flagged for PO generation.</span><button id="bulkReorderBtn" class="text-emerald-700 font-semibold hover:text-emerald-800"><i class="fas fa-file-invoice"></i> Generate purchase orders</button></div></div>`;
+      }
+      
+      function attachInventoryEvents() {
+        const searchInput = document.getElementById("searchInventoryInput");
+        const locationSelect = document.getElementById("locationFilterSelect");
+        if(searchInput) { searchInput.value = currentSearchTerm; searchInput.oninput = (e) => { currentSearchTerm = e.target.value; refreshInventoryView(); }; }
+        if(locationSelect) { locationSelect.value = currentSelectedLocation; locationSelect.onchange = (e) => { currentSelectedLocation = e.target.value; refreshInventoryView(); }; }
+        document.querySelectorAll(".adjustStockBtn").forEach(btn => { btn.onclick = () => { const id = btn.dataset.id; activeAdjustItem = inventoryItems.find(i => i.id === id); if(activeAdjustItem){ document.getElementById("adjustProductName").innerText = `${activeAdjustItem.product} (${activeAdjustItem.sku})`; document.getElementById("adjustModal").classList.remove("hidden"); document.getElementById("adjustModal").classList.add("flex"); document.getElementById("adjustQuantity").value = ""; } }; });
+        document.querySelectorAll(".transferStockBtn").forEach(btn => { btn.onclick = () => { const id = btn.dataset.id; activeTransferItem = inventoryItems.find(i => i.id === id); if(activeTransferItem){ document.getElementById("transferProductName").innerText = activeTransferItem.product; document.getElementById("transferModal").classList.remove("hidden"); document.getElementById("transferModal").classList.add("flex"); } }; });
+        document.getElementById("globalTransferInfoBtn")?.addEventListener("click", () => alert("⚡ Use 'Transfer' button on any product card to move stock."));
+        document.getElementById("globalAdjustInfoBtn")?.addEventListener("click", () => alert("📦 Click 'Adjust' on a product card to modify stock levels."));
+        document.getElementById("bulkReorderBtn")?.addEventListener("click", () => { const lowItems = inventoryItems.filter(i => i.status === "low" || i.status === "critical" || i.status === "reorder"); alert(`📄 Purchase order draft for ${lowItems.length} SKUs.`); });
+      }
+      function refreshInventoryView() { const container = document.getElementById("pageRenderer"); if(container && currentTab === "inventory") { container.innerHTML = renderFullInventory(); attachInventoryEvents(); } }
+      
+      // Other render functions (Dashboard, Catalog, etc.)
+      function renderDashboard() { return `<div class="mb-8"><h2 class="text-3xl font-bold text-gray-800">Executive Dashboard</h2><p class="text-gray-500 mt-1">Real-time KPIs, alerts & business insights</p></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6">${[{ icon: "chart-line", color: "emerald", title: "Daily Sales", value: "KES 184,200" }, { icon: "percentage", color: "blue", title: "Installment Collection", value: "78%" }, { icon: "exchange-alt", color: "purple", title: "Inventory Turnover", value: "2.4x" }].map(k => `<div class="bg-white rounded-2xl p-6 shadow-sm"><div class="w-12 h-12 bg-${k.color}-100 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-${k.icon} text-${k.color}-600 text-xl"></i></div><p class="text-gray-500 text-sm">${k.title}</p><p class="text-2xl font-bold text-gray-800">${k.value}</p></div>`).join("")}</div>`; }
+      function renderCatalog() { return `<div class="bg-white rounded-2xl shadow-sm p-6"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold"><i class="fas fa-tags text-emerald-600 mr-2"></i>Product Catalog</h2><button id="addProductBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-plus"></i> Add Product</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3">Image</th><th>Name</th><th>Category</th><th>Buy Price</th><th>Sell Price</th><th>Stock</th><th>Size</th><th>Supplier</th><th>Actions</th></tr></thead><tbody>${products.map(p => `<tr class="border-b"><td class="p-3"><img src="${getProductImageSrc(p)}" class="product-image-preview" onerror="this.src='https://via.placeholder.com/48'"></td><td class="p-3 font-semibold">${escapeHtml(p.name)}</td><td>${p.category}</td><td>KES ${p.buyPrice}</td><td class="font-bold text-emerald-600">KES ${p.sellPrice}</td><td>${p.stock}</td><td>${p.size}</td><td>${p.supplier || "-"}</td><td><button class="editProductBtn text-blue-600 mr-2" data-id="${p.id}"><i class="fas fa-edit"></i></button><button class="deleteProductBtn text-red-600" data-id="${p.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div></div>`; }
+      function renderOrders() { return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Order Pipeline</h2><p>Order management system</p></div>`; }
+      function renderCustomers() { return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Customer Hub</h2><p>Customer 360° view</p></div>`; }
+      function renderTransactions() { return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Transaction Hub</h2><p>Payment transactions</p></div>`; }
+      function renderInstallments() { return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Lipa Mdogo Core</h2><p>Installment payment plans</p></div>`; }
+      function renderAnalytics() { return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Analytics Engine</h2><canvas id="sampleChart" height="200"></canvas></div><script>setTimeout(()=>{const ctx=document.getElementById('sampleChart')?.getContext('2d');if(ctx)new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Revenue',data:[120,145,178}]}});},100);<\/script>`; }
+      
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (currentTab === "catalog") container.innerHTML = renderCatalog();
+        else if (currentTab === "inventory") { container.innerHTML = renderFullInventory(); attachInventoryEvents(); }
+        else if (currentTab === "orders") container.innerHTML = renderOrders();
+        else if (currentTab === "customers") container.innerHTML = renderCustomers();
+        else if (currentTab === "transactions") container.innerHTML = renderTransactions();
+        else if (currentTab === "installments") container.innerHTML = renderInstallments();
+        else if (currentTab === "analytics") container.innerHTML = renderAnalytics();
+        attachCatalogEvents();
+      }
+      
+      let currentImageDataURL = null;
+      function openProductModal(product = null) { currentImageDataURL = null; document.getElementById("imagePreviewContainer").classList.add("hidden"); document.getElementById("prodImageFile").value = ""; if(product) { document.getElementById("modalTitle").innerHTML = '<i class="fas fa-edit"></i> Edit Product'; document.getElementById("productId").value = product.id; document.getElementById("prodName").value = product.name; document.getElementById("prodCategory").value = product.category; document.getElementById("prodBuyPrice").value = product.buyPrice; document.getElementById("prodSellPrice").value = product.sellPrice; document.getElementById("prodStock").value = product.stock; document.getElementById("prodSize").value = product.size; document.getElementById("prodSupplier").value = product.supplier || ""; document.getElementById("prodDesc").value = product.description || ""; if(product.imageData) { currentImageDataURL = product.imageData; showImagePreview(currentImageDataURL, "product.png"); } else if(product.imageUrl) { currentImageDataURL = product.imageUrl; showImagePreview(product.imageUrl, "from_url"); } } else { document.getElementById("productForm").reset(); document.getElementById("productId").value = ""; } document.getElementById("productModal").classList.remove("hidden"); document.getElementById("productModal").classList.add("flex"); }
+      function showImagePreview(src, filename) { const container = document.getElementById("imagePreviewContainer"); document.getElementById("imagePreviewLocal").src = src; document.getElementById("previewFileName").innerText = filename; container.classList.remove("hidden"); }
+      function saveProductFromForm() { const id = document.getElementById("productId").value; const productData = { name: document.getElementById("prodName").value, category: document.getElementById("prodCategory").value, buyPrice: parseFloat(document.getElementById("prodBuyPrice").value), sellPrice: parseFloat(document.getElementById("prodSellPrice").value), stock: parseInt(document.getElementById("prodStock").value), size: document.getElementById("prodSize").value, supplier: document.getElementById("prodSupplier").value, description: document.getElementById("prodDesc").value, imageData: (currentImageDataURL && currentImageDataURL.startsWith('data:')) ? currentImageDataURL : null, imageUrl: (!currentImageDataURL || !currentImageDataURL.startsWith('data:')) ? (currentImageDataURL || "") : "" }; if (!productData.name || isNaN(productData.buyPrice)) { alert("Fill required fields"); return false; } if (id) { const index = products.findIndex(p => p.id == id); if(index !== -1) products[index] = { ...products[index], ...productData, id: parseInt(id) }; } else { const newId = products.length ? Math.max(...products.map(p=>p.id))+1 : 5; products.push({ id: newId, ...productData }); } persistData(); document.getElementById("productModal").classList.add("hidden"); renderCurrentTab(); return true; }
+      function deleteProductById(id) { products = products.filter(p => p.id !== id); persistData(); renderCurrentTab(); }
+      
+      function attachCatalogEvents() {
+        document.getElementById("addProductBtn")?.addEventListener("click", () => openProductModal(null));
+        document.querySelectorAll(".editProductBtn").forEach(btn => btn.addEventListener("click", () => { const product = products.find(p => p.id == btn.dataset.id); if(product) openProductModal(product); }));
+        document.querySelectorAll(".deleteProductBtn").forEach(btn => btn.addEventListener("click", () => { deleteTargetId = parseInt(btn.dataset.id); document.getElementById("deleteModal").classList.remove("hidden"); document.getElementById("deleteModal").classList.add("flex"); }));
+        document.getElementById("confirmDeleteBtn")?.addEventListener("click", () => { if(deleteTargetId) deleteProductById(deleteTargetId); document.getElementById("deleteModal").classList.add("hidden"); });
+        document.getElementById("cancelDeleteBtn")?.addEventListener("click", () => document.getElementById("deleteModal").classList.add("hidden"));
+        document.getElementById("closeProductModalBtn")?.addEventListener("click", () => document.getElementById("productModal").classList.add("hidden"));
+        document.getElementById("cancelProductBtn")?.addEventListener("click", () => document.getElementById("productModal").classList.add("hidden"));
+        document.getElementById("productForm")?.addEventListener("submit", (e) => { e.preventDefault(); saveProductFromForm(); });
+        const fileInput = document.getElementById("prodImageFile"); if(fileInput) { fileInput.onchange = (e) => { const file = e.target.files[0]; if(file && file.type.startsWith("image/")) { const reader = new FileReader(); reader.onload = (ev) => { currentImageDataURL = ev.target.result; showImagePreview(currentImageDataURL, file.name); }; reader.readAsDataURL(file); } else if(file) alert("Select valid image"); }; }
+        document.getElementById("removeImageBtn")?.addEventListener("click", () => { currentImageDataURL = null; document.getElementById("imagePreviewContainer").classList.add("hidden"); document.getElementById("prodImageFile").value = ""; });
+      }
+      
+      // Modals for inventory adjust/transfer
+      function setupModals() {
+        const closeAdjust = () => document.getElementById("adjustModal").classList.add("hidden");
+        document.getElementById("confirmAdjustBtn").onclick = () => { if(activeAdjustItem){ const newQty = parseInt(document.getElementById("adjustQuantity").value); const locName = document.getElementById("adjustLocation").value; const locIndex = activeAdjustItem.locations.findIndex(l => l.name === locName); if(!isNaN(newQty) && newQty >= 0 && locIndex !== -1){ activeAdjustItem.locations[locIndex].stock = newQty; recalcTotalStock(activeAdjustItem); persistData(); refreshInventoryView(); closeAdjust(); } else alert("Valid quantity required"); } };
+        document.getElementById("cancelAdjustBtn").onclick = closeAdjust; document.getElementById("closeAdjustModal").onclick = closeAdjust;
+        const closeTransfer = () => document.getElementById("transferModal").classList.add("hidden");
+        document.getElementById("confirmTransferBtn").onclick = () => { if(activeTransferItem){ const fromLoc = document.getElementById("fromLocation").value, toLoc = document.getElementById("toLocation").value, qty = parseInt(document.getElementById("transferQty").value); const fromIdx = activeTransferItem.locations.findIndex(l=>l.name===fromLoc), toIdx = activeTransferItem.locations.findIndex(l=>l.name===toLoc); if(!isNaN(qty) && qty>0 && fromIdx !== -1 && toIdx !== -1 && activeTransferItem.locations[fromIdx].stock >= qty){ activeTransferItem.locations[fromIdx].stock -= qty; activeTransferItem.locations[toIdx].stock += qty; recalcTotalStock(activeTransferItem); persistData(); refreshInventoryView(); closeTransfer(); } else alert("Invalid transfer"); } };
+        document.getElementById("cancelTransferBtn").onclick = closeTransfer; document.getElementById("closeTransferModal").onclick = closeTransfer;
+      }
+      
+      // Navigation and layout
+      function navClickHandler(e) { const target = e.currentTarget; document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("bg-emerald-50","text-emerald-700","font-semibold")); target.classList.add("bg-emerald-50","text-emerald-700","font-semibold"); currentTab = target.getAttribute("data-tab"); renderCurrentTab(); if(window.innerWidth <= 768 && window.closeMobileMenu) window.closeMobileMenu(); }
+      function logoutHandler() { localStorage.removeItem("lipamdogo_auth"); sessionStorage.removeItem("lipamdogo_auth_temp"); document.getElementById("adminApp").classList.add("hidden"); document.querySelector(".split-layout").style.display = "flex"; }
+      function getAdminDashboardHTML() { return `<div class="admin-layout"><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><div class="flex items-center gap-3"><div class="w-12 h-12"><img src="../images/balogo.png" alt="BA" onerror="this.src='https://placehold.co/48x48?text=BA';"></div><div><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1><p class="text-xs text-gray-500">Enterprise Admin</p></div></div></div><nav class="p-4 space-y-1.5"><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard"><i class="fas fa-chart-line w-5"></i><span>Dashboard</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="catalog"><i class="fas fa-tags w-5"></i><span>Product Catalog</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="inventory"><i class="fas fa-boxes w-5"></i><span>Inventory Intelligence</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="orders"><i class="fas fa-tasks w-5"></i><span>Orders</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="customers"><i class="fas fa-users w-5"></i><span>Customers</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="transactions"><i class="fas fa-usd w-5"></i><span>Transactions</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="installments"><i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="analytics"><i class="fas fa-chart-pie w-5"></i><span>Analytics</span></div></nav><div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-emerald-700"></i></div><div class="flex-1"><p class="text-sm font-bold" id="userDisplayName">Store Manager</p><p class="text-xs text-gray-500">Admin</p></div><button id="logoutBtn" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button></div></div></div><div class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars text-emerald-600 text-xl"></i></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll" id="mainScrollArea"><div class="p-4 lg:p-8" id="pageRenderer"></div></div></div>`; }
+      function initAdminDashboard(userEmail) { loadInitialData(); const adminContainer = document.getElementById("adminApp"); adminContainer.innerHTML = getAdminDashboardHTML(); adminContainer.classList.remove("hidden"); document.querySelector(".split-layout").style.display = "none"; if(userEmail) document.getElementById("userDisplayName").innerText = userEmail.split("@")[0]; document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", navClickHandler)); document.getElementById("logoutBtn")?.addEventListener("click", logoutHandler); renderCurrentTab(); initMobileSidebar(); setupModals(); }
+      function initMobileSidebar() { const sidebar = document.getElementById("fixedSidebar"); const toggleBtn = document.getElementById("mobileMenuToggle"); const overlay = document.getElementById("mobileOverlay"); if(toggleBtn){ const openMenu = () => { sidebar.classList.add("mobile-open"); overlay.classList.add("active"); document.body.style.overflow = "hidden"; }; const closeMenu = () => { sidebar.classList.remove("mobile-open"); overlay.classList.remove("active"); document.body.style.overflow = ""; }; window.closeMobileMenu = closeMenu; toggleBtn.onclick = openMenu; overlay.onclick = closeMenu; document.querySelectorAll(".nav-item").forEach(link => link.addEventListener("click", closeMenu)); } }
+      
+      // Login logic
+      const VALID_EMAIL = "admin@lipamdogo.com", VALID_PASSWORD = "admin123";
+      function checkSavedSession() { const saved = localStorage.getItem("lipamdogo_auth"); if(saved) { try { const data = JSON.parse(saved); if(data.email === VALID_EMAIL && data.remember) { initAdminDashboard(data.email); return true; } } catch(e) {} } if(sessionStorage.getItem("lipamdogo_auth_temp")) { initAdminDashboard(VALID_EMAIL); return true; } return false; }
+      document.getElementById("togglePassword").onclick = () => { const pwd = document.getElementById("password"); const type = pwd.getAttribute("type") === "password" ? "text" : "password"; pwd.setAttribute("type", type); document.getElementById("togglePassword").innerHTML = type === "password" ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'; };
+      document.getElementById("forgotPassword").onclick = (e) => { e.preventDefault(); alert("Reset demo: admin@lipamdogo.com / admin123"); };
+      document.getElementById("loginForm").onsubmit = (e) => { e.preventDefault(); const email = document.getElementById("email").value.trim(), password = document.getElementById("password").value; if(email === VALID_EMAIL && password === VALID_PASSWORD) { if(document.getElementById("rememberMe").checked) localStorage.setItem("lipamdogo_auth", JSON.stringify({ email, remember: true })); else sessionStorage.setItem("lipamdogo_auth_temp", "true"); document.getElementById("loginBtn").innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing...'; setTimeout(() => { initAdminDashboard(email); }, 600); } else { document.getElementById("errorText").innerText = "Invalid credentials"; document.getElementById("errorMessage").classList.remove("hidden"); setTimeout(() => document.getElementById("errorMessage").classList.add("hidden"), 2000); } };
+      if(!checkSavedSession()) { loadInitialData(); }
+    </script>
+  </body>
+</html>

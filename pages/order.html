@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Order Pipeline Management (Standalone)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN ORDER PIPELINE MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="orderPipelineRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- Manual Add Order Modal -->
+    <div
+      id="addOrderModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-cart-plus text-emerald-600 mr-2"></i>Manual Add
+            Order
+          </h3>
+          <button
+            id="closeAddOrderModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="addOrderForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="orderCustomerName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="orderEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number</label
+                ><input
+                  type="tel"
+                  id="orderPhone"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="orderAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Type <span class="text-red-500">*</span></label
+                ><select
+                  id="orderPaymentType"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="full">Full Payment</option>
+                  <option value="installment">Installment (Lipa Mdogo)</option>
+                </select>
+              </div>
+              <div id="installmentPlanDiv" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Installment Plan</label
+                ><select
+                  id="orderInstallmentPlan"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="3 months">3 Months</option>
+                  <option value="6 months">6 Months</option>
+                  <option value="9 months">9 Months</option>
+                  <option value="12 months">12 Months</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Order Status <span class="text-red-500">*</span></label
+                ><select
+                  id="orderStatus"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-semibold text-gray-700"
+                  >Order Items</label
+                ><button
+                  type="button"
+                  id="addLineItemBtn"
+                  class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-200"
+                >
+                  <i class="fas fa-plus mr-1"></i>Add Item
+                </button>
+              </div>
+              <div id="lineItemsContainer" class="space-y-3">
+                <div
+                  class="line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl"
+                >
+                  <div class="col-span-5">
+                    <input
+                      type="text"
+                      placeholder="Product name"
+                      class="item-name w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2">
+                    <input
+                      type="number"
+                      placeholder="Qty"
+                      class="item-qty w-full px-3 py-2 border rounded-lg text-sm"
+                      value="1"
+                    />
+                  </div>
+                  <div class="col-span-3">
+                    <input
+                      type="number"
+                      placeholder="Price (KES)"
+                      class="item-price w-full px-3 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <div class="col-span-2 text-right">
+                    <button
+                      type="button"
+                      class="remove-item text-red-500 hover:text-red-700"
+                    >
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 text-right font-semibold text-gray-700">
+                Total Amount:
+                <span id="orderTotalPreview" class="text-emerald-700 text-xl"
+                  >KES 0</span
+                >
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelOrderBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-check-circle mr-2"></i>Create Order
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Detail Modal (Quick View) -->
+    <div
+      id="orderDetailModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-receipt text-emerald-600 mr-2"></i>Order Details
+          </h3>
+          <button
+            id="closeDetailModal"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="orderDetailContent" class="p-6 space-y-4"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-end bg-gray-50 rounded-b-2xl"
+        >
+          <button
+            id="closeDetailFooterBtn"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+          <button
+            id="updateStatusFromDetailBtn"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            Update Status
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div
+      id="updateStatusModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <h3 class="text-xl font-bold mb-4">
+          <i class="fas fa-tasks text-emerald-600 mr-2"></i>Update Order Status
+        </h3>
+        <select
+          id="newOrderStatus"
+          class="w-full p-3 border border-gray-300 rounded-xl mb-4"
+        >
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="flex gap-3">
+          <button
+            id="confirmStatusUpdate"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Update</button
+          ><button
+            id="cancelStatusUpdate"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Fully independent, can be dropped into Laravel blade or any project.
+
+      (function () {
+        // ---------- ORDERS DATA ----------
+        let ordersData = [
+          {
+            id: "ORD-12847",
+            customer: "Sarah Mwangi",
+            email: "sarah.mwangi@example.com",
+            phone: "+254 712 345 678",
+            items: 3,
+            total: 12450,
+            paymentType: "installment",
+            status: "processing",
+            createdAt: "2026-04-09",
+            installmentPlan: "6 months",
+            shippingAddress: "123 Kimathi Street, Nairobi",
+            lineItems: [
+              { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+              { name: "Leather Sneakers", qty: 1, price: 4500 },
+              { name: "Cashmere Scarf", qty: 1, price: 4450 },
+            ],
+          },
+          {
+            id: "ORD-12846",
+            customer: "John Kamau",
+            email: "john.kamau@example.com",
+            phone: "+254 722 456 789",
+            items: 1,
+            total: 6500,
+            paymentType: "full",
+            status: "shipped",
+            createdAt: "2026-04-08",
+            shippingAddress: "45 Moi Avenue, Mombasa",
+            lineItems: [{ name: "Leather Boots", qty: 1, price: 6500 }],
+          },
+          {
+            id: "ORD-12845",
+            customer: "Grace Njeri",
+            email: "grace.njeri@example.com",
+            phone: "+254 733 567 890",
+            items: 5,
+            total: 18900,
+            paymentType: "installment",
+            status: "pending",
+            createdAt: "2026-04-08",
+            installmentPlan: "12 months",
+            shippingAddress: "78 Ngong Road, Nairobi",
+            lineItems: [
+              { name: "Floral Summer Dress", qty: 2, price: 5800 },
+              { name: "Slim Fit Jeans", qty: 2, price: 7800 },
+              { name: "Leather Belt", qty: 1, price: 5300 },
+            ],
+          },
+          {
+            id: "ORD-12844",
+            customer: "Peter Omondi",
+            email: "peter.omondi@example.com",
+            phone: "+254 744 678 901",
+            items: 2,
+            total: 7800,
+            paymentType: "full",
+            status: "delivered",
+            createdAt: "2026-04-07",
+            shippingAddress: "12 Kenyatta Avenue, Kisumu",
+            lineItems: [{ name: "Cotton T-Shirt", qty: 2, price: 3900 }],
+          },
+          {
+            id: "ORD-12843",
+            customer: "Mary Wanjiku",
+            email: "mary.wanjiku@example.com",
+            phone: "+254 755 789 012",
+            items: 4,
+            total: 15200,
+            paymentType: "installment",
+            status: "processing",
+            createdAt: "2026-04-07",
+            installmentPlan: "9 months",
+            shippingAddress: "99 Thika Road, Kiambu",
+            lineItems: [
+              { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+              { name: "Leather Sneakers", qty: 1, price: 4500 },
+              { name: "Wool Sweater", qty: 2, price: 7200 },
+            ],
+          },
+          {
+            id: "ORD-12842",
+            customer: "David Otieno",
+            email: "david.otieno@example.com",
+            phone: "+254 766 890 123",
+            items: 1,
+            total: 3200,
+            paymentType: "full",
+            status: "cancelled",
+            createdAt: "2026-04-06",
+            shippingAddress: "55 Kisii Road, Kisii",
+            lineItems: [{ name: "Running Shoes", qty: 1, price: 3200 }],
+          },
+          {
+            id: "ORD-12841",
+            customer: "Faith Chebet",
+            email: "faith.chebet@example.com",
+            phone: "+254 777 123 456",
+            items: 3,
+            total: 11200,
+            paymentType: "installment",
+            status: "pending",
+            createdAt: "2026-04-10",
+            installmentPlan: "6 months",
+            shippingAddress: "22 Eldoret Highway, Eldoret",
+            lineItems: [
+              { name: "Hoodie", qty: 2, price: 5600 },
+              { name: "Joggers", qty: 1, price: 5600 },
+            ],
+          },
+        ];
+
+        let selectedOrderForDetail = null;
+        let selectedOrderForStatus = null;
+
+        // Helper functions
+        function formatCurrency(amount) {
+          return new Intl.NumberFormat("en-KE", {
+            style: "currency",
+            currency: "KES",
+            minimumFractionDigits: 0,
+          }).format(amount);
+        }
+        function escapeHtml(str) {
+          return String(str ?? "").replace(/[&<>]/g, (m) =>
+            m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+          );
+        }
+
+        function generateOrderId() {
+          const lastId =
+            ordersData.length > 0
+              ? Math.max(...ordersData.map((o) => parseInt(o.id.split("-")[1])))
+              : 12841;
+          return `ORD-${lastId + 1}`;
+        }
+
+        function getStatusBadgeClass(status) {
+          const styles = {
+            delivered: "bg-green-100 text-green-700",
+            shipped: "bg-purple-100 text-purple-700",
+            processing: "bg-blue-100 text-blue-700",
+            cancelled: "bg-red-100 text-red-700",
+            pending: "bg-amber-100 text-amber-700",
+          };
+          return styles[status] || "bg-gray-100 text-gray-700";
+        }
+
+        function calculateTotalFromItems() {
+          let total = 0;
+          document.querySelectorAll(".line-item").forEach((item) => {
+            const qty = parseFloat(item.querySelector(".item-qty")?.value) || 0;
+            const price =
+              parseFloat(item.querySelector(".item-price")?.value) || 0;
+            total += qty * price;
+          });
+          document.getElementById("orderTotalPreview").innerText =
+            `KES ${total.toLocaleString()}`;
+          return total;
+        }
+
+        function attachLineItemEvents() {
+          document
+            .querySelectorAll(".item-qty, .item-price")
+            .forEach((el) =>
+              el.addEventListener("input", () => calculateTotalFromItems()),
+            );
+          document.querySelectorAll(".remove-item").forEach((btn) =>
+            btn.addEventListener("click", function () {
+              const lineItem = this.closest(".line-item");
+              if (document.querySelectorAll(".line-item").length > 1)
+                lineItem.remove();
+              else {
+                lineItem.querySelector(".item-name").value = "";
+                lineItem.querySelector(".item-qty").value = 1;
+                lineItem.querySelector(".item-price").value = "";
+              }
+              calculateTotalFromItems();
+            }),
+          );
+        }
+
+        function resetAddOrderModal() {
+          document.getElementById("addOrderForm").reset();
+          const container = document.getElementById("lineItemsContainer");
+          container.innerHTML = `<div class="line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl"><div class="col-span-5"><input type="text" placeholder="Product name" class="item-name w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2"><input type="number" placeholder="Qty" class="item-qty w-full px-3 py-2 border rounded-lg text-sm" value="1"></div><div class="col-span-3"><input type="number" placeholder="Price (KES)" class="item-price w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2 text-right"><button type="button" class="remove-item text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button></div></div>`;
+          attachLineItemEvents();
+          calculateTotalFromItems();
+          document.getElementById("installmentPlanDiv").classList.add("hidden");
+          document.getElementById("orderPaymentType").value = "full";
+        }
+
+        function addNewOrder(formData) {
+          const lineItems = [];
+          document.querySelectorAll(".line-item").forEach((item) => {
+            const name = item.querySelector(".item-name")?.value;
+            const qty = parseInt(item.querySelector(".item-qty")?.value) || 0;
+            const price =
+              parseFloat(item.querySelector(".item-price")?.value) || 0;
+            if (name && qty > 0 && price > 0)
+              lineItems.push({ name, qty, price });
+          });
+          if (lineItems.length === 0) {
+            alert("Please add at least one valid order item");
+            return false;
+          }
+          const total = lineItems.reduce((sum, i) => sum + i.qty * i.price, 0);
+          const newOrder = {
+            id: generateOrderId(),
+            customer: formData.customerName,
+            email: formData.email,
+            phone: formData.phone,
+            items: lineItems.reduce((s, i) => s + i.qty, 0),
+            total: total,
+            paymentType: formData.paymentType,
+            status: formData.status,
+            createdAt: new Date().toISOString().slice(0, 10),
+            shippingAddress: formData.address,
+            lineItems: lineItems,
+          };
+          if (formData.paymentType === "installment")
+            newOrder.installmentPlan = formData.installmentPlan;
+          ordersData.unshift(newOrder);
+          return true;
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+          const order = ordersData.find((o) => o.id === orderId);
+          if (order) {
+            order.status = newStatus;
+            return true;
+          }
+          return false;
+        }
+
+        // Render main UI
+        function renderOrdersModule() {
+          const totalOrders = ordersData.length;
+          const pendingCount = ordersData.filter(
+            (o) => o.status === "pending",
+          ).length;
+          const processingCount = ordersData.filter(
+            (o) => o.status === "processing",
+          ).length;
+          const shippedCount = ordersData.filter(
+            (o) => o.status === "shipped",
+          ).length;
+          const deliveredCount = ordersData.filter(
+            (o) => o.status === "delivered",
+          ).length;
+          const cancelledCount = ordersData.filter(
+            (o) => o.status === "cancelled",
+          ).length;
+          const installmentPercentage = Math.round(
+            (ordersData.filter((o) => o.paymentType === "installment").length /
+              totalOrders) *
+              100,
+          );
+
+          return `
+          <div class="space-y-6 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-tasks text-emerald-600 mr-2"></i>Order Pipeline</h1><p class="text-gray-500 mt-1">Track, manage and manually add customer orders</p></div>
+              <div class="flex gap-2"><button id="addOrderManuallyBtn" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg transition flex items-center gap-2"><i class="fas fa-plus-circle"></i> Manual Add Order</button><button id="refreshOrdersBtn" class="px-4 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition"><i class="fas fa-sync-alt"></i> Refresh</button><button id="exportOrdersBtn" class="px-4 py-2.5 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition"><i class="fas fa-download"></i> Export</button></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Total Orders</p><p class="text-xl font-bold">${totalOrders}</p></div>
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Pending</p><p class="text-xl font-bold text-amber-600">${pendingCount}</p></div>
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Processing</p><p class="text-xl font-bold text-blue-600">${processingCount}</p></div>
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Shipped</p><p class="text-xl font-bold text-purple-600">${shippedCount}</p></div>
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Delivered</p><p class="text-xl font-bold text-green-600">${deliveredCount}</p></div>
+              <div class="bg-white rounded-xl border p-3 shadow-sm text-center"><p class="text-xs text-gray-500">Cancelled</p><p class="text-xl font-bold text-red-600">${cancelledCount}</p></div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+              <div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="orderSearchInput" placeholder="Search by ID, customer, email or phone..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500"></div><select id="statusFilterSelect" class="px-4 py-2.5 border border-gray-200 rounded-xl bg-white"><option value="all">All Statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50 border-b border-gray-200"><tr><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Order ID</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Customer</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Items</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Total</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Payment</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Status</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Date</th><th class="px-5 py-3 text-left text-sm font-semibold text-gray-600">Action</th></tr></thead><tbody id="ordersTableBody" class="divide-y divide-gray-100"></tbody></table></div><div id="noOrdersMsg" class="hidden p-8 text-center text-gray-400"><i class="fas fa-inbox text-3xl mb-2"></i><p>No orders match your search</p></div></div>
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 flex justify-between items-center flex-wrap gap-2"><span class="text-sm font-medium"><i class="fas fa-chart-line"></i> Installment orders insight: ${installmentPercentage}% of total orders</span><button id="bulkOrderActionBtn" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">Bulk Update Status</button></div>
+          </div>
+        `;
+        }
+
+        function renderOrdersTableBody(filteredOrders) {
+          const tbody = document.getElementById("ordersTableBody");
+          const noMsg = document.getElementById("noOrdersMsg");
+          if (!tbody) return;
+          if (filteredOrders.length === 0) {
+            tbody.innerHTML = "";
+            if (noMsg) noMsg.classList.remove("hidden");
+            return;
+          }
+          if (noMsg) noMsg.classList.add("hidden");
+          tbody.innerHTML = filteredOrders
+            .map((order) => {
+              const statusColor = getStatusBadgeClass(order.status);
+              return `<tr class="hover:bg-gray-50 transition cursor-pointer quick-view-row" data-id="${order.id}"><td class="px-5 py-3 font-medium text-gray-800">${order.id}</td><td class="px-5 py-3"><div class="font-medium text-gray-700">${escapeHtml(order.customer)}</div><div class="text-xs text-gray-400">${order.email || ""}</div></td><td class="px-5 py-3 text-gray-500">${order.items}</td><td class="px-5 py-3 font-semibold text-emerald-700">${formatCurrency(order.total)}</td><td class="px-5 py-3">${order.paymentType === "installment" ? `<span class="inline-flex px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Installment</span>${order.installmentPlan ? `<p class="text-xs text-gray-500 mt-1">${order.installmentPlan}</p>` : ""}` : '<span class="text-gray-600 text-sm">Full Payment</span>'}</td><td class="px-5 py-3"><span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusColor}">${order.status}</span></td><td class="px-5 py-3 text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</td><td class="px-5 py-3"><button class="viewOrderBtn px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-emerald-50 transition" data-id="${order.id}"><i class="fas fa-eye mr-1"></i> View</button></td></tr>`;
+            })
+            .join("");
+
+          document
+            .querySelectorAll(".viewOrderBtn, .quick-view-row")
+            .forEach((el) => {
+              el.addEventListener("click", (e) => {
+                const id =
+                  el.getAttribute("data-id") ||
+                  el.closest("tr")?.getAttribute("data-id");
+                if (id) {
+                  const order = ordersData.find((o) => o.id === id);
+                  if (order) openOrderDetailModal(order);
+                }
+              });
+            });
+        }
+
+        function filterOrders() {
+          const searchTerm =
+            document.getElementById("orderSearchInput")?.value.toLowerCase() ||
+            "";
+          const statusFilter =
+            document.getElementById("statusFilterSelect")?.value || "all";
+          let filtered = [...ordersData];
+          if (searchTerm)
+            filtered = filtered.filter(
+              (o) =>
+                o.id.toLowerCase().includes(searchTerm) ||
+                o.customer.toLowerCase().includes(searchTerm) ||
+                (o.email && o.email.toLowerCase().includes(searchTerm)) ||
+                (o.phone && o.phone.includes(searchTerm)),
+            );
+          if (statusFilter !== "all")
+            filtered = filtered.filter((o) => o.status === statusFilter);
+          renderOrdersTableBody(filtered);
+        }
+
+        function openOrderDetailModal(order) {
+          selectedOrderForDetail = order;
+          const container = document.getElementById("orderDetailContent");
+          container.innerHTML = `
+          <div class="bg-gray-50 rounded-xl p-4"><div class="flex justify-between flex-wrap gap-2"><div><p class="text-sm text-gray-500">Order ID</p><p class="font-bold text-lg">${order.id}</p></div><div><span class="status-badge ${getStatusBadgeClass(order.status)} capitalize">${order.status}</span></div></div></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500 mb-1"><i class="fas fa-user mr-2"></i>Customer</p><p class="font-medium">${escapeHtml(order.customer)}</p><p class="text-sm text-gray-500 mt-2">${order.email || ""}</p><p class="text-sm">${order.phone || ""}</p></div><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500 mb-1"><i class="fas fa-map-marker-alt mr-2"></i>Shipping Address</p><p class="font-medium">${order.shippingAddress || "Not provided"}</p><p class="text-sm text-gray-500 mt-2">Order Date: ${new Date(order.createdAt).toLocaleDateString()}</p></div></div>
+          <div class="bg-gray-50 rounded-xl p-4"><p class="text-sm font-semibold mb-3">Order Items</p><div class="space-y-2">${order.lineItems.map((item) => `<div class="flex justify-between text-sm border-b border-gray-200 pb-2"><span>${escapeHtml(item.name)} x ${item.qty}</span><span class="font-semibold">${formatCurrency(item.price * item.qty)}</span></div>`).join("")}<div class="flex justify-between pt-2 font-bold"><span>Total</span><span class="text-emerald-700">${formatCurrency(order.total)}</span></div></div></div>
+          <div class="bg-emerald-50 rounded-xl p-4"><div class="flex justify-between"><span><i class="fas fa-credit-card"></i> Payment Type</span><span class="font-semibold">${order.paymentType === "installment" ? `Installment (${order.installmentPlan || "N/A"})` : "Full Payment"}</span></div></div>
+        `;
+          document
+            .getElementById("orderDetailModal")
+            .classList.remove("hidden");
+          document.getElementById("orderDetailModal").classList.add("flex");
+        }
+
+        function closeOrderDetailModal() {
+          document.getElementById("orderDetailModal").classList.add("hidden");
+        }
+
+        function openUpdateStatusModal(order) {
+          selectedOrderForStatus = order;
+          document.getElementById("newOrderStatus").value = order.status;
+          document
+            .getElementById("updateStatusModal")
+            .classList.remove("hidden");
+          document.getElementById("updateStatusModal").classList.add("flex");
+        }
+
+        function closeUpdateStatusModal() {
+          document.getElementById("updateStatusModal").classList.add("hidden");
+        }
+
+        function attachOrderEvents() {
+          document
+            .getElementById("orderSearchInput")
+            ?.addEventListener("input", filterOrders);
+          document
+            .getElementById("statusFilterSelect")
+            ?.addEventListener("change", filterOrders);
+          document
+            .getElementById("refreshOrdersBtn")
+            ?.addEventListener("click", () => {
+              const s = document.getElementById("orderSearchInput");
+              if (s) s.value = "";
+              const st = document.getElementById("statusFilterSelect");
+              if (st) st.value = "all";
+              filterOrders();
+            });
+          document
+            .getElementById("exportOrdersBtn")
+            ?.addEventListener("click", () =>
+              alert(
+                "📄 Order report exported as CSV. (Integration ready for Laravel export)",
+              ),
+            );
+          document
+            .getElementById("bulkOrderActionBtn")
+            ?.addEventListener("click", () =>
+              alert(
+                "Bulk status update: Select multiple orders to update status in bulk.",
+              ),
+            );
+          document
+            .getElementById("addOrderManuallyBtn")
+            ?.addEventListener("click", () => {
+              resetAddOrderModal();
+              document
+                .getElementById("addOrderModal")
+                .classList.remove("hidden");
+              document.getElementById("addOrderModal").classList.add("flex");
+            });
+          filterOrders();
+        }
+
+        function attachModalEvents() {
+          // Add Order Modal
+          document
+            .getElementById("closeAddOrderModal")
+            ?.addEventListener("click", () =>
+              document.getElementById("addOrderModal").classList.add("hidden"),
+            );
+          document
+            .getElementById("cancelOrderBtn")
+            ?.addEventListener("click", () =>
+              document.getElementById("addOrderModal").classList.add("hidden"),
+            );
+          document
+            .getElementById("orderPaymentType")
+            ?.addEventListener("change", (e) => {
+              const div = document.getElementById("installmentPlanDiv");
+              if (e.target.value === "installment")
+                div.classList.remove("hidden");
+              else div.classList.add("hidden");
+            });
+          document
+            .getElementById("addLineItemBtn")
+            ?.addEventListener("click", () => {
+              const container = document.getElementById("lineItemsContainer");
+              const newItem = document.createElement("div");
+              newItem.className =
+                "line-item grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-xl";
+              newItem.innerHTML = `<div class="col-span-5"><input type="text" placeholder="Product name" class="item-name w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2"><input type="number" placeholder="Qty" class="item-qty w-full px-3 py-2 border rounded-lg text-sm" value="1"></div><div class="col-span-3"><input type="number" placeholder="Price (KES)" class="item-price w-full px-3 py-2 border rounded-lg text-sm"></div><div class="col-span-2 text-right"><button type="button" class="remove-item text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button></div>`;
+              container.appendChild(newItem);
+              attachLineItemEvents();
+              calculateTotalFromItems();
+            });
+          document
+            .getElementById("addOrderForm")
+            ?.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const newOrderData = {
+                customerName:
+                  document.getElementById("orderCustomerName").value,
+                email: document.getElementById("orderEmail").value,
+                phone: document.getElementById("orderPhone").value,
+                address: document.getElementById("orderAddress").value,
+                paymentType: document.getElementById("orderPaymentType").value,
+                installmentPlan: document.getElementById("orderInstallmentPlan")
+                  ?.value,
+                status: document.getElementById("orderStatus").value,
+              };
+              if (!newOrderData.customerName) {
+                alert("Customer name required");
+                return;
+              }
+              if (addNewOrder(newOrderData)) {
+                alert("✅ Order created successfully!");
+                document
+                  .getElementById("addOrderModal")
+                  .classList.add("hidden");
+                renderFullModule();
+              } else
+                alert("Please add valid items with name, quantity and price.");
+            });
+          attachLineItemEvents();
+          calculateTotalFromItems();
+
+          // Order Detail Modal
+          document
+            .getElementById("closeDetailModal")
+            ?.addEventListener("click", closeOrderDetailModal);
+          document
+            .getElementById("closeDetailFooterBtn")
+            ?.addEventListener("click", closeOrderDetailModal);
+          document
+            .getElementById("updateStatusFromDetailBtn")
+            ?.addEventListener("click", () => {
+              if (selectedOrderForDetail) {
+                closeOrderDetailModal();
+                openUpdateStatusModal(selectedOrderForDetail);
+              }
+            });
+
+          // Update Status Modal
+          document
+            .getElementById("confirmStatusUpdate")
+            ?.addEventListener("click", () => {
+              if (selectedOrderForStatus) {
+                const newStatus =
+                  document.getElementById("newOrderStatus").value;
+                updateOrderStatus(selectedOrderForStatus.id, newStatus);
+                alert(
+                  `✅ Order ${selectedOrderForStatus.id} status updated to ${newStatus}`,
+                );
+                closeUpdateStatusModal();
+                renderFullModule();
+              }
+            });
+          document
+            .getElementById("cancelStatusUpdate")
+            ?.addEventListener("click", closeUpdateStatusModal);
+        }
+
+        function renderFullModule() {
+          const container = document.getElementById("orderPipelineRoot");
+          container.innerHTML = renderOrdersModule();
+          attachOrderEvents();
+          attachModalEvents();
+        }
+
+        // Initialization
+        function init() {
+          renderFullModule();
+        }
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

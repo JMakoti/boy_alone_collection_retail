@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Lipa Mdogo | Complete Enterprise Retail Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      @media (max-width: 1024px) {
+        .sidebar-mobile {
+          transform: translateX(-100%);
+          position: fixed;
+          z-index: 50;
+          transition: 0.3s;
+        }
+        .sidebar-mobile.open {
+          transform: translateX(0);
+        }
+      }
+      .tab-active {
+        border-bottom: 2px solid #059669;
+        color: #059669;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <button
+      id="mobileMenuBtn"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex min-h-screen relative">
+      <aside
+        id="sidebar"
+        class="sidebar-mobile lg:translate-x-0 w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto scrollbar-custom z-40"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                Boy<span class="text-emerald-600">Alone</span>
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Enterprise Admin Suite v2.0
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1.5">
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-chart-line w-5 text-lg"></i
+            ><span>Executive Dashboard</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="catalog"
+          >
+            <i class="fas fa-tags w-5 text-lg"></i><span>Product Catalog</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="inventory"
+          >
+            <i class="fas fa-boxes w-5 text-lg"></i
+            ><span>Inventory Intelligence</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="orders"
+          >
+            <i class="fas fa-tasks w-5 text-lg"></i><span>Order Pipeline</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="customers"
+          >
+            <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold"
+            data-tab="transactions"
+          >
+            <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="installments"
+          >
+            <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+            ><span>Lipa Mdogo Core</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="analytics"
+          >
+            <i class="fas fa-chart-pie w-5 text-lg"></i
+            ><span>Analytics Engine</span>
+          </div>
+        </nav>
+        <div
+          class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white mt-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-gray-800">Store Manager</p>
+              <p class="text-xs text-gray-500">Role: Admin · Full Access</p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </aside>
+
+      <main class="flex-1 lg:ml-0 min-h-screen">
+        <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex justify-between">
+            <h3 class="text-2xl font-bold">Product Modal</h3>
+            <button class="closeModalBtn text-gray-400">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Delete</h3></div>
+    </div>
+    <div
+      id="paymentModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Payment Plan</h3></div>
+    </div>
+    <div
+      id="defaultModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Default</h3></div>
+    </div>
+
+    <!-- Manual Transaction Modal -->
+    <div
+      id="manualTransactionModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-receipt text-emerald-600 mr-2"></i>Manual
+            Transaction
+          </h3>
+          <button
+            id="closeManualModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="manualTransactionForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Transaction Type <span class="text-red-500">*</span></label
+                ><select
+                  id="transType"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                >
+                  <option value="payment">Payment (Income)</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Amount (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="transAmount"
+                  required
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category</label
+                ><select
+                  id="transCategory"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                >
+                  <option value="Installment Payment">
+                    Installment Payment
+                  </option>
+                  <option value="Full Payment">Full Payment</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Inventory">Inventory Purchase</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Method</label
+                ><select
+                  id="transMethod"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                >
+                  <option>M-Pesa</option>
+                  <option>Airtel Money</option>
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Description</label
+                ><textarea
+                  id="transDesc"
+                  rows="2"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                  placeholder="Optional notes"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelManualBtn"
+                class="px-6 py-2.5 border rounded-xl hover:bg-gray-50"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl"
+              >
+                <i class="fas fa-save mr-2"></i>Save Transaction
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Modal (Add Expense) -->
+    <div
+      id="expenseModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div class="px-6 py-5 border-b flex justify-between items-center">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-chart-line text-red-600 mr-2"></i>Record Expense
+          </h3>
+          <button id="closeExpenseModal" class="text-gray-400">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="expenseForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="text-sm font-semibold">Expense Category *</label
+                ><select
+                  id="expenseCategory"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Rent</option>
+                  <option>Utilities</option>
+                  <option>Inventory Purchase</option>
+                  <option>Salary</option>
+                  <option>Marketing</option>
+                  <option>Maintenance</option>
+                </select>
+              </div>
+              <div>
+                <label>Amount (KES) *</label
+                ><input
+                  type="number"
+                  id="expenseAmount"
+                  required
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Date *</label
+                ><input
+                  type="date"
+                  id="expenseDate"
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Payment Method</label
+                ><select
+                  id="expenseMethod"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                  <option>M-Pesa</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label>Description</label
+                ><textarea
+                  id="expenseDesc"
+                  rows="2"
+                  class="w-full p-2.5 border rounded-xl"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button
+                type="button"
+                id="cancelExpenseBtn"
+                class="px-6 py-2.5 border rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-red-600 text-white rounded-xl"
+              >
+                Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let activeTab = "transactions";
+      let products = [
+        { id: 1, name: "Demo Product", sellPrice: 1000, stock: 10 },
+      ];
+      let paymentPlans = [];
+      let deleteTargetId = null;
+
+      // Transaction Hub Data (Lipa Mdogo Payment Plans + Expenses)
+      let paymentPlansData = [
+        {
+          id: "PAY-001",
+          customer: "Sarah Mwangi",
+          orderId: "ORD-12847",
+          totalAmount: 12450,
+          paidAmount: 6225,
+          remainingAmount: 6225,
+          installments: 6,
+          installmentAmount: 2075,
+          frequency: "monthly",
+          nextPaymentDate: "2026-05-09",
+          status: "active",
+          paymentMethod: "M-Pesa",
+          startDate: "2026-01-09",
+          daysOverdue: 0,
+        },
+        {
+          id: "PAY-002",
+          customer: "John Kamau",
+          orderId: "ORD-12823",
+          totalAmount: 8900,
+          paidAmount: 2967,
+          remainingAmount: 5933,
+          installments: 9,
+          installmentAmount: 989,
+          frequency: "monthly",
+          nextPaymentDate: "2026-04-07",
+          status: "overdue",
+          daysOverdue: 4,
+          paymentMethod: "M-Pesa",
+          startDate: "2025-12-07",
+        },
+        {
+          id: "PAY-003",
+          customer: "Grace Njeri",
+          orderId: "ORD-12845",
+          totalAmount: 18900,
+          paidAmount: 3150,
+          remainingAmount: 15750,
+          installments: 12,
+          installmentAmount: 1575,
+          frequency: "monthly",
+          nextPaymentDate: "2026-05-08",
+          status: "active",
+          paymentMethod: "Airtel Money",
+          startDate: "2026-03-08",
+        },
+        {
+          id: "PAY-004",
+          customer: "Mary Wanjiku",
+          orderId: "ORD-12843",
+          totalAmount: 15200,
+          paidAmount: 5067,
+          remainingAmount: 10133,
+          installments: 9,
+          installmentAmount: 1689,
+          frequency: "monthly",
+          nextPaymentDate: "2026-05-07",
+          status: "active",
+          paymentMethod: "M-Pesa",
+          startDate: "2026-01-07",
+        },
+        {
+          id: "PAY-005",
+          customer: "Peter Omondi",
+          orderId: "ORD-12789",
+          totalAmount: 6500,
+          paidAmount: 1083,
+          remainingAmount: 5417,
+          installments: 6,
+          installmentAmount: 1083,
+          frequency: "monthly",
+          nextPaymentDate: "2026-03-20",
+          status: "overdue",
+          daysOverdue: 22,
+          paymentMethod: "M-Pesa",
+          startDate: "2025-11-20",
+        },
+      ];
+
+      let expensesList = [
+        {
+          id: "EXP-001",
+          category: "Rent",
+          amount: 50000,
+          date: "2026-04-01",
+          method: "Bank Transfer",
+          description: "April rent",
+        },
+        {
+          id: "EXP-002",
+          category: "Utilities",
+          amount: 12500,
+          date: "2026-04-05",
+          method: "M-Pesa",
+          description: "Electricity & water",
+        },
+        {
+          id: "EXP-003",
+          category: "Inventory Purchase",
+          amount: 120000,
+          date: "2026-04-03",
+          method: "Bank Transfer",
+          description: "New stock order",
+        },
+      ];
+
+      let manualTransactions = []; // custom income/expense records
+
+      const collectionData = [
+        { month: "Oct", collected: 380000, expected: 420000 },
+        { month: "Nov", collected: 425000, expected: 450000 },
+        { month: "Dec", collected: 510000, expected: 520000 },
+        { month: "Jan", collected: 495000, expected: 500000 },
+        { month: "Feb", collected: 540000, expected: 550000 },
+        { month: "Mar", collected: 620000, expected: 630000 },
+        { month: "Apr", collected: 580000, expected: 600000 },
+      ];
+
+      function renderTransactionHub() {
+        const totalActive = paymentPlansData.filter(
+          (p) => p.status === "active",
+        ).length;
+        const totalOverdue = paymentPlansData.filter(
+          (p) => p.status === "overdue",
+        ).length;
+        const totalExpectedMonthly = paymentPlansData.reduce(
+          (sum, p) => sum + p.installmentAmount,
+          0,
+        );
+        const totalOutstanding = paymentPlansData.reduce(
+          (sum, p) => sum + p.remainingAmount,
+          0,
+        );
+        const totalExpenses = expensesList.reduce(
+          (sum, e) => sum + e.amount,
+          0,
+        );
+        const netIncome = totalExpectedMonthly - totalExpenses;
+
+        return `
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div><h1 class="text-3xl font-bold text-gray-800">Transaction Hub</h1><p class="text-gray-500 mt-1">Payment plans, collections, and expense management</p></div>
+            <div class="flex gap-2"><button id="manualTransBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg flex items-center gap-2"><i class="fas fa-plus-circle"></i> Manual Transaction</button><button id="addExpenseBtn" class="bg-red-600 text-white px-5 py-2.5 rounded-xl hover:bg-red-700 flex items-center gap-2"><i class="fas fa-chart-line"></i> Add Expense</button></div>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-medium">Active Plans</p></div><p class="text-2xl font-semibold">${totalActive}</p></div>
+            <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-medium">Overdue</p></div><p class="text-2xl font-semibold">${totalOverdue}</p></div>
+            <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-dollar-sign"></i><p class="text-sm font-medium">This Month</p></div><p class="text-2xl font-semibold">KES ${(totalExpectedMonthly / 1000).toFixed(0)}K</p></div>
+            <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-credit-card"></i><p class="text-sm font-medium">Outstanding</p></div><p class="text-2xl font-semibold">KES ${(totalOutstanding / 1000).toFixed(0)}K</p></div>
+            <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-medium">Net Income</p></div><p class="text-2xl font-semibold">KES ${(netIncome / 1000).toFixed(0)}K</p></div>
+          </div>
+          <div class="border-b border-gray-200 flex gap-6"><button class="tab-btn pb-3 px-1 text-emerald-600 border-b-2 border-emerald-600 font-medium" data-tab="plans">Payment Plans</button><button class="tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-tab="collections">Collections Dashboard</button><button class="tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-tab="expenses">Expenses</button></div>
+          <div id="tabContentContainer"></div>
+        </div>
+      `;
+      }
+
+      function renderPlansTab() {
+        const statusConfig = {
+          active: {
+            label: "Active",
+            color: "bg-green-100 text-green-700",
+            icon: "fa-check-circle",
+          },
+          overdue: {
+            label: "Overdue",
+            color: "bg-red-100 text-red-700",
+            icon: "fa-exclamation-triangle",
+          },
+        };
+        return `<div class="space-y-4">${paymentPlansData
+          .map((plan) => {
+            const config = statusConfig[plan.status];
+            const progress = (plan.paidAmount / plan.totalAmount) * 100;
+            return `<div class="bg-white border rounded-xl p-6 hover:shadow-md"><div class="flex flex-col lg:flex-row gap-6"><div class="flex-1"><div class="flex justify-between mb-4"><div><h3 class="font-semibold">${plan.customer}</h3><p class="text-sm text-gray-500">${plan.id} • Order: ${plan.orderId}</p></div><span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${config.color}"><i class="fas ${config.icon} text-xs"></i> ${config.label}${plan.daysOverdue ? ` (${plan.daysOverdue}d)` : ""}</span></div><div class="mb-4"><div class="flex justify-between text-sm mb-2"><span>Payment Progress</span><span>${progress.toFixed(0)}%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-green-500 to-green-600" style="width: ${progress}%"></div></div></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-4"><div><p class="text-xs text-gray-500">Total</p><p class="font-semibold">KES ${plan.totalAmount.toLocaleString()}</p></div><div><p class="text-xs text-gray-500">Paid</p><p class="font-semibold text-green-600">KES ${plan.paidAmount.toLocaleString()}</p></div><div><p class="text-xs text-gray-500">Remaining</p><p class="font-semibold text-red-600">KES ${plan.remainingAmount.toLocaleString()}</p></div><div><p class="text-xs text-gray-500">Installment</p><p class="font-semibold">KES ${plan.installmentAmount.toLocaleString()}</p></div></div></div><div class="lg:w-64 space-y-3"><div class="bg-gray-50 rounded-lg p-4"><div class="flex items-center gap-2 text-gray-500 mb-2"><i class="fas fa-calendar"></i><span class="text-xs">Next Payment</span></div><p class="text-lg font-semibold">${new Date(plan.nextPaymentDate).toLocaleDateString()}</p><p class="text-xs text-gray-500">${plan.frequency} • ${plan.installments} installments</p></div><div class="flex items-center gap-2 text-sm text-gray-500"><i class="fas fa-mobile-alt"></i> ${plan.paymentMethod}</div><div class="flex gap-2"><button class="remindPlanBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg" data-id="${plan.id}"><i class="fas fa-paper-plane mr-1"></i> Remind</button><button class="recordPaymentBtn flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50" data-id="${plan.id}">Record</button></div></div></div></div>`;
+          })
+          .join("")}</div>`;
+      }
+
+      function renderCollectionsTab() {
+        const canvasId = "collectionChart";
+        setTimeout(() => {
+          const ctx = document.getElementById(canvasId)?.getContext("2d");
+          if (ctx) {
+            new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: collectionData.map((d) => d.month),
+                datasets: [
+                  {
+                    label: "Expected",
+                    data: collectionData.map((d) => d.expected),
+                    borderColor: "#94a3b8",
+                    backgroundColor: "rgba(148,163,184,0.1)",
+                    fill: true,
+                    tension: 0.4,
+                  },
+                  {
+                    label: "Collected",
+                    data: collectionData.map((d) => d.collected),
+                    borderColor: "#22c55e",
+                    backgroundColor: "rgba(34,197,94,0.1)",
+                    fill: true,
+                    tension: 0.4,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `KES ${ctx.raw.toLocaleString()}`,
+                    },
+                  },
+                },
+              },
+            });
+          }
+        }, 100);
+        const collectionRate = (
+          (collectionData[collectionData.length - 1].collected /
+            collectionData[collectionData.length - 1].expected) *
+          100
+        ).toFixed(1);
+        return `<div class="space-y-6"><div class="bg-white border rounded-xl p-6"><h3 class="font-semibold mb-4">Collection Performance</h3><div style="height: 320px;"><canvas id="${canvasId}"></canvas></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white border rounded-xl p-6 text-center"><h3 class="font-semibold mb-2">Collection Rate</h3><p class="text-4xl font-bold text-green-600">${collectionRate}%</p><p class="text-sm text-gray-500 mt-1">This month</p></div><div class="bg-white border rounded-xl p-6 text-center"><h3 class="font-semibold mb-2">Default Rate</h3><p class="text-4xl font-bold text-red-600">3.2%</p><p class="text-sm text-gray-500">Last 90 days</p></div><div class="bg-white border rounded-xl p-6 text-center"><h3 class="font-semibold mb-2">Avg Plan Value</h3><p class="text-4xl font-bold text-blue-600">KES 12K</p><p class="text-sm text-gray-500">Per customer</p></div></div></div>`;
+      }
+
+      function renderExpensesTab() {
+        const totalExp = expensesList.reduce((s, e) => s + e.amount, 0);
+        return `<div class="space-y-4"><div class="flex justify-between items-center"><h3 class="font-semibold text-lg">Expense History</h3><span class="text-red-600 font-bold">Total: KES ${totalExp.toLocaleString()}</span></div><div class="bg-white border rounded-xl overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Method</th><th></th></tr></thead><tbody>${expensesList.map((exp) => `<tr class="border-t"><td class="p-3">${new Date(exp.date).toLocaleDateString()}</td><td class="p-3"><span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">${exp.category}</span></td><td class="p-3 text-gray-600">${exp.description}</td><td class="p-3 font-semibold text-red-600">KES ${exp.amount.toLocaleString()}</td><td class="p-3 text-gray-500">${exp.method}</td><td class="p-3"><button class="deleteExpenseBtn text-red-500" data-id="${exp.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div><button id="quickExpenseBtn" class="bg-red-600 text-white px-4 py-2 rounded-xl w-full mt-2"><i class="fas fa-plus"></i> Quick Add Expense</button></div>`;
+      }
+
+      function switchTab(tabId) {
+        const container = document.getElementById("tabContentContainer");
+        if (tabId === "plans") container.innerHTML = renderPlansTab();
+        else if (tabId === "collections")
+          container.innerHTML = renderCollectionsTab();
+        else if (tabId === "expenses")
+          container.innerHTML = renderExpensesTab();
+        attachTabSpecificEvents(tabId);
+      }
+
+      function attachTabSpecificEvents(tabId) {
+        if (tabId === "plans") {
+          document.querySelectorAll(".remindPlanBtn").forEach((btn) =>
+            btn.addEventListener("click", (e) => {
+              const id = btn.dataset.id;
+              alert(`📱 Reminder sent to customer for plan ${id}`);
+            }),
+          );
+          document.querySelectorAll(".recordPaymentBtn").forEach((btn) =>
+            btn.addEventListener("click", (e) => {
+              const id = btn.dataset.id;
+              alert(`💰 Record payment for plan ${id}: Enter amount received`);
+            }),
+          );
+        }
+        if (tabId === "expenses") {
+          document.querySelectorAll(".deleteExpenseBtn").forEach((btn) =>
+            btn.addEventListener("click", (e) => {
+              const id = btn.dataset.id;
+              if (confirm("Delete expense?")) {
+                const idx = expensesList.findIndex((e) => e.id === id);
+                if (idx !== -1) expensesList.splice(idx, 1);
+                renderCurrentTab();
+              }
+            }),
+          );
+          document
+            .getElementById("quickExpenseBtn")
+            ?.addEventListener("click", () =>
+              document
+                .getElementById("expenseModal")
+                .classList.remove("hidden"),
+            );
+        }
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (activeTab === "transactions") {
+          container.innerHTML = renderTransactionHub();
+          document
+            .getElementById("manualTransBtn")
+            ?.addEventListener("click", () =>
+              document
+                .getElementById("manualTransactionModal")
+                .classList.remove("hidden"),
+            );
+          document
+            .getElementById("addExpenseBtn")
+            ?.addEventListener("click", () =>
+              document
+                .getElementById("expenseModal")
+                .classList.remove("hidden"),
+            );
+          document.querySelectorAll(".tab-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              document
+                .querySelectorAll(".tab-btn")
+                .forEach((b) =>
+                  b.classList.remove(
+                    "text-emerald-600",
+                    "border-emerald-600",
+                    "font-medium",
+                  ),
+                );
+              btn.classList.add(
+                "text-emerald-600",
+                "border-b-2",
+                "border-emerald-600",
+                "font-medium",
+              );
+              switchTab(btn.dataset.tab);
+            });
+          });
+          switchTab("plans");
+        } else if (activeTab === "dashboard")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2 class="text-2xl font-bold">Dashboard</h2></div>`;
+        else if (activeTab === "catalog")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Catalog</h2><button id="addProductBtn">Add Product</button></div>`;
+        else if (activeTab === "inventory")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Inventory</h2></div>`;
+        else if (activeTab === "orders")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Orders</h2></div>`;
+        else if (activeTab === "customers")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Customers</h2></div>`;
+        else if (activeTab === "installments")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Lipa Mdogo Core</h2></div>`;
+        else if (activeTab === "analytics")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl"><h2>Analytics</h2><canvas id="dummyChart" height="200"></canvas><script>setTimeout(()=>{const ctx=document.getElementById('dummyChart')?.getContext('2d');if(ctx)new Chart(ctx,{type:'line',data:{labels:['Jan','Feb'],datasets:[{data:[10,20]}]}});},100);<\/script></div>`;
+        attachCommonEvents();
+      }
+
+      function attachCommonEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => alert("Add product"));
+        document
+          .getElementById("closeManualModal")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelManualBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("manualTransactionForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const type = document.getElementById("transType").value;
+            const amount = parseFloat(
+              document.getElementById("transAmount").value,
+            );
+            const category = document.getElementById("transCategory").value;
+            const method = document.getElementById("transMethod").value;
+            const desc = document.getElementById("transDesc").value;
+            if (isNaN(amount)) return alert("Valid amount required");
+            alert(
+              `✅ ${type === "payment" ? "Payment" : "Expense"} recorded: KES ${amount}\nCategory: ${category}`,
+            );
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden");
+            e.target.reset();
+          });
+        document
+          .getElementById("closeExpenseModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("expenseModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelExpenseBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("expenseModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("expenseForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const newExp = {
+              id: `EXP-${String(expensesList.length + 101).padStart(3, "0")}`,
+              category: document.getElementById("expenseCategory").value,
+              amount: parseFloat(
+                document.getElementById("expenseAmount").value,
+              ),
+              date:
+                document.getElementById("expenseDate").value ||
+                new Date().toISOString().slice(0, 10),
+              method: document.getElementById("expenseMethod").value,
+              description: document.getElementById("expenseDesc").value,
+            };
+            if (isNaN(newExp.amount)) return alert("Enter amount");
+            expensesList.push(newExp);
+            renderCurrentTab();
+            document.getElementById("expenseModal").classList.add("hidden");
+            e.target.reset();
+          });
+      }
+
+      document.querySelectorAll(".nav-item").forEach((item) =>
+        item.addEventListener("click", function () {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) =>
+              n.classList.remove("bg-emerald-50", "text-emerald-700"),
+            );
+          this.classList.add("bg-emerald-50", "text-emerald-700");
+          activeTab = this.getAttribute("data-tab");
+          renderCurrentTab();
+        }),
+      );
+      document
+        .getElementById("mobileMenuBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("sidebar").classList.toggle("open"),
+        );
+      renderCurrentTab();
+    </script>
+  </body>
+</html>

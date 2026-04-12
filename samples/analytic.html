@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Lipa Mdogo | Analytics Engine - Business Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      @media (max-width: 1024px) {
+        .sidebar-mobile {
+          transform: translateX(-100%);
+          position: fixed;
+          z-index: 50;
+          transition: 0.3s;
+        }
+        .sidebar-mobile.open {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <button
+      id="mobileMenuBtn"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-emerald-700 text-white p-2.5 rounded-xl shadow-lg"
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex min-h-screen relative">
+      <aside
+        id="sidebar"
+        class="sidebar-mobile lg:translate-x-0 w-80 bg-white shadow-2xl fixed lg:sticky top-0 h-screen overflow-y-auto scrollbar-custom z-40"
+      >
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                Boy<span class="text-emerald-600">Alone</span>
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Enterprise Admin Suite v2.0
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1.5">
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-chart-line w-5 text-lg"></i
+            ><span>Executive Dashboard</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="catalog"
+          >
+            <i class="fas fa-tags w-5 text-lg"></i><span>Product Catalog</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="inventory"
+          >
+            <i class="fas fa-boxes w-5 text-lg"></i
+            ><span>Inventory Intelligence</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="orders"
+          >
+            <i class="fas fa-tasks w-5 text-lg"></i><span>Order Pipeline</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="customers"
+          >
+            <i class="fas fa-users w-5 text-lg"></i><span>Customer Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="transactions"
+          >
+            <i class="fas fa-usd w-5 text-lg"></i><span>Transaction Hub</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+            data-tab="installments"
+          >
+            <i class="fas fa-hand-holding-usd w-5 text-lg"></i
+            ><span>Lipa Mdogo Core</span>
+          </div>
+          <div
+            class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-emerald-50 text-emerald-700 font-semibold"
+            data-tab="analytics"
+          >
+            <i class="fas fa-chart-pie w-5 text-lg"></i
+            ><span>Analytics Engine</span>
+          </div>
+        </nav>
+        <div
+          class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white mt-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-gray-800">Store Manager</p>
+              <p class="text-xs text-gray-500">Role: Admin · Full Access</p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </aside>
+
+      <main class="flex-1 lg:ml-0 min-h-screen">
+        <div id="pageRenderer" class="p-4 lg:p-8 fade-in"></div>
+      </main>
+    </div>
+
+    <!-- Minimal modals for product etc (placeholder) -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6">
+        <h3>Product Modal</h3>
+        <button class="closeModalBtn">Close</button>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Delete</h3></div>
+    </div>
+    <div
+      id="paymentModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Payment Plan</h3></div>
+    </div>
+    <div
+      id="defaultModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-6"><h3>Default</h3></div>
+    </div>
+
+    <script>
+      let activeTab = "analytics";
+
+      // Analytics Data (from React component)
+      const revenueData = [
+        {
+          month: "Oct",
+          revenue: 1850000,
+          installments: 680000,
+          fullPayments: 1170000,
+        },
+        {
+          month: "Nov",
+          revenue: 2100000,
+          installments: 820000,
+          fullPayments: 1280000,
+        },
+        {
+          month: "Dec",
+          revenue: 2450000,
+          installments: 950000,
+          fullPayments: 1500000,
+        },
+        {
+          month: "Jan",
+          revenue: 2200000,
+          installments: 890000,
+          fullPayments: 1310000,
+        },
+        {
+          month: "Feb",
+          revenue: 2350000,
+          installments: 920000,
+          fullPayments: 1430000,
+        },
+        {
+          month: "Mar",
+          revenue: 2680000,
+          installments: 1050000,
+          fullPayments: 1630000,
+        },
+      ];
+
+      const categoryData = [
+        { name: "Dresses", value: 3850000, color: "#3b82f6" },
+        { name: "Tops", value: 2940000, color: "#8b5cf6" },
+        { name: "Bottoms", value: 2650000, color: "#ec4899" },
+        { name: "Outerwear", value: 2180000, color: "#f59e0b" },
+        { name: "Footwear", value: 1890000, color: "#10b981" },
+        { name: "Accessories", value: 1240000, color: "#6366f1" },
+      ];
+
+      const customerSegmentData = [
+        { segment: "VIP", customers: 89, revenue: 4520000 },
+        { segment: "Regular", customers: 342, revenue: 6780000 },
+        { segment: "New", customers: 816, revenue: 3450000 },
+      ];
+
+      const paymentMethodData = [
+        { method: "M-Pesa", transactions: 1247, amount: 8450000 },
+        { method: "Airtel Money", transactions: 523, amount: 3280000 },
+        { method: "Bank Transfer", transactions: 189, amount: 2120000 },
+        { method: "Cash", transactions: 95, amount: 900000 },
+      ];
+
+      let chartsInitialized = false;
+
+      function renderAnalytics() {
+        const totalRevenue = 14700000;
+        const totalOrders = 2054;
+        const activeCustomers = 1247;
+        const avgOrderValue = 7156;
+
+        return `
+        <div class="space-y-6">
+          <!-- Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div><h1 class="text-3xl font-bold text-gray-800">Advanced Analytics</h1><p class="text-gray-500 mt-1">Business insights and performance metrics</p></div>
+            <div class="flex gap-2">
+              <select id="dateRangeSelect" class="px-4 py-2 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500">
+                <option value="last-6-months">Last 6 Months</option>
+                <option value="last-3-months">Last 3 Months</option>
+                <option value="last-year">Last Year</option>
+              </select>
+              <button id="exportAnalyticsBtn" class="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition flex items-center gap-2"><i class="fas fa-download"></i> Export</button>
+            </div>
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-dollar-sign text-lg"></i><p class="text-sm font-medium">Total Revenue</p></div><p class="text-3xl font-semibold mb-1">KES 14.7M</p><div class="flex items-center gap-1 text-sm text-green-600"><i class="fas fa-chart-line text-xs"></i><span>+18.5%</span></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-shopping-bag text-lg"></i><p class="text-sm font-medium">Total Orders</p></div><p class="text-3xl font-semibold mb-1">2,054</p><div class="flex items-center gap-1 text-sm text-green-600"><i class="fas fa-chart-line text-xs"></i><span>+12.3%</span></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-users text-lg"></i><p class="text-sm font-medium">Active Customers</p></div><p class="text-3xl font-semibold mb-1">1,247</p><div class="flex items-center gap-1 text-sm text-green-600"><i class="fas fa-chart-line text-xs"></i><span>+8.7%</span></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-box text-lg"></i><p class="text-sm font-medium">Avg Order Value</p></div><p class="text-3xl font-semibold mb-1">KES 7,156</p><div class="flex items-center gap-1 text-sm text-green-600"><i class="fas fa-chart-line text-xs"></i><span>+5.2%</span></div></div>
+          </div>
+
+          <!-- Revenue Trends Chart -->
+          <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="mb-6"><h2 class="font-semibold text-lg">Revenue Trends</h2><p class="text-sm text-gray-500 mt-0.5">Breakdown of full payments vs installment revenue</p></div><div style="height: 350px;"><canvas id="revenueChart"></canvas></div></div>
+
+          <!-- Category & Segment Analysis -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="mb-6"><h2 class="font-semibold text-lg">Sales by Category</h2><p class="text-sm text-gray-500">Last 6 months performance</p></div><div style="height: 250px;"><canvas id="pieChart"></canvas></div><div class="mt-4 space-y-2" id="categoryLegend"></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="mb-6"><h2 class="font-semibold text-lg">Customer Segments</h2><p class="text-sm text-gray-500">Revenue by customer tier</p></div><div style="height: 250px;"><canvas id="segmentBarChart"></canvas></div><div class="mt-6 pt-6 border-t space-y-3" id="segmentDetails"></div></div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="bg-white rounded-xl border p-6 shadow-sm"><div class="mb-6"><h2 class="font-semibold text-lg">Payment Methods</h2><p class="text-sm text-gray-500">Transaction volume and amounts</p></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="paymentMethodsGrid"></div></div>
+
+          <!-- Installment Analytics Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><h3 class="font-semibold text-lg mb-4">Plan Duration Preference</h3><div class="space-y-3"><div><div class="flex justify-between mb-1"><span class="text-sm">6 Months</span><span class="text-sm font-medium">45%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500" style="width:45%"></div></div></div><div><div class="flex justify-between mb-1"><span class="text-sm">9 Months</span><span class="text-sm font-medium">32%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500" style="width:32%"></div></div></div><div><div class="flex justify-between mb-1"><span class="text-sm">12 Months</span><span class="text-sm font-medium">23%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-green-500" style="width:23%"></div></div></div></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><h3 class="font-semibold text-lg mb-4">Installment Profitability</h3><div class="text-center"><p class="text-4xl font-semibold text-green-600 mb-2">18.5%</p><p class="text-sm text-gray-500 mb-4">Average margin</p><div class="pt-4 border-t"><div class="flex justify-between text-sm mb-2"><span class="text-gray-500">Interest income</span><span class="font-medium">KES 1.2M</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Default losses</span><span class="font-medium text-red-600">KES 89K</span></div></div></div></div>
+            <div class="bg-white rounded-xl border p-6 shadow-sm"><h3 class="font-semibold text-lg mb-4">Customer Retention</h3><div class="text-center"><p class="text-4xl font-semibold text-blue-600 mb-2">76%</p><p class="text-sm text-gray-500 mb-4">Repeat customers</p><div class="pt-4 border-t"><div class="flex justify-between text-sm mb-2"><span class="text-gray-500">New customers</span><span class="font-medium">816</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Returning</span><span class="font-medium">2,598</span></div></div></div></div>
+          </div>
+        </div>
+      `;
+      }
+
+      function initCharts() {
+        // Revenue Bar Chart (stacked)
+        const revenueCtx = document
+          .getElementById("revenueChart")
+          ?.getContext("2d");
+        if (revenueCtx) {
+          new Chart(revenueCtx, {
+            type: "bar",
+            data: {
+              labels: revenueData.map((d) => d.month),
+              datasets: [
+                {
+                  label: "Full Payments",
+                  data: revenueData.map((d) => d.fullPayments),
+                  backgroundColor: "#3b82f6",
+                  borderRadius: 4,
+                },
+                {
+                  label: "Installments",
+                  data: revenueData.map((d) => d.installments),
+                  backgroundColor: "#8b5cf6",
+                  borderRadius: 4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `KES ${ctx.raw.toLocaleString()}`,
+                  },
+                },
+                legend: { position: "top" },
+              },
+              scales: {
+                y: { ticks: { callback: (val) => `${val / 1000000}M` } },
+              },
+            },
+          });
+        }
+
+        // Pie Chart for Categories
+        const pieCtx = document.getElementById("pieChart")?.getContext("2d");
+        if (pieCtx) {
+          new Chart(pieCtx, {
+            type: "pie",
+            data: {
+              labels: categoryData.map((c) => c.name),
+              datasets: [
+                {
+                  data: categoryData.map((c) => c.value),
+                  backgroundColor: categoryData.map((c) => c.color),
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                legend: { position: "bottom", labels: { boxWidth: 12 } },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) =>
+                      `${ctx.label}: KES ${ctx.raw.toLocaleString()}`,
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // Customer Segment Horizontal Bar Chart
+        const segmentCtx = document
+          .getElementById("segmentBarChart")
+          ?.getContext("2d");
+        if (segmentCtx) {
+          new Chart(segmentCtx, {
+            type: "bar",
+            data: {
+              labels: customerSegmentData.map((s) => s.segment),
+              datasets: [
+                {
+                  label: "Revenue (KES)",
+                  data: customerSegmentData.map((s) => s.revenue),
+                  backgroundColor: "#8b5cf6",
+                  borderRadius: 8,
+                },
+              ],
+            },
+            options: {
+              indexAxis: "y",
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `KES ${ctx.raw.toLocaleString()}`,
+                  },
+                },
+              },
+              scales: {
+                x: { ticks: { callback: (val) => `${val / 1000000}M` } },
+              },
+            },
+          });
+        }
+
+        // Populate category legend
+        const legendContainer = document.getElementById("categoryLegend");
+        if (legendContainer) {
+          legendContainer.innerHTML = categoryData
+            .map(
+              (cat) =>
+                `<div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:${cat.color}"></div><span class="text-sm">${cat.name}</span></div><span class="text-sm font-medium">KES ${(cat.value / 1000000).toFixed(2)}M</span></div>`,
+            )
+            .join("");
+        }
+
+        // Segment details
+        const segmentDetails = document.getElementById("segmentDetails");
+        if (segmentDetails) {
+          segmentDetails.innerHTML = customerSegmentData
+            .map(
+              (seg) =>
+                `<div class="flex items-center justify-between"><div><p class="font-medium">${seg.segment}</p><p class="text-xs text-gray-500">${seg.customers} customers</p></div><p class="font-semibold">KES ${(seg.revenue / 1000000).toFixed(2)}M</p></div>`,
+            )
+            .join("");
+        }
+
+        // Payment methods grid
+        const paymentGrid = document.getElementById("paymentMethodsGrid");
+        if (paymentGrid) {
+          paymentGrid.innerHTML = paymentMethodData
+            .map(
+              (m) =>
+                `<div class="bg-gray-50 rounded-lg p-4"><p class="text-sm text-gray-500 mb-2">${m.method}</p><p class="text-2xl font-semibold mb-1">KES ${(m.amount / 1000000).toFixed(1)}M</p><p class="text-xs text-gray-500">${m.transactions.toLocaleString()} transactions</p></div>`,
+            )
+            .join("");
+        }
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (activeTab === "analytics") {
+          container.innerHTML = renderAnalytics();
+          setTimeout(() => {
+            initCharts();
+          }, 100);
+          // attach export and date range events
+          document
+            .getElementById("exportAnalyticsBtn")
+            ?.addEventListener("click", () => {
+              alert(
+                "📊 Analytics report exported as PDF/CSV with all charts and metrics.",
+              );
+            });
+          document
+            .getElementById("dateRangeSelect")
+            ?.addEventListener("change", (e) => {
+              alert(
+                `Date range changed to: ${e.target.value} (demo - data remains sample)`,
+              );
+            });
+        } else if (activeTab === "dashboard") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Executive Dashboard</h2><p class="text-gray-500 mt-2">Real-time KPIs and business overview.</p><div class="grid grid-cols-3 gap-4 mt-6"><div class="p-4 bg-emerald-50 rounded-xl">Daily Sales: KES 184K</div><div class="p-4 bg-blue-50 rounded-xl">Installment Collection: 78%</div><div class="p-4 bg-purple-50 rounded-xl">Inventory Turnover: 2.4x</div></div></div>`;
+        } else if (activeTab === "catalog") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Product Catalog</h2><button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl mt-4">Add Product</button><table class="w-full mt-4"><thead><tr><th>Name</th><th>Price</th><th>Stock</th></tr></thead><tbody><tr><td>Premium Denim Jacket</td><td>KES 3,500</td><td>45</td></tr></tbody></table></div>`;
+          document
+            .getElementById("addProductBtn")
+            ?.addEventListener("click", () => alert("Add product form"));
+        } else if (activeTab === "inventory") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Inventory Intelligence</h2><div class="grid grid-cols-2 gap-4 mt-4"><div class="p-4 bg-gray-50 rounded-xl">Denim Jacket: 45 units</div><div class="p-4 bg-gray-50 rounded-xl">Summer Dress: 28 units</div></div></div>`;
+        } else if (activeTab === "orders") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Order Pipeline</h2><p class="text-gray-500">Order management coming soon.</p></div>`;
+        } else if (activeTab === "customers") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Customer Hub</h2><p class="text-gray-500">Customer 360° view and segmentation.</p></div>`;
+        } else if (activeTab === "transactions") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Transaction Hub</h2><p class="text-gray-500">Payment transactions and history.</p></div>`;
+        } else if (activeTab === "installments") {
+          container.innerHTML = `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Lipa Mdogo Core</h2><p class="text-gray-500">Installment payment plans management.</p><button id="createPlanBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl mt-4">Create Payment Plan</button></div>`;
+          document
+            .getElementById("createPlanBtn")
+            ?.addEventListener("click", () => alert("New payment plan wizard"));
+        }
+        attachCommonEvents();
+      }
+
+      function attachCommonEvents() {
+        // dummy handlers for modal closures
+        document.querySelectorAll(".closeModalBtn")?.forEach((btn) =>
+          btn.addEventListener("click", () => {
+            document.getElementById("productModal")?.classList.add("hidden");
+            document.getElementById("deleteModal")?.classList.add("hidden");
+            document.getElementById("paymentModal")?.classList.add("hidden");
+            document.getElementById("defaultModal")?.classList.add("hidden");
+          }),
+        );
+      }
+
+      // Navigation
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.addEventListener("click", function () {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) =>
+              n.classList.remove("bg-emerald-50", "text-emerald-700"),
+            );
+          this.classList.add("bg-emerald-50", "text-emerald-700");
+          activeTab = this.getAttribute("data-tab");
+          renderCurrentTab();
+        });
+      });
+
+      document
+        .getElementById("mobileMenuBtn")
+        ?.addEventListener("click", () => {
+          document.getElementById("sidebar").classList.toggle("open");
+        });
+
+      renderCurrentTab();
+    </script>
+  </body>
+</html>
