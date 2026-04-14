@@ -1,0 +1,1786 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Enterprise Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .left-side {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        z-index: 10;
+      }
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 20;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 440px;
+      }
+      @media (min-width: 1024px) {
+        .right-side {
+          justify-content: flex-start;
+          padding-left: 0;
+        }
+        .form-card {
+          transform: translateX(-40px);
+          margin-left: -20px;
+        }
+        .left-side {
+          margin-right: -20px;
+          justify-content: flex-end;
+          padding-right: 0;
+        }
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+        }
+        .form-card {
+          transform: none;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-8px);
+        }
+        75% {
+          transform: translateX(8px);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 50;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+      .main-content-scroll {
+        flex: 1;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        overflow-y: auto;
+      }
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 60;
+        background: white;
+        border-radius: 12px;
+        padding: 10px 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .main-content-scroll {
+          margin-left: 0;
+        }
+        .mobile-menu-toggle {
+          display: block;
+        }
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 45;
+          display: none;
+        }
+        .overlay-backdrop.active {
+          display: block;
+        }
+      }
+      .main-content-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .main-content-scroll::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
+      .main-content-scroll::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 10px;
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .file-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .file-upload-area:hover {
+        border-color: #10b981;
+        background: #f0fdf4;
+      }
+      .image-preview-circle {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
+      }
+      .customer-card {
+        transition: all 0.2s ease;
+      }
+      .customer-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+      }
+      .action-btn {
+        transition: all 0.15s ease;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div class="split-layout">
+      <div class="left-side">
+        <div class="logo-container">
+          <img
+            src="../images/balogo.png"
+            alt="BOY ALONE COLLECTION"
+            onerror="this.src = 'https://placehold.co/400x200?text=BOY+ALONE'"
+          />
+        </div>
+      </div>
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div
+              class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
+            >
+              <img
+                src="../images/balogo.png"
+                alt="BOY ALONE COLLECTION"
+                onerror="this.src = 'https://placehold.co/64x64?text=BA'"
+              />
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm mt-1">
+              Sign in to access your dashboard
+            </p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-envelope mr-2 text-emerald-400"></i>Email
+                Address</label
+              ><input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-lock mr-2 text-emerald-400"></i
+                >Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all pr-12"
+                /><button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer"
+                ><input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500"
+                /><span class="ml-2 text-sm text-gray-300"
+                  >Remember me</span
+                ></label
+              ><a
+                href="#"
+                id="forgotPassword"
+                class="text-sm text-emerald-400 hover:text-emerald-300 transition"
+                >Forgot password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              id="loginBtn"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-2">Demo Credentials</p>
+            <div
+              class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"
+            >
+              <p>
+                <span class="text-emerald-400">Email:</span> admin@lipamdogo.com
+              </p>
+              <p><span class="text-emerald-400">Password:</span> admin123</p>
+            </div>
+          </div>
+          <div id="errorMessage" class="mt-4 hidden">
+            <div
+              class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"
+            >
+              <p class="text-red-300 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i
+                ><span id="errorText">Invalid credentials</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD CONTAINER -->
+    <div id="adminApp" class="hidden"></div>
+
+    <!-- PRODUCT MODAL -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+            Product
+          </h3>
+          <button
+            id="closeProductModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="productForm" class="space-y-5">
+            <input type="hidden" id="productId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Category <span class="text-red-500">*</span></label
+                ><select
+                  id="prodCategory"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                  <option>Kids Wear</option>
+                  <option>Outerwear</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Buy Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodBuyPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Sell Price (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodSellPrice"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Stock Quantity <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="prodStock"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Size</label
+                ><select
+                  id="prodSize"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                  <option>XXL</option>
+                  <option>One Size</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Supplier</label
+                ><input
+                  type="text"
+                  id="prodSupplier"
+                  placeholder="e.g., Fashion Hub Ltd"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Product Image
+                  <span class="text-emerald-600">(Upload)</span></label
+                >
+                <div
+                  class="file-upload-area relative bg-gray-50 p-4 rounded-xl text-center"
+                >
+                  <input
+                    type="file"
+                    id="prodImageFile"
+                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div class="flex flex-col items-center justify-center py-2">
+                    <i
+                      class="fas fa-cloud-upload-alt text-3xl text-emerald-500 mb-2"
+                    ></i>
+                    <p class="text-sm text-gray-600">Click or drag to upload</p>
+                    <p class="text-xs text-gray-400 mt-1">JPG, PNG up to 2MB</p>
+                  </div>
+                </div>
+                <div id="imagePreviewContainer" class="mt-3 hidden">
+                  <div
+                    class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
+                  >
+                    <img
+                      id="imagePreviewLocal"
+                      class="image-preview-circle"
+                      alt="Preview"
+                    />
+                    <div class="flex-1">
+                      <p
+                        class="text-sm font-medium text-gray-700"
+                        id="previewFileName"
+                      >
+                        image.jpg
+                      </p>
+                      <button
+                        type="button"
+                        id="removeImageBtn"
+                        class="text-xs text-red-500 hover:text-red-700 mt-1 transition"
+                      >
+                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                >Description</label
+              ><textarea
+                id="prodDesc"
+                rows="3"
+                placeholder="Product details, features, care instructions..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              ></textarea>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium transition-all"
+              >
+                <i class="fas fa-save mr-2"></i>Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELETE PRODUCT MODAL -->
+    <div
+      id="deleteProductModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Product</h3>
+        <p class="text-gray-500 mb-6">
+          Are you sure you want to delete this product? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmProductDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium hover:bg-red-700 transition"
+          >
+            Delete</button
+          ><button
+            id="cancelProductDeleteBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER MODALS -->
+    <div
+      id="customerFormModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto p-4 modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 id="formModalTitle" class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-user-plus text-emerald-600 mr-2"></i>Add New
+            Customer
+          </h3>
+          <button
+            id="closeFormModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="customerForm" class="space-y-5">
+            <input type="hidden" id="editCustomerId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Full Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="custName"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="custEmail"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Phone Number <span class="text-red-500">*</span></label
+                ><input
+                  type="tel"
+                  id="custPhone"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="+254 XXX XXX XXX"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Segment</label
+                ><select
+                  id="custSegment"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="New">New Customer</option>
+                  <option value="Regular">Regular</option>
+                  <option value="VIP">VIP</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Risk / Payment Score Level</label
+                ><select
+                  id="custRiskLevel"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="low">Low Risk (Good Payer)</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk (Needs Monitoring)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="custAddress"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Street, City, Postal Code"
+                />
+              </div>
+            </div>
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl"
+            >
+              <p class="text-sm text-emerald-800">
+                <i class="fas fa-info-circle mr-2"></i>Customers start with 0
+                orders when created. Edit mode preserves existing data.
+              </p>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelFormBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                id="submitFormBtn"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-save mr-2"></i>Save Customer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="customerDetailModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto modal-transition"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-xl font-bold text-gray-800">
+            <i class="fas fa-user-circle text-emerald-600 mr-2"></i>Customer
+            Details
+          </h3>
+          <button
+            id="closeCustomerModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="customerDetailContent" class="p-6 space-y-5"></div>
+        <div
+          class="border-t border-gray-100 px-6 py-4 flex gap-3 justify-between items-center bg-gray-50 rounded-b-2xl"
+        >
+          <div class="flex gap-2">
+            <button
+              id="editFromDetailBtn"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <i class="fas fa-edit"></i> Edit Customer</button
+            ><button
+              id="deleteFromDetailBtn"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+            >
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+          <button
+            id="closeCustomerModalFooterBtn"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="deleteCustomerConfirmModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center"
+      >
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Confirm Deletion</h3>
+        <p class="text-gray-600 mb-6">
+          Are you sure you want to delete this customer? This action cannot be
+          undone.
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button
+            id="confirmCustomerDeleteBtn"
+            class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Yes, Delete</button
+          ><button
+            id="cancelCustomerDeleteBtn"
+            class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTION MODALS -->
+    <div
+      id="manualTransactionModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Add New
+            Transaction
+          </h3>
+          <button
+            id="closeManualModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="manualTransactionForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Reference Code <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="transRefCode"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="e.g., INV-001 / TRX-001"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Payment Method <span class="text-red-500">*</span></label
+                ><select
+                  id="transPaymentMethod"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                >
+                  <option value="M-Pesa">M-Pesa</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Airtel Money">Airtel Money</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Transaction Code</label
+                ><input
+                  type="text"
+                  id="transCode"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Optional: M-Pesa ref / Cheque no."
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Amount (KES) <span class="text-red-500">*</span></label
+                ><input
+                  type="number"
+                  id="transAmount"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Customer Name</label
+                ><input
+                  type="text"
+                  id="transCustomer"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Customer name"
+                />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >Notes</label
+                ><textarea
+                  id="transNotes"
+                  rows="2"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                  placeholder="Additional information"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelManualBtn"
+                class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg font-medium"
+              >
+                <i class="fas fa-check-circle mr-2"></i>Add Transaction
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="expenseModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
+        <div class="px-6 py-5 border-b flex justify-between items-center">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-chart-line text-red-600 mr-2"></i>Record Expense
+          </h3>
+          <button id="closeExpenseModal" class="text-gray-400">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="expenseForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="text-sm font-semibold">Expense Category *</label
+                ><select
+                  id="expenseCategory"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Rent</option>
+                  <option>Utilities</option>
+                  <option>Inventory Purchase</option>
+                  <option>Salary</option>
+                  <option>Marketing</option>
+                  <option>Maintenance</option>
+                </select>
+              </div>
+              <div>
+                <label>Amount (KES) *</label
+                ><input
+                  type="number"
+                  id="expenseAmount"
+                  required
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Date *</label
+                ><input
+                  type="date"
+                  id="expenseDate"
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Payment Method</label
+                ><select
+                  id="expenseMethod"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                  <option>M-Pesa</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label>Description</label
+                ><textarea
+                  id="expenseDesc"
+                  rows="2"
+                  class="w-full p-2.5 border rounded-xl"
+                ></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button
+                type="button"
+                id="cancelExpenseBtn"
+                class="px-6 py-2.5 border rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-red-600 text-white rounded-xl"
+              >
+                Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ========== FULL MERGED APPLICATION ==========
+      let products = [],
+        customersData = [],
+        successTransactions = [],
+        expensesList = [];
+      let deleteTargetId = null,
+        currentImageDataURL = null,
+        selectedCustomerForDetail = null,
+        pendingCustomerDeleteId = null;
+      let currentTab = "dashboard";
+
+      // Helper functions
+      function escapeHtml(str) {
+        return String(str ?? "").replace(/[&<>]/g, (m) =>
+          m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+        );
+      }
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat("en-KE", {
+          style: "currency",
+          currency: "KES",
+          minimumFractionDigits: 0,
+        }).format(amount);
+      }
+      function getProductImageSrc(p) {
+        if (p.imageData?.startsWith("data:image")) return p.imageData;
+        if (p.imageUrl) return p.imageUrl;
+        return "https://via.placeholder.com/200?text=Product";
+      }
+
+      // ========== PRODUCT DATA ==========
+      function loadProductData() {
+        const stored = localStorage.getItem("boyalone_products");
+        if (stored && JSON.parse(stored).length) products = JSON.parse(stored);
+        else
+          products = [
+            {
+              id: 1,
+              name: "Premium Denim Jacket",
+              category: "Men's Clothing",
+              buyPrice: 1800,
+              sellPrice: 3500,
+              stock: 45,
+              size: "L",
+              supplier: "Fashion Hub",
+              imageUrl:
+                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=200&h=200&fit=crop",
+              description: "Classic denim jacket",
+            },
+          ];
+        persistProduct();
+      }
+      function persistProduct() {
+        localStorage.setItem("boyalone_products", JSON.stringify(products));
+      }
+      function addProduct(data) {
+        const newP = {
+          id: products.length ? Math.max(...products.map((p) => p.id)) + 1 : 2,
+          ...data,
+        };
+        products.unshift(newP);
+        persistProduct();
+        return newP;
+      }
+      function updateProduct(id, data) {
+        const idx = products.findIndex((p) => p.id === id);
+        if (idx !== -1) {
+          products[idx] = { ...products[idx], ...data, id };
+          persistProduct();
+        }
+      }
+      function deleteProduct(id) {
+        products = products.filter((p) => p.id !== id);
+        persistProduct();
+      }
+
+      // ========== CUSTOMER DATA ==========
+      function loadCustomerData() {
+        const stored = localStorage.getItem("boyalone_customers");
+        if (stored && JSON.parse(stored).length)
+          customersData = JSON.parse(stored);
+        else
+          customersData = [
+            {
+              id: "CUST-001",
+              name: "Sarah Mwangi",
+              email: "sarah@email.com",
+              phone: "+254712345678",
+              totalOrders: 24,
+              totalSpent: 125400,
+              activeInstallments: 2,
+              paymentScore: 95,
+              riskLevel: "low",
+              segment: "VIP",
+              joinedDate: "2025-06-15",
+              lastPurchase: "2026-04-09",
+              address: "Nairobi",
+            },
+          ];
+        persistCustomer();
+      }
+      function persistCustomer() {
+        localStorage.setItem(
+          "boyalone_customers",
+          JSON.stringify(customersData),
+        );
+      }
+      function generateCustomerId() {
+        const last = customersData.length
+          ? Math.max(...customersData.map((c) => parseInt(c.id.split("-")[1])))
+          : 0;
+        return `CUST-${String(last + 1).padStart(3, "0")}`;
+      }
+      function getPaymentScoreFromRisk(r) {
+        return r === "low" ? 85 : r === "medium" ? 65 : 45;
+      }
+      function saveCustomer(form, editId = null) {
+        if (editId) {
+          const idx = customersData.findIndex((c) => c.id === editId);
+          if (idx !== -1) {
+            customersData[idx] = {
+              ...customersData[idx],
+              ...form,
+              paymentScore: getPaymentScoreFromRisk(form.riskLevel),
+            };
+            persistCustomer();
+            return customersData[idx];
+          }
+        } else {
+          const newC = {
+            id: generateCustomerId(),
+            name: form.name,
+            email: form.email || "",
+            phone: form.phone,
+            totalOrders: 0,
+            totalSpent: 0,
+            activeInstallments: 0,
+            paymentScore: getPaymentScoreFromRisk(form.riskLevel),
+            riskLevel: form.riskLevel,
+            segment: form.segment,
+            joinedDate: new Date().toISOString().slice(0, 10),
+            lastPurchase: new Date().toISOString().slice(0, 10),
+            address: form.address || "",
+          };
+          customersData.unshift(newC);
+          persistCustomer();
+          return newC;
+        }
+      }
+      function deleteCustomer(id) {
+        customersData = customersData.filter((c) => c.id !== id);
+        if (selectedCustomerForDetail?.id === id) closeCustomerDetailModal();
+        persistCustomer();
+        if (currentTab === "customers") renderCurrentTab();
+      }
+
+      // ========== TRANSACTION & EXPENSE DATA ==========
+      function loadTransactionData() {
+        const storedTxn = localStorage.getItem("boyalone_transactions");
+        if (storedTxn && JSON.parse(storedTxn).length)
+          successTransactions = JSON.parse(storedTxn);
+        else
+          successTransactions = [
+            {
+              id: "TXN-001",
+              refCode: "INV-1001",
+              paymentMethod: "M-Pesa",
+              transCode: "QWK2L3M4",
+              amount: 2075,
+              status: "Success",
+              customer: "Sarah Mwangi",
+              date: "2026-04-11",
+              notes: "Monthly installment",
+            },
+          ];
+        const storedExp = localStorage.getItem("boyalone_expenses");
+        if (storedExp && JSON.parse(storedExp).length)
+          expensesList = JSON.parse(storedExp);
+        else
+          expensesList = [
+            {
+              id: "EXP-001",
+              category: "Rent",
+              amount: 50000,
+              date: "2026-04-01",
+              method: "Bank Transfer",
+              description: "April rent",
+            },
+          ];
+        persistTransactionData();
+      }
+      function persistTransactionData() {
+        localStorage.setItem(
+          "boyalone_transactions",
+          JSON.stringify(successTransactions),
+        );
+        localStorage.setItem("boyalone_expenses", JSON.stringify(expensesList));
+      }
+      function generateTransactionId() {
+        return `TXN-${String(successTransactions.length + 101).padStart(3, "0")}`;
+      }
+      function addTransaction(data) {
+        const newTxn = {
+          id: generateTransactionId(),
+          ...data,
+          status: "Success",
+          date: new Date().toISOString().slice(0, 10),
+        };
+        successTransactions.unshift(newTxn);
+        persistTransactionData();
+        if (currentTab === "transactions") renderCurrentTab();
+        return newTxn;
+      }
+      function deleteTransaction(id) {
+        successTransactions = successTransactions.filter((t) => t.id !== id);
+        persistTransactionData();
+        if (currentTab === "transactions") renderCurrentTab();
+      }
+      function addExpense(data) {
+        const newExp = {
+          id: `EXP-${String(expensesList.length + 101).padStart(3, "0")}`,
+          ...data,
+        };
+        expensesList.push(newExp);
+        persistTransactionData();
+        if (currentTab === "transactions") renderCurrentTab();
+        return newExp;
+      }
+      function deleteExpense(id) {
+        expensesList = expensesList.filter((e) => e.id !== id);
+        persistTransactionData();
+        if (currentTab === "transactions") renderCurrentTab();
+      }
+
+      // ========== RENDER FUNCTIONS ==========
+      function renderDashboard() {
+        return `<div class="bg-white rounded-2xl p-8 shadow-sm"><h2 class="text-3xl font-bold text-gray-800">Executive Dashboard</h2><p class="text-gray-500 mt-2">Welcome to Boy Alone Enterprise Suite</p><div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"><div class="bg-emerald-50 p-5 rounded-xl"><i class="fas fa-tags text-emerald-600 text-2xl"></i><p class="text-2xl font-bold mt-2">${products.length}</p><p>Products</p></div><div class="bg-blue-50 p-5 rounded-xl"><i class="fas fa-users text-blue-600 text-2xl"></i><p class="text-2xl font-bold mt-2">${customersData.length}</p><p>Customers</p></div><div class="bg-purple-50 p-5 rounded-xl"><i class="fas fa-usd text-purple-600 text-2xl"></i><p class="text-2xl font-bold mt-2">${successTransactions.length}</p><p>Transactions</p></div></div></div>`;
+      }
+
+      function renderCatalog() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold text-gray-800">Product Catalog</h1><button id="addProductBtn" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-plus"></i> Add Product</button></div><div id="productsGridContainer" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div></div>`;
+      }
+      function renderCustomers() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold text-gray-800">Customer Management</h1><button id="globalAddCustomerBtn" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-user-plus"></i> Add Customer</button></div><div id="customersGridContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div></div>`;
+      }
+
+      function renderTransactions() {
+        const totalCollected = successTransactions.reduce(
+          (s, t) => s + t.amount,
+          0,
+        );
+        const totalExpenses = expensesList.reduce((s, e) => s + e.amount, 0);
+        return `<div class="space-y-6"><div class="flex flex-wrap justify-between gap-3"><div><h1 class="text-3xl font-bold text-gray-800">Transaction Hub</h1><p class="text-gray-500">Success payments & expense tracking</p></div><div class="flex gap-2"><button id="manualTransBtn" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-plus-circle"></i> New Transaction</button><button id="addExpenseBtn" class="bg-red-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-chart-line"></i> Add Expense</button></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="bg-white p-4 rounded-xl shadow-sm border"><p class="text-sm text-gray-500">Total Collected</p><p class="text-2xl font-bold text-emerald-600">${formatCurrency(totalCollected)}</p></div><div class="bg-white p-4 rounded-xl shadow-sm border"><p class="text-sm text-gray-500">Total Expenses</p><p class="text-2xl font-bold text-red-600">${formatCurrency(totalExpenses)}</p></div><div class="bg-white p-4 rounded-xl shadow-sm border"><p class="text-sm text-gray-500">Net Income</p><p class="text-2xl font-bold text-purple-600">${formatCurrency(totalCollected - totalExpenses)}</p></div><div class="bg-white p-4 rounded-xl shadow-sm border"><p class="text-sm text-gray-500">Transactions</p><p class="text-2xl font-bold">${successTransactions.length}</p></div></div><div class="border-b flex gap-6"><button class="tab-transactions-btn pb-2 text-emerald-600 border-b-2 border-emerald-600 font-medium" data-subtab="transactions">💰 Transactions</button><button class="tab-transactions-btn pb-2 text-gray-500" data-subtab="expenses">📋 Expenses</button></div><div id="transactionSubContent"></div></div>`;
+      }
+
+      function renderTransactionList() {
+        return `<div class="bg-white rounded-xl border overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Ref</th><th>Method</th><th>Amount</th><th>Customer</th><th>Date</th><th></th></tr></thead><tbody>${successTransactions.map((t) => `<tr class="border-t"><td class="p-3">${t.refCode}</td><td>${t.paymentMethod}</td><td class="font-semibold text-emerald-600">${formatCurrency(t.amount)}</td><td>${t.customer}</td><td>${new Date(t.date).toLocaleDateString()}</td><td><button class="delTxnBtn text-red-500" data-id="${t.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function renderExpenseList() {
+        return `<div class="bg-white rounded-xl border overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3">Date</th><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead><tbody>${expensesList.map((e) => `<tr class="border-t"><td class="p-3">${new Date(e.date).toLocaleDateString()}</td><td>${e.category}</td><td>${e.description}</td><td class="font-semibold text-red-600">${formatCurrency(e.amount)}</td><td><button class="delExpBtn text-red-500" data-id="${e.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div>`;
+      }
+
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (currentTab === "catalog") {
+          container.innerHTML = renderCatalog();
+          renderProductsGrid(products);
+          attachCatalogEvents();
+        } else if (currentTab === "customers") {
+          container.innerHTML = renderCustomers();
+          renderCustomersGrid(customersData);
+          attachCustomerEvents();
+        } else if (currentTab === "transactions") {
+          container.innerHTML = renderTransactions();
+          attachTransactionEvents();
+          showTransactionSubTab("transactions");
+        } else
+          container.innerHTML = `<div class="bg-white rounded-2xl p-8"><h2 class="text-2xl font-bold">Module: ${currentTab}</h2><p>Coming soon</p></div>`;
+      }
+
+      // Product grid render
+      function renderProductsGrid(prods) {
+        const c = document.getElementById("productsGridContainer");
+        if (!c) return;
+        c.innerHTML = prods
+          .map(
+            (p) =>
+              `<div class="bg-white rounded-xl border p-4"><img src="${getProductImageSrc(p)}" class="w-full h-40 object-cover rounded-lg"><h3 class="font-bold mt-2">${p.name}</h3><p>${formatCurrency(p.sellPrice)}</p><div class="flex gap-2 mt-2"><button class="editProdBtn bg-blue-500 text-white px-3 py-1 rounded" data-id="${p.id}">Edit</button><button class="delProdBtn bg-red-500 text-white px-3 py-1 rounded" data-id="${p.id}">Delete</button></div></div>`,
+          )
+          .join("");
+      }
+      function renderCustomersGrid(custs) {
+        const c = document.getElementById("customersGridContainer");
+        if (!c) return;
+        c.innerHTML = custs
+          .map(
+            (cust) =>
+              `<div class="bg-white rounded-xl border p-4 customer-card cursor-pointer" data-id="${cust.id}"><div class="flex justify-between"><h3 class="font-bold">${cust.name}</h3><span class="text-sm bg-emerald-100 px-2 py-1 rounded">${cust.segment}</span></div><p>${cust.phone}</p><div class="flex gap-2 mt-2"><button class="editCustBtn bg-blue-500 text-white px-3 py-1 rounded" data-id="${cust.id}">Edit</button><button class="delCustBtn bg-red-500 text-white px-3 py-1 rounded" data-id="${cust.id}">Delete</button></div></div>`,
+          )
+          .join("");
+      }
+
+      // Event attachments
+      function attachCatalogEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal());
+        document.querySelectorAll(".editProdBtn").forEach((b) =>
+          b.addEventListener("click", () => {
+            const p = products.find((p) => p.id == b.dataset.id);
+            if (p) openProductModal(p);
+          }),
+        );
+        document.querySelectorAll(".delProdBtn").forEach((b) =>
+          b.addEventListener("click", () => {
+            deleteTargetId = parseInt(b.dataset.id);
+            document
+              .getElementById("deleteProductModal")
+              .classList.remove("hidden");
+          }),
+        );
+      }
+      function attachCustomerEvents() {
+        document
+          .getElementById("globalAddCustomerBtn")
+          ?.addEventListener("click", () => openCustomerModal());
+        document.querySelectorAll(".editCustBtn").forEach((b) =>
+          b.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const c = customersData.find((c) => c.id === b.dataset.id);
+            if (c) openCustomerModal(c);
+          }),
+        );
+        document.querySelectorAll(".delCustBtn").forEach((b) =>
+          b.addEventListener("click", (e) => {
+            e.stopPropagation();
+            pendingCustomerDeleteId = b.dataset.id;
+            document
+              .getElementById("deleteCustomerConfirmModal")
+              .classList.remove("hidden");
+          }),
+        );
+        document.querySelectorAll(".customer-card").forEach((card) =>
+          card.addEventListener("click", (e) => {
+            if (e.target.closest("button")) return;
+            const c = customersData.find((c) => c.id === card.dataset.id);
+            if (c) openCustomerDetailModal(c);
+          }),
+        );
+      }
+      function attachTransactionEvents() {
+        document
+          .getElementById("manualTransBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.remove("hidden"),
+          );
+        document
+          .getElementById("addExpenseBtn")
+          ?.addEventListener("click", () => {
+            document.getElementById("expenseDate").value = new Date()
+              .toISOString()
+              .slice(0, 10);
+            document.getElementById("expenseModal").classList.remove("hidden");
+          });
+        document.querySelectorAll(".tab-transactions-btn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-transactions-btn")
+              .forEach((b) =>
+                b.classList.remove(
+                  "text-emerald-600",
+                  "border-b-2",
+                  "border-emerald-600",
+                ),
+              );
+            btn.classList.add(
+              "text-emerald-600",
+              "border-b-2",
+              "border-emerald-600",
+            );
+            showTransactionSubTab(btn.dataset.subtab);
+          }),
+        );
+      }
+      function showTransactionSubTab(tab) {
+        const cont = document.getElementById("transactionSubContent");
+        if (tab === "transactions") {
+          cont.innerHTML = renderTransactionList();
+          document.querySelectorAll(".delTxnBtn").forEach((b) =>
+            b.addEventListener("click", () => {
+              if (confirm("Delete transaction?")) {
+                deleteTransaction(b.dataset.id);
+                renderCurrentTab();
+              }
+            }),
+          );
+        } else {
+          cont.innerHTML = renderExpenseList();
+          document.querySelectorAll(".delExpBtn").forEach((b) =>
+            b.addEventListener("click", () => {
+              if (confirm("Delete expense?")) {
+                deleteExpense(b.dataset.id);
+                renderCurrentTab();
+              }
+            }),
+          );
+        }
+      }
+
+      // Modal handlers
+      function openProductModal(p = null) {
+        if (p) {
+          document.getElementById("productId").value = p.id;
+          document.getElementById("prodName").value = p.name;
+          document.getElementById("prodCategory").value = p.category;
+          document.getElementById("prodBuyPrice").value = p.buyPrice;
+          document.getElementById("prodSellPrice").value = p.sellPrice;
+          document.getElementById("prodStock").value = p.stock;
+          document.getElementById("prodSize").value = p.size;
+          document.getElementById("prodSupplier").value = p.supplier || "";
+          document.getElementById("prodDesc").value = p.description || "";
+        } else document.getElementById("productForm").reset();
+        document.getElementById("productModal").classList.remove("hidden");
+      }
+      function openCustomerModal(c = null) {
+        if (c) {
+          document.getElementById("editCustomerId").value = c.id;
+          document.getElementById("custName").value = c.name;
+          document.getElementById("custEmail").value = c.email || "";
+          document.getElementById("custPhone").value = c.phone;
+          document.getElementById("custSegment").value = c.segment;
+          document.getElementById("custRiskLevel").value = c.riskLevel;
+          document.getElementById("custAddress").value = c.address || "";
+        } else document.getElementById("customerForm").reset();
+        document.getElementById("customerFormModal").classList.remove("hidden");
+      }
+      function openCustomerDetailModal(c) {
+        selectedCustomerForDetail = c;
+        document.getElementById("customerDetailContent").innerHTML =
+          `<div class="flex items-center gap-4"><div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-2xl font-bold">${c.name.charAt(0)}</div><div><h2 class="text-xl font-bold">${c.name}</h2><p>${c.email || "No email"}</p></div></div><div class="grid grid-cols-2 gap-4 mt-4"><div>Total Orders: ${c.totalOrders}</div><div>Total Spent: ${formatCurrency(c.totalSpent)}</div><div>Risk: ${c.riskLevel}</div><div>Joined: ${c.joinedDate}</div></div>`;
+        document
+          .getElementById("customerDetailModal")
+          .classList.remove("hidden");
+      }
+      function closeCustomerDetailModal() {
+        document.getElementById("customerDetailModal").classList.add("hidden");
+      }
+
+      // Form submissions
+      document
+        .getElementById("productForm")
+        ?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const data = {
+            name: document.getElementById("prodName").value,
+            category: document.getElementById("prodCategory").value,
+            buyPrice: parseFloat(document.getElementById("prodBuyPrice").value),
+            sellPrice: parseFloat(
+              document.getElementById("prodSellPrice").value,
+            ),
+            stock: parseInt(document.getElementById("prodStock").value),
+            size: document.getElementById("prodSize").value,
+            supplier: document.getElementById("prodSupplier").value,
+            description: document.getElementById("prodDesc").value,
+            imageUrl: "",
+          };
+          const id = document.getElementById("productId").value;
+          if (id) updateProduct(parseInt(id), data);
+          else addProduct(data);
+          document.getElementById("productModal").classList.add("hidden");
+          renderCurrentTab();
+        });
+      document
+        .getElementById("customerForm")
+        ?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const data = {
+            name: document.getElementById("custName").value,
+            email: document.getElementById("custEmail").value,
+            phone: document.getElementById("custPhone").value,
+            segment: document.getElementById("custSegment").value,
+            riskLevel: document.getElementById("custRiskLevel").value,
+            address: document.getElementById("custAddress").value,
+          };
+          const id = document.getElementById("editCustomerId").value;
+          saveCustomer(data, id || null);
+          document.getElementById("customerFormModal").classList.add("hidden");
+          renderCurrentTab();
+        });
+      document
+        .getElementById("manualTransactionForm")
+        ?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const ref = document.getElementById("transRefCode").value.trim();
+          const amt = parseFloat(document.getElementById("transAmount").value);
+          if (!ref || isNaN(amt)) {
+            alert("Required fields");
+            return;
+          }
+          addTransaction({
+            refCode: ref,
+            paymentMethod: document.getElementById("transPaymentMethod").value,
+            transCode: document.getElementById("transCode").value,
+            amount: amt,
+            customer:
+              document.getElementById("transCustomer").value || "Walk-in",
+            notes: document.getElementById("transNotes").value,
+          });
+          document
+            .getElementById("manualTransactionModal")
+            .classList.add("hidden");
+          renderCurrentTab();
+          alert("Transaction added");
+        });
+      document
+        .getElementById("expenseForm")
+        ?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const amt = parseFloat(
+            document.getElementById("expenseAmount").value,
+          );
+          if (isNaN(amt)) {
+            alert("Enter amount");
+            return;
+          }
+          addExpense({
+            category: document.getElementById("expenseCategory").value,
+            amount: amt,
+            date:
+              document.getElementById("expenseDate").value ||
+              new Date().toISOString().slice(0, 10),
+            method: document.getElementById("expenseMethod").value,
+            description: document.getElementById("expenseDesc").value,
+          });
+          document.getElementById("expenseModal").classList.add("hidden");
+          renderCurrentTab();
+          alert("Expense recorded");
+        });
+
+      // Delete confirmations
+      document
+        .getElementById("confirmProductDeleteBtn")
+        ?.addEventListener("click", () => {
+          if (deleteTargetId) {
+            deleteProduct(deleteTargetId);
+            deleteTargetId = null;
+            renderCurrentTab();
+          }
+          document.getElementById("deleteProductModal").classList.add("hidden");
+        });
+      document
+        .getElementById("cancelProductDeleteBtn")
+        ?.addEventListener("click", () => {
+          deleteTargetId = null;
+          document.getElementById("deleteProductModal").classList.add("hidden");
+        });
+      document
+        .getElementById("confirmCustomerDeleteBtn")
+        ?.addEventListener("click", () => {
+          if (pendingCustomerDeleteId) {
+            deleteCustomer(pendingCustomerDeleteId);
+            pendingCustomerDeleteId = null;
+            renderCurrentTab();
+          }
+          document
+            .getElementById("deleteCustomerConfirmModal")
+            .classList.add("hidden");
+        });
+      document
+        .getElementById("cancelCustomerDeleteBtn")
+        ?.addEventListener("click", () => {
+          pendingCustomerDeleteId = null;
+          document
+            .getElementById("deleteCustomerConfirmModal")
+            .classList.add("hidden");
+        });
+      document
+        .getElementById("editFromDetailBtn")
+        ?.addEventListener("click", () => {
+          if (selectedCustomerForDetail) {
+            closeCustomerDetailModal();
+            openCustomerModal(selectedCustomerForDetail);
+          }
+        });
+      document
+        .getElementById("deleteFromDetailBtn")
+        ?.addEventListener("click", () => {
+          if (selectedCustomerForDetail) {
+            pendingCustomerDeleteId = selectedCustomerForDetail.id;
+            closeCustomerDetailModal();
+            document
+              .getElementById("deleteCustomerConfirmModal")
+              .classList.remove("hidden");
+          }
+        });
+
+      // Close modal buttons
+      document
+        .getElementById("closeProductModalBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("productModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("cancelProductBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("productModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("closeFormModalBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("customerFormModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("cancelFormBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("customerFormModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("closeManualModal")
+        ?.addEventListener("click", () =>
+          document
+            .getElementById("manualTransactionModal")
+            .classList.add("hidden"),
+        );
+      document
+        .getElementById("cancelManualBtn")
+        ?.addEventListener("click", () =>
+          document
+            .getElementById("manualTransactionModal")
+            .classList.add("hidden"),
+        );
+      document
+        .getElementById("closeExpenseModal")
+        ?.addEventListener("click", () =>
+          document.getElementById("expenseModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("cancelExpenseBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("expenseModal").classList.add("hidden"),
+        );
+      document
+        .getElementById("closeCustomerModalBtn")
+        ?.addEventListener("click", closeCustomerDetailModal);
+      document
+        .getElementById("closeCustomerModalFooterBtn")
+        ?.addEventListener("click", closeCustomerDetailModal);
+      window.addEventListener("click", (e) => {
+        if (e.target === document.getElementById("productModal"))
+          document.getElementById("productModal").classList.add("hidden");
+        if (e.target === document.getElementById("customerFormModal"))
+          document.getElementById("customerFormModal").classList.add("hidden");
+        if (e.target === document.getElementById("manualTransactionModal"))
+          document
+            .getElementById("manualTransactionModal")
+            .classList.add("hidden");
+        if (e.target === document.getElementById("expenseModal"))
+          document.getElementById("expenseModal").classList.add("hidden");
+        if (e.target === document.getElementById("customerDetailModal"))
+          closeCustomerDetailModal();
+      });
+
+      // Admin dashboard init
+      function initAdminDashboard(userEmail) {
+        loadProductData();
+        loadCustomerData();
+        loadTransactionData();
+        const adminContainer = document.getElementById("adminApp");
+        adminContainer.innerHTML = `<div class="admin-layout"><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-crown text-emerald-700 text-xl"></i></div><div><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1><p class="text-xs text-gray-500">Enterprise Admin</p></div></div></div><nav class="p-4 space-y-1.5"><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="dashboard"><i class="fas fa-chart-line w-5"></i><span>Dashboard</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="catalog"><i class="fas fa-tags w-5"></i><span>Product Catalog</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="customers"><i class="fas fa-users w-5"></i><span>Customers</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="transactions"><i class="fas fa-usd w-5"></i><span>Transactions</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="inventory"><i class="fas fa-boxes w-5"></i><span>Inventory</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="orders"><i class="fas fa-tasks w-5"></i><span>Orders</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="installments"><i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="analytics"><i class="fas fa-chart-pie w-5"></i><span>Analytics</span></div></nav><div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-emerald-700"></i></div><div class="flex-1"><p class="text-sm font-bold">${userEmail?.split("@")[0] || "Manager"}</p><p class="text-xs text-gray-500">Admin</p></div><button id="logoutBtn" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button></div></div></div><div class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars text-emerald-600 text-xl"></i></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll" id="mainScrollArea"><div class="p-4 lg:p-8" id="pageRenderer"></div></div></div>`;
+        adminContainer.classList.remove("hidden");
+        document.querySelector(".split-layout").style.display = "none";
+        document.querySelectorAll(".nav-item").forEach((item) =>
+          item.addEventListener("click", () => {
+            document
+              .querySelectorAll(".nav-item")
+              .forEach((n) =>
+                n.classList.remove(
+                  "bg-emerald-50",
+                  "text-emerald-700",
+                  "font-semibold",
+                ),
+              );
+            item.classList.add(
+              "bg-emerald-50",
+              "text-emerald-700",
+              "font-semibold",
+            );
+            currentTab = item.getAttribute("data-tab");
+            renderCurrentTab();
+            if (window.innerWidth <= 768 && window.closeMobileMenu)
+              window.closeMobileMenu();
+          }),
+        );
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+          localStorage.clear();
+          sessionStorage.clear();
+          adminContainer.classList.add("hidden");
+          document.querySelector(".split-layout").style.display = "flex";
+        });
+        currentTab = "dashboard";
+        renderCurrentTab();
+        const sidebar = document.getElementById("fixedSidebar"),
+          toggle = document.getElementById("mobileMenuToggle"),
+          overlay = document.getElementById("mobileOverlay");
+        if (toggle) {
+          toggle.onclick = () => {
+            sidebar.classList.add("mobile-open");
+            overlay.classList.add("active");
+            document.body.style.overflow = "hidden";
+          };
+          overlay.onclick = () => {
+            sidebar.classList.remove("mobile-open");
+            overlay.classList.remove("active");
+            document.body.style.overflow = "";
+          };
+          window.closeMobileMenu = () => {
+            sidebar.classList.remove("mobile-open");
+            overlay.classList.remove("active");
+            document.body.style.overflow = "";
+          };
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((link) =>
+              link.addEventListener("click", window.closeMobileMenu),
+            );
+        }
+      }
+
+      // Login
+      const VALID_EMAIL = "admin@lipamdogo.com",
+        VALID_PASSWORD = "admin123";
+      function checkSavedSession() {
+        const saved = localStorage.getItem("lipamdogo_auth");
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.email === VALID_EMAIL && data.remember) {
+              initAdminDashboard(data.email);
+              return true;
+            }
+          } catch (e) {}
+        }
+        if (sessionStorage.getItem("lipamdogo_auth_temp")) {
+          initAdminDashboard(VALID_EMAIL);
+          return true;
+        }
+        return false;
+      }
+      document
+        .getElementById("togglePassword")
+        ?.addEventListener("click", () => {
+          const pwd = document.getElementById("password");
+          const type =
+            pwd.getAttribute("type") === "password" ? "text" : "password";
+          pwd.setAttribute("type", type);
+        });
+      document
+        .getElementById("forgotPassword")
+        ?.addEventListener("click", (e) => {
+          e.preventDefault();
+          alert("Demo: admin@lipamdogo.com / admin123");
+        });
+      document.getElementById("loginForm")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const pwd = document.getElementById("password").value;
+        if (email === VALID_EMAIL && pwd === VALID_PASSWORD) {
+          if (document.getElementById("rememberMe").checked)
+            localStorage.setItem(
+              "lipamdogo_auth",
+              JSON.stringify({ email, remember: true }),
+            );
+          else sessionStorage.setItem("lipamdogo_auth_temp", "true");
+          initAdminDashboard(email);
+        } else {
+          const errDiv = document.getElementById("errorMessage");
+          errDiv.innerText = "Invalid credentials";
+          errDiv.classList.remove("hidden");
+          setTimeout(() => errDiv.classList.add("hidden"), 2000);
+        }
+      });
+      if (!checkSavedSession()) {
+        loadProductData();
+        loadCustomerData();
+        loadTransactionData();
+      }
+    </script>
+  </body>
+</html>
