@@ -1803,6 +1803,7 @@
       let deleteTargetId = null;
       let currentImageDataURL = null;
       let inventoryItems = [];
+      let ordersData = [];
 
       // Customer Data
       let customersData = [];
@@ -2009,6 +2010,125 @@
             },
           ];
           inventoryItems.forEach((item) => recalcTotalStock(item));
+        }
+
+        // order Data
+        const storedOrders = localStorage.getItem("boyalone_inventory");
+        if (storedOrders) {
+          ordersData = JSON.parse(storedOrders);
+        } else {
+          ordersData = [
+            {
+              id: "ORD-12847",
+              customer: "Sarah Mwangi",
+              email: "sarah.mwangi@example.com",
+              phone: "+254 712 345 678",
+              items: 3,
+              total: 12450,
+              paymentType: "installment",
+              status: "processing",
+              createdAt: "2026-04-09",
+              installmentPlan: "6 months",
+              shippingAddress: "123 Kimathi Street, Nairobi",
+              lineItems: [
+                { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+                { name: "Leather Sneakers", qty: 1, price: 4500 },
+                { name: "Cashmere Scarf", qty: 1, price: 4450 },
+              ],
+            },
+            {
+              id: "ORD-12846",
+              customer: "John Kamau",
+              email: "john.kamau@example.com",
+              phone: "+254 722 456 789",
+              items: 1,
+              total: 6500,
+              paymentType: "full",
+              status: "shipped",
+              createdAt: "2026-04-08",
+              shippingAddress: "45 Moi Avenue, Mombasa",
+              lineItems: [{ name: "Leather Boots", qty: 1, price: 6500 }],
+            },
+            {
+              id: "ORD-12845",
+              customer: "Grace Njeri",
+              email: "grace.njeri@example.com",
+              phone: "+254 733 567 890",
+              items: 5,
+              total: 18900,
+              paymentType: "installment",
+              status: "pending",
+              createdAt: "2026-04-08",
+              installmentPlan: "12 months",
+              shippingAddress: "78 Ngong Road, Nairobi",
+              lineItems: [
+                { name: "Floral Summer Dress", qty: 2, price: 5800 },
+                { name: "Slim Fit Jeans", qty: 2, price: 7800 },
+                { name: "Leather Belt", qty: 1, price: 5300 },
+              ],
+            },
+            {
+              id: "ORD-12844",
+              customer: "Peter Omondi",
+              email: "peter.omondi@example.com",
+              phone: "+254 744 678 901",
+              items: 2,
+              total: 7800,
+              paymentType: "full",
+              status: "delivered",
+              createdAt: "2026-04-07",
+              shippingAddress: "12 Kenyatta Avenue, Kisumu",
+              lineItems: [{ name: "Cotton T-Shirt", qty: 2, price: 3900 }],
+            },
+            {
+              id: "ORD-12843",
+              customer: "Mary Wanjiku",
+              email: "mary.wanjiku@example.com",
+              phone: "+254 755 789 012",
+              items: 4,
+              total: 15200,
+              paymentType: "installment",
+              status: "processing",
+              createdAt: "2026-04-07",
+              installmentPlan: "9 months",
+              shippingAddress: "99 Thika Road, Kiambu",
+              lineItems: [
+                { name: "Premium Denim Jacket", qty: 1, price: 3500 },
+                { name: "Leather Sneakers", qty: 1, price: 4500 },
+                { name: "Wool Sweater", qty: 2, price: 7200 },
+              ],
+            },
+            {
+              id: "ORD-12842",
+              customer: "David Otieno",
+              email: "david.otieno@example.com",
+              phone: "+254 766 890 123",
+              items: 1,
+              total: 3200,
+              paymentType: "full",
+              status: "cancelled",
+              createdAt: "2026-04-06",
+              shippingAddress: "55 Kisii Road, Kisii",
+              lineItems: [{ name: "Running Shoes", qty: 1, price: 3200 }],
+            },
+            {
+              id: "ORD-12841",
+              customer: "Faith Chebet",
+              email: "faith.chebet@example.com",
+              phone: "+254 777 123 456",
+              items: 3,
+              total: 11200,
+              paymentType: "installment",
+              status: "pending",
+              createdAt: "2026-04-10",
+              installmentPlan: "6 months",
+              shippingAddress: "22 Eldoret Highway, Eldoret",
+              lineItems: [
+                { name: "Hoodie", qty: 2, price: 5600 },
+                { name: "Joggers", qty: 1, price: 5600 },
+              ],
+            },
+          ];
         }
 
         //Customer data with risk levels and segments
@@ -2455,120 +2575,6 @@
             : 0;
         return `PAY-${String(lastId + 1).padStart(3, "0")}`;
       }
-
-      // Order Hub
-      let ordersData = [
-        {
-          id: "ORD-12847",
-          customer: "Sarah Mwangi",
-          email: "sarah.mwangi@example.com",
-          phone: "+254 712 345 678",
-          items: 3,
-          total: 12450,
-          paymentType: "installment",
-          status: "processing",
-          createdAt: "2026-04-09",
-          installmentPlan: "6 months",
-          shippingAddress: "123 Kimathi Street, Nairobi",
-          lineItems: [
-            { name: "Premium Denim Jacket", qty: 1, price: 3500 },
-            { name: "Leather Sneakers", qty: 1, price: 4500 },
-            { name: "Cashmere Scarf", qty: 1, price: 4450 },
-          ],
-        },
-        {
-          id: "ORD-12846",
-          customer: "John Kamau",
-          email: "john.kamau@example.com",
-          phone: "+254 722 456 789",
-          items: 1,
-          total: 6500,
-          paymentType: "full",
-          status: "shipped",
-          createdAt: "2026-04-08",
-          shippingAddress: "45 Moi Avenue, Mombasa",
-          lineItems: [{ name: "Leather Boots", qty: 1, price: 6500 }],
-        },
-        {
-          id: "ORD-12845",
-          customer: "Grace Njeri",
-          email: "grace.njeri@example.com",
-          phone: "+254 733 567 890",
-          items: 5,
-          total: 18900,
-          paymentType: "installment",
-          status: "pending",
-          createdAt: "2026-04-08",
-          installmentPlan: "12 months",
-          shippingAddress: "78 Ngong Road, Nairobi",
-          lineItems: [
-            { name: "Floral Summer Dress", qty: 2, price: 5800 },
-            { name: "Slim Fit Jeans", qty: 2, price: 7800 },
-            { name: "Leather Belt", qty: 1, price: 5300 },
-          ],
-        },
-        {
-          id: "ORD-12844",
-          customer: "Peter Omondi",
-          email: "peter.omondi@example.com",
-          phone: "+254 744 678 901",
-          items: 2,
-          total: 7800,
-          paymentType: "full",
-          status: "delivered",
-          createdAt: "2026-04-07",
-          shippingAddress: "12 Kenyatta Avenue, Kisumu",
-          lineItems: [{ name: "Cotton T-Shirt", qty: 2, price: 3900 }],
-        },
-        {
-          id: "ORD-12843",
-          customer: "Mary Wanjiku",
-          email: "mary.wanjiku@example.com",
-          phone: "+254 755 789 012",
-          items: 4,
-          total: 15200,
-          paymentType: "installment",
-          status: "processing",
-          createdAt: "2026-04-07",
-          installmentPlan: "9 months",
-          shippingAddress: "99 Thika Road, Kiambu",
-          lineItems: [
-            { name: "Premium Denim Jacket", qty: 1, price: 3500 },
-            { name: "Leather Sneakers", qty: 1, price: 4500 },
-            { name: "Wool Sweater", qty: 2, price: 7200 },
-          ],
-        },
-        {
-          id: "ORD-12842",
-          customer: "David Otieno",
-          email: "david.otieno@example.com",
-          phone: "+254 766 890 123",
-          items: 1,
-          total: 3200,
-          paymentType: "full",
-          status: "cancelled",
-          createdAt: "2026-04-06",
-          shippingAddress: "55 Kisii Road, Kisii",
-          lineItems: [{ name: "Running Shoes", qty: 1, price: 3200 }],
-        },
-        {
-          id: "ORD-12841",
-          customer: "Faith Chebet",
-          email: "faith.chebet@example.com",
-          phone: "+254 777 123 456",
-          items: 3,
-          total: 11200,
-          paymentType: "installment",
-          status: "pending",
-          createdAt: "2026-04-10",
-          installmentPlan: "6 months",
-          shippingAddress: "22 Eldoret Highway, Eldoret",
-          lineItems: [
-            { name: "Hoodie", qty: 2, price: 5600 },
-            { name: "Joggers", qty: 1, price: 5600 },
-          ],
-        },
-      ];
 
       let selectedOrderForDetail = null;
       let selectedOrderForStatus = null;
