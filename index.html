@@ -1330,7 +1330,7 @@
     <!-- Add Transaction Modal -->
     <div
       id="manualTransactionModal"
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
     >
       <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
         <div
@@ -1450,7 +1450,7 @@
     <!-- Add Expense Modal -->
     <div
       id="expenseModal"
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto py-8 modal-transition"
     >
       <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 shadow-2xl">
         <div class="px-6 py-5 border-b flex justify-between items-center">
@@ -2700,7 +2700,7 @@
       function renderFullInventory() {
         const filtered = getFilteredItems();
         const stats = computeStats(filtered);
-        return `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p></div><div class="flex gap-3"><button id="globalTransferInfoBtn" class="px-4 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2 font-medium shadow-sm"><i class="fas fa-exchange-alt text-emerald-600"></i> Bulk Transfer</button><button id="globalAdjustInfoBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-md transition flex items-center gap-2"><i class="fas fa-edit"></i> Adjust Stock</button></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-5"><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div></div><div class="bg-white rounded-xl border p-4"><div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div><div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div></div></div><div class="space-y-5" id="inventoryListContainer">${filtered
+        return `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-5"><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div></div><div class="bg-white rounded-xl border p-4"><div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div><div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div></div></div><div class="space-y-5" id="inventoryListContainer">${filtered
           .map((item) => {
             const statusClass = {
               healthy: "status-healthy",
@@ -2771,20 +2771,6 @@
             }
           };
         });
-        document
-          .getElementById("globalTransferInfoBtn")
-          ?.addEventListener("click", () =>
-            alert(
-              "⚡ Use 'Transfer' button on any product card to move stock.",
-            ),
-          );
-        document
-          .getElementById("globalAdjustInfoBtn")
-          ?.addEventListener("click", () =>
-            alert(
-              "📦 Click 'Adjust' on a product card to modify stock levels.",
-            ),
-          );
         document
           .getElementById("bulkReorderBtn")
           ?.addEventListener("click", () => {
