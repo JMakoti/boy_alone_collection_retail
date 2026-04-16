@@ -3085,6 +3085,7 @@
             if (addNewOrder(newOrderData)) {
               alert("✅ Order created successfully!");
               document.getElementById("addOrderModal").classList.add("hidden");
+              renderCurrentTab();
             } else
               alert("Please add valid items with name, quantity and price.");
           });
@@ -3168,7 +3169,7 @@
             address: formData.address || "",
           };
           customersData.unshift(newCustomer);
-          persistCustomerData();
+          persistData();
           return newCustomer;
         }
       }
@@ -3179,7 +3180,7 @@
           selectedCustomerForDetail.id === customerId
         )
           closeCustomerDetailModal();
-        persistCustomerData();
+        persistData();
         refreshCustomerUI();
       }
 
@@ -3498,7 +3499,7 @@
             </div>
             
             <!-- Products Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="productsGridContainer"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="productsGridContainer"></div>
             
             <!-- Footer -->
             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-sm text-gray-700 border border-emerald-100 flex justify-between items-center flex-wrap gap-2">
@@ -3583,18 +3584,20 @@
       }
 
       function renderTransactionList() {
-        return `<div class="bg-white rounded-xl border overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Ref</th><th>Method</th><th>Amount</th><th>Customer</th><th>Date</th><th></th></tr></thead><tbody>${successTransactions.map((t) => `<tr class="border-t"><td class="p-3">${t.refCode}</td><td>${t.paymentMethod}</td><td class="font-semibold text-emerald-600">${formatCurrency(t.amount)}</td><td>${t.customer}</td><td>${new Date(t.date).toLocaleDateString()}</td><td><button class="delTxnBtn text-red-500" data-id="${t.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div>`;
+        return `<div class="bg-white rounded-xl border overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-5 py-3 text-left">Ref</th><th class="px-5 py-3 text-left">Method</th><th class="px-5 py-3 text-left">Amount</th><th class="px-5 py-3 text-left">Customer</th><th class="px-5 py-3 text-left">Date</th><th class="px-5 py-3 text-left"></th></tr></thead><tbody>${successTransactions.map((t) => `<tr class="border-t"><td class="p-3">${t.refCode}</td><td>${t.paymentMethod}</td><td class="font-semibold text-emerald-600">${formatCurrency(t.amount)}</td><td>${t.customer}</td><td>${new Date(t.date).toLocaleDateString()}</td><td><button class="delTxnBtn px-5 py-3 text-red-500" data-id="${t.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody></table></div></div>`;
       }
       function renderExpenseList() {
         const totalExp = expensesList.reduce((s, e) => s + e.amount, 0);
         return `
           <div class="space-y-4">
             <div class="flex justify-between items-center flex-wrap gap-2"><h3 class="font-semibold text-lg">Expense History</h3><span class="text-red-600 font-bold">Total: ${formatCurrency(totalExp)}</span></div>
-            <div class="bg-white border rounded-xl overflow-hidden">
+            <div class="bg-white border rounded-xl overflow-hidden overflow-x-auto">
+              <div class="overflow-x-auto">
               <table class="w-full">
-                <thead class="bg-gray-50"><tr><th class="p-3 text-left">Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Method</th><th></th></tr></thead>
+                <thead class="bg-gray-50"><tr><th class="p-px-5 py-3 text-left">Date</th><th class="p-px-5 py-3 text-left">Category</th><th class="p-px-5 py-3 text-left">Description</th><th class="p-px-5 py-3 text-left">Amount</th><th class="p-px-5 py-3 text-left">Method</th><th class="p-px-5 py-3 text-left"></th></tr></thead>
                 <tbody>${expensesList.map((exp) => `<tr class="border-t"><td class="p-3">${new Date(exp.date).toLocaleDateString()}</td><td class="p-3"><span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">${exp.category}</span></td><td class="p-3 text-gray-600">${exp.description}</td><td class="p-3 font-semibold text-red-600">${formatCurrency(exp.amount)}</td><td class="p-3 text-gray-500">${exp.method}</td><td class="p-3"><button class="deleteExpenseBtn text-red-500 hover:text-red-700" data-id="${exp.id}"><i class="fas fa-trash"></i></button></td></tr>`).join("")}</tbody>
               </table>
+              </div>
             </div>
           </div>
         `;
@@ -4130,7 +4133,7 @@
           alert(`✅ Product "${productData.name}" added successfully!`);
         }
         closeProductModal();
-        refreshUI();
+        renderCurrentTab();
         return true;
       }
 
@@ -4140,7 +4143,7 @@
           deleteProduct(deleteTargetId);
           alert(`✅ Product "${product?.name}" deleted successfully.`);
           deleteTargetId = null;
-          refreshUI();
+          renderCurrentTab();
         }
         document.getElementById("deleteModal").classList.add("hidden");
       }
@@ -4587,7 +4590,7 @@
           );
         } else {
           cont.innerHTML = renderExpenseList();
-          document.querySelectorAll(".delExpBtn").forEach((b) =>
+          document.querySelectorAll(".deleteExpenseBtn").forEach((b) =>
             b.addEventListener("click", () => {
               if (confirm("Delete expense?")) {
                 deleteExpense(b.dataset.id);
