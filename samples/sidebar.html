@@ -1,0 +1,26 @@
+function initMobileSidebar() {
+  const sidebar = document.getElementById("fixedSidebar");
+  const toggleBtn = document.getElementById("mobileMenuToggle"); // new button
+  const overlay = document.getElementById("mobileOverlay");
+  
+  if (toggleBtn && overlay) {
+    const openMenu = () => {
+      sidebar.classList.add("mobile-open");
+      overlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    };
+    const closeMenu = () => {
+      sidebar.classList.remove("mobile-open");
+      overlay.classList.remove("active");
+      document.body.style.overflow = "";
+    };
+    window.closeMobileMenu = closeMenu;
+    toggleBtn.onclick = openMenu;
+    overlay.onclick = closeMenu;
+    
+    // Close menu when a nav link is clicked
+    document.querySelectorAll(".nav-item").forEach(link => {
+      link.addEventListener("click", closeMenu);
+    });
+  }
+}

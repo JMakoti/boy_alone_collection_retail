@@ -367,6 +367,66 @@
         color: #059669;
         font-weight: 600;
       }
+
+      /* Topbar */
+      /* Mobile Top Bar */
+      .mobile-top-bar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        z-index: 60;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .mobile-menu-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        color: #0f172a;
+      }
+
+      .mobile-menu-btn:hover {
+        background: #f1f5f9;
+      }
+
+      .mobile-logo {
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1.2;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-top-bar {
+          display: flex;
+        }
+
+        .main-content-scroll {
+          margin-top: 60px;
+          padding-top: 0;
+        }
+
+        .sidebar-fixed {
+          top: 0;
+          height: 100vh;
+          z-index: 70;
+        }
+
+        .mobile-menu-toggle {
+          display: none; /* Hide the old floating toggle */
+        }
+      }
     </style>
   </head>
   <body>
@@ -391,7 +451,7 @@
               class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
             >
               <img
-                src="../images/balogo.png"
+                src="./images/balogo.png"
                 alt="BOY ALONE COLLECTION"
                 onerror="
                   this.src = 'https://placehold.co/64x64?text=BA';
@@ -1475,7 +1535,7 @@
     </div>
 
     <!-- Lipa Mdogo Mdogo -->
-     <div id="lipaMdogoCoreRoot" class="max-w-7xl mx-auto"></div>
+    <div id="lipaMdogoCoreRoot" class="max-w-7xl mx-auto"></div>
 
     <!-- Record Payment Modal -->
     <div
@@ -1734,6 +1794,8 @@
       </div>
     </div>
 
+    <!-- Analytics Dashboard Modal -->
+    <div id="analyticsEngineRoot" class="max-w-7xl mx-auto"></div>
 
     <script>
       // ---------- DATA MODELS ----------
@@ -1747,9 +1809,21 @@
       let selectedCustomerForDetail = null;
       let pendingCustomerDeleteId = null;
 
-      // Transaction data
+      // Finance data
       let successTransactions = [];
       let expensesList = [];
+      let paymentPlansData = [];
+      let collectionsData = [];
+
+      // Analytics Data
+      let revenueData = [];
+      let categoryData = [];
+      let customerSegmentData = [];
+      let paymentMethodData = [];
+
+      let revenueChart = null;
+      let pieChart = null;
+      let segmentChart = null;
 
       const riskConfig = {
         low: { label: "Low Risk", color: "bg-green-100 text-green-700" },
@@ -2094,6 +2168,218 @@
               description: "New stock order",
             },
           ];
+        const storedPlans = localStorage.getItem("boyalone_payment_plans");
+        if (storedPlans && JSON.parse(storedPlans).length > 0) {
+          paymentPlansData = JSON.parse(storedPlans);
+        } else {
+          paymentPlansData = [
+            {
+              id: "PAY-001",
+              customer: "Sarah Mwangi",
+              orderId: "ORD-12847",
+              totalAmount: 12450,
+              paidAmount: 6225,
+              remainingAmount: 6225,
+              installments: 6,
+              installmentAmount: 2075,
+              frequency: "monthly",
+              nextPaymentDate: "2026-05-09",
+              status: "active",
+              paymentMethod: "M-Pesa",
+              startDate: "2026-01-09",
+              daysOverdue: 0,
+              phone: "+254 712 345 678",
+            },
+            {
+              id: "PAY-002",
+              customer: "John Kamau",
+              orderId: "ORD-12823",
+              totalAmount: 8900,
+              paidAmount: 2967,
+              remainingAmount: 5933,
+              installments: 9,
+              installmentAmount: 989,
+              frequency: "monthly",
+              nextPaymentDate: "2026-04-07",
+              status: "overdue",
+              daysOverdue: 4,
+              paymentMethod: "M-Pesa",
+              startDate: "2025-12-07",
+              phone: "+254 723 456 789",
+            },
+            {
+              id: "PAY-003",
+              customer: "Grace Njeri",
+              orderId: "ORD-12845",
+              totalAmount: 18900,
+              paidAmount: 3150,
+              remainingAmount: 15750,
+              installments: 12,
+              installmentAmount: 1575,
+              frequency: "monthly",
+              nextPaymentDate: "2026-05-08",
+              status: "active",
+              paymentMethod: "Airtel Money",
+              startDate: "2026-03-08",
+              phone: "+254 734 567 890",
+            },
+            {
+              id: "PAY-004",
+              customer: "Mary Wanjiku",
+              orderId: "ORD-12843",
+              totalAmount: 15200,
+              paidAmount: 5067,
+              remainingAmount: 10133,
+              installments: 9,
+              installmentAmount: 1689,
+              frequency: "monthly",
+              nextPaymentDate: "2026-05-07",
+              status: "active",
+              paymentMethod: "M-Pesa",
+              startDate: "2026-01-07",
+              phone: "+254 756 789 012",
+            },
+            {
+              id: "PAY-005",
+              customer: "Peter Omondi",
+              orderId: "ORD-12789",
+              totalAmount: 6500,
+              paidAmount: 1083,
+              remainingAmount: 5417,
+              installments: 6,
+              installmentAmount: 1083,
+              frequency: "monthly",
+              nextPaymentDate: "2026-03-20",
+              status: "overdue",
+              daysOverdue: 22,
+              paymentMethod: "M-Pesa",
+              startDate: "2025-11-20",
+              phone: "+254 745 678 901",
+            },
+            {
+              id: "PAY-006",
+              customer: "James Otieno",
+              orderId: "ORD-12890",
+              totalAmount: 22500,
+              paidAmount: 0,
+              remainingAmount: 22500,
+              installments: 12,
+              installmentAmount: 1875,
+              frequency: "monthly",
+              nextPaymentDate: "2026-05-15",
+              status: "active",
+              paymentMethod: "Bank Transfer",
+              startDate: "2026-04-15",
+              phone: "+254 712 345 000",
+            },
+          ];
+        }
+        const storedCollectionData = localStorage.getItem(
+          "boyalone_collections_data",
+        );
+        if (
+          storedCollectionData &&
+          JSON.parse(storedCollectionData).length > 0
+        ) {
+          collectionData = JSON.parse(storedCollectionData);
+        } else {
+          collectionData = [
+            { month: "Oct", collected: 380000, expected: 420000 },
+            { month: "Nov", collected: 425000, expected: 450000 },
+            { month: "Dec", collected: 510000, expected: 520000 },
+            { month: "Jan", collected: 495000, expected: 500000 },
+            { month: "Feb", collected: 540000, expected: 550000 },
+            { month: "Mar", collected: 620000, expected: 630000 },
+            { month: "Apr", collected: 580000, expected: 600000 },
+          ];
+        }
+
+        const storedRevenueData = localStorage.getItem("boyalone_revenue_data");
+        if (storedRevenueData) {
+          revenueData = JSON.parse(storedRevenueData);
+        } else {
+          revenueData = [
+            {
+              month: "Oct",
+              revenue: 1850000,
+              installments: 680000,
+              fullPayments: 1170000,
+            },
+            {
+              month: "Nov",
+              revenue: 2100000,
+              installments: 820000,
+              fullPayments: 1280000,
+            },
+            {
+              month: "Dec",
+              revenue: 2450000,
+              installments: 950000,
+              fullPayments: 1500000,
+            },
+            {
+              month: "Jan",
+              revenue: 2200000,
+              installments: 890000,
+              fullPayments: 1310000,
+            },
+            {
+              month: "Feb",
+              revenue: 2350000,
+              installments: 920000,
+              fullPayments: 1430000,
+            },
+            {
+              month: "Mar",
+              revenue: 2680000,
+              installments: 1050000,
+              fullPayments: 1630000,
+            },
+          ];
+        }
+
+        const storedCategoryData = localStorage.getItem(
+          "boyalone_category_data",
+        );
+        if (storedCategoryData) {
+          categoryData = JSON.parse(storedCategoryData);
+        } else {
+          categoryData = [
+            { name: "Dresses", value: 3850000, color: "#3b82f6" },
+            { name: "Tops", value: 2940000, color: "#8b5cf6" },
+            { name: "Bottoms", value: 2650000, color: "#ec4899" },
+            { name: "Outerwear", value: 2180000, color: "#f59e0b" },
+            { name: "Footwear", value: 1890000, color: "#10b981" },
+            { name: "Accessories", value: 1240000, color: "#6366f1" },
+          ];
+        }
+
+        const storedCustomerSegmentData = localStorage.getItem(
+          "boyalone_customer_segment_data",
+        );
+        if (storedCustomerSegmentData) {
+          customerSegmentData = JSON.parse(storedCustomerSegmentData);
+        } else {
+          customerSegmentData = [
+            { segment: "VIP", customers: 89, revenue: 4520000 },
+            { segment: "Regular", customers: 342, revenue: 6780000 },
+            { segment: "New", customers: 816, revenue: 3450000 },
+          ];
+        }
+
+        const storedPaymentMethodData = localStorage.getItem(
+          "boyalone_payment_method_data",
+        );
+        if (storedPaymentMethodData) {
+          paymentMethodData = JSON.parse(storedPaymentMethodData);
+        } else {
+          paymentMethodData = [
+            { method: "M-Pesa", transactions: 1247, amount: 8450000 },
+            { method: "Airtel Money", transactions: 523, amount: 3280000 },
+            { method: "Bank Transfer", transactions: 189, amount: 2120000 },
+            { method: "Cash", transactions: 95, amount: 900000 },
+          ];
+        }
 
         persistData();
       }
@@ -2115,6 +2401,30 @@
           JSON.stringify(successTransactions),
         );
         localStorage.setItem("boyalone_expenses", JSON.stringify(expensesList));
+        localStorage.setItem(
+          "boyalone_payment_plans",
+          JSON.stringify(paymentPlansData),
+        );
+        localStorage.setItem(
+          "boyalone_collections_data",
+          JSON.stringify(collectionData),
+        );
+        localStorage.setItem(
+          "boyalone_revenue_data",
+          JSON.stringify(revenueData),
+        );
+        localStorage.setItem(
+          "boyalone_category_data",
+          JSON.stringify(categoryData),
+        );
+        localStorage.setItem(
+          "boyalone_customer_segment_data",
+          JSON.stringify(customerSegmentData),
+        );
+        localStorage.setItem(
+          "boyalone_payment_method_data",
+          JSON.stringify(paymentMethodData),
+        );
       }
       // generate product id
       function generateProductId() {
@@ -2134,6 +2444,16 @@
       //generate transaction id
       function generateTransactionId() {
         return `TXN-${String(successTransactions.length + 101).padStart(3, "0")}`;
+      }
+
+      function generatePlanId() {
+        const lastId =
+          paymentPlansData.length > 0
+            ? Math.max(
+                ...paymentPlansData.map((p) => parseInt(p.id.split("-")[1])),
+              )
+            : 0;
+        return `PAY-${String(lastId + 1).padStart(3, "0")}`;
       }
 
       // Order Hub
@@ -2253,6 +2573,9 @@
       let selectedOrderForDetail = null;
       let selectedOrderForStatus = null;
 
+      let selectedPlanForAction = null;
+      let chartInstance = null;
+
       //Components
       function formatCurrency(amount) {
         return new Intl.NumberFormat("en-KE", {
@@ -2260,6 +2583,12 @@
           currency: "KES",
           minimumFractionDigits: 0,
         }).format(amount);
+      }
+
+      function formatCompactCurrency(amount) {
+        if (amount >= 1000000) return `KES ${(amount / 1000000).toFixed(1)}M`;
+        if (amount >= 1000) return `KES ${(amount / 1000).toFixed(0)}K`;
+        return `KES ${amount}`;
       }
 
       // Calculate Total Stock
@@ -2275,6 +2604,19 @@
         else if (item.totalStock < item.reorderPoint) item.status = "low";
         else item.status = "healthy";
         return item;
+      }
+
+      function recalcPlanStatus(plan) {
+        if (plan.remainingAmount <= 0) {
+          plan.status = "completed";
+          plan.paidAmount = plan.totalAmount;
+          plan.remainingAmount = 0;
+        } else if (plan.daysOverdue > 0) {
+          plan.status = "overdue";
+        } else {
+          plan.status = "active";
+        }
+        return plan;
       }
 
       let currentTab = "dashboard";
@@ -2743,7 +3085,6 @@
             if (addNewOrder(newOrderData)) {
               alert("✅ Order created successfully!");
               document.getElementById("addOrderModal").classList.add("hidden");
-              renderFullModule();
             } else
               alert("Please add valid items with name, quantity and price.");
           });
@@ -2777,7 +3118,6 @@
                 `✅ Order ${selectedOrderForStatus.id} status updated to ${newStatus}`,
               );
               closeUpdateStatusModal();
-              renderFullModule();
             }
           });
         document
@@ -2807,7 +3147,7 @@
               address: formData.address,
               paymentScore: getPaymentScoreFromRisk(formData.riskLevel),
             };
-            persistCustomerData();
+            persistData();
             return customersData[index];
           }
           return null;
@@ -2884,6 +3224,208 @@
         expensesList = expensesList.filter((e) => e.id !== id);
         persistData();
         if (currentTab === "transactions") renderCurrentTab();
+      }
+
+      // Lipa Mdogo Mdogo Core
+      function createNewPlan(formData) {
+        const totalAmount = parseFloat(formData.totalAmount);
+        const installments = parseInt(formData.installments);
+        const installmentAmount = Math.round(totalAmount / installments);
+        const startDate =
+          formData.startDate || new Date().toISOString().slice(0, 10);
+        const nextPaymentDate = new Date(startDate);
+        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+
+        const newPlan = {
+          id: generatePlanId(),
+          customer: formData.customerName,
+          orderId: formData.orderId,
+          totalAmount: totalAmount,
+          paidAmount: 0,
+          remainingAmount: totalAmount,
+          installments: installments,
+          installmentAmount: installmentAmount,
+          frequency: "monthly",
+          nextPaymentDate: nextPaymentDate.toISOString().slice(0, 10),
+          status: "active",
+          paymentMethod: formData.paymentMethod,
+          startDate: startDate,
+          daysOverdue: 0,
+          phone: formData.phone || "",
+        };
+        paymentPlansData.unshift(newPlan);
+        return newPlan;
+      }
+
+      function recordPayment(planId, amount, method, reference) {
+        const plan = paymentPlansData.find((p) => p.id === planId);
+        if (!plan) return false;
+        if (amount > plan.remainingAmount) {
+          alert(
+            `Payment amount (${formatCurrency(amount)}) exceeds remaining balance of ${formatCurrency(plan.remainingAmount)}`,
+          );
+          return false;
+        }
+        plan.paidAmount += amount;
+        plan.remainingAmount -= amount;
+
+        // Update next payment date if remaining > 0
+        if (plan.remainingAmount > 0) {
+          const nextDate = new Date(plan.nextPaymentDate);
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          plan.nextPaymentDate = nextDate.toISOString().slice(0, 10);
+          plan.daysOverdue = 0;
+        }
+        recalcPlanStatus(plan);
+        return true;
+      }
+
+      // Analytic
+      // Destroy existing charts to avoid duplicates
+      function destroyCharts() {
+        if (revenueChart) {
+          revenueChart.destroy();
+          revenueChart = null;
+        }
+        if (pieChart) {
+          pieChart.destroy();
+          pieChart = null;
+        }
+        if (segmentChart) {
+          segmentChart.destroy();
+          segmentChart = null;
+        }
+      }
+
+      // Initialize all charts
+      function initCharts() {
+        destroyCharts();
+
+        // Revenue Stacked Bar Chart
+        const revenueCtx = document
+          .getElementById("revenueChart")
+          ?.getContext("2d");
+        if (revenueCtx) {
+          revenueChart = new Chart(revenueCtx, {
+            type: "bar",
+            data: {
+              labels: revenueData.map((d) => d.month),
+              datasets: [
+                {
+                  label: "Full Payments",
+                  data: revenueData.map((d) => d.fullPayments),
+                  backgroundColor: "#3b82f6",
+                  borderRadius: 6,
+                  barPercentage: 0.7,
+                },
+                {
+                  label: "Installments",
+                  data: revenueData.map((d) => d.installments),
+                  backgroundColor: "#8b5cf6",
+                  borderRadius: 6,
+                  barPercentage: 0.7,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) =>
+                      `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`,
+                  },
+                },
+                legend: {
+                  position: "top",
+                  labels: { boxWidth: 12, font: { size: 11 } },
+                },
+              },
+              scales: {
+                y: {
+                  ticks: {
+                    callback: (val) => `${val / 1000000}M`,
+                    stepSize: 500000,
+                  },
+                  grid: { color: "#e5e7eb" },
+                },
+              },
+            },
+          });
+        }
+
+        // Pie Chart for Categories
+        const pieCtx = document.getElementById("pieChart")?.getContext("2d");
+        if (pieCtx) {
+          pieChart = new Chart(pieCtx, {
+            type: "pie",
+            data: {
+              labels: categoryData.map((c) => c.name),
+              datasets: [
+                {
+                  data: categoryData.map((c) => c.value),
+                  backgroundColor: categoryData.map((c) => c.color),
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { boxWidth: 10, font: { size: 10 } },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) =>
+                      `${ctx.label}: ${formatCurrency(ctx.raw)} (${((ctx.raw / categoryData.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%)`,
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // Customer Segment Horizontal Bar Chart
+        const segmentCtx = document
+          .getElementById("segmentBarChart")
+          ?.getContext("2d");
+        if (segmentCtx) {
+          segmentChart = new Chart(segmentCtx, {
+            type: "bar",
+            data: {
+              labels: customerSegmentData.map((s) => s.segment),
+              datasets: [
+                {
+                  label: "Revenue (KES)",
+                  data: customerSegmentData.map((s) => s.revenue),
+                  backgroundColor: "#8b5cf6",
+                  borderRadius: 8,
+                },
+              ],
+            },
+            options: {
+              indexAxis: "y",
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                tooltip: {
+                  callbacks: { label: (ctx) => formatCurrency(ctx.raw) },
+                },
+                legend: { position: "top" },
+              },
+              scales: {
+                x: {
+                  ticks: { callback: (val) => `${val / 1000000}M` },
+                  grid: { color: "#e5e7eb" },
+                },
+              },
+            },
+          });
+        }
       }
 
       // Other render functions (Dashboard, Catalog, etc.)
@@ -3045,7 +3587,7 @@
       }
       function renderExpenseList() {
         const totalExp = expensesList.reduce((s, e) => s + e.amount, 0);
-          return `
+        return `
           <div class="space-y-4">
             <div class="flex justify-between items-center flex-wrap gap-2"><h3 class="font-semibold text-lg">Expense History</h3><span class="text-red-600 font-bold">Total: ${formatCurrency(totalExp)}</span></div>
             <div class="bg-white border rounded-xl overflow-hidden">
@@ -3056,12 +3598,322 @@
             </div>
           </div>
         `;
-        }
+      }
       function renderInstallments() {
-        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Lipa Mdogo Core</h2><p>Installment payment plans</p></div>`;
+        const totalActive = paymentPlansData.filter(
+          (p) => p.status === "active",
+        ).length;
+        const totalOverdue = paymentPlansData.filter(
+          (p) => p.status === "overdue",
+        ).length;
+        const totalCompleted = paymentPlansData.filter(
+          (p) => p.status === "completed",
+        ).length;
+        const totalOutstanding = paymentPlansData.reduce(
+          (sum, p) => sum + p.remainingAmount,
+          0,
+        );
+        const totalExpectedMonthly = paymentPlansData.reduce(
+          (sum, p) => sum + p.installmentAmount,
+          0,
+        );
+
+        return `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Lipa Mdogo Core</h1>
+                <p class="text-gray-500 mt-1">Payment plans management • Installment tracking • Collections</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="createPlanBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg flex items-center gap-2"><i class="fas fa-plus-circle"></i> Create Payment Plan</button>
+              </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-medium">Active Plans</p></div><p class="text-2xl font-semibold">${totalActive}</p></div>
+              <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-medium">Overdue</p></div><p class="text-2xl font-semibold">${totalOverdue}</p></div>
+              <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-dollar-sign"></i><p class="text-sm font-medium">Monthly Expected</p></div><p class="text-2xl font-semibold">${formatCompactCurrency(totalExpectedMonthly)}</p></div>
+              <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-credit-card"></i><p class="text-sm font-medium">Outstanding</p></div><p class="text-2xl font-semibold">${formatCompactCurrency(totalOutstanding)}</p></div>
+              <div class="bg-white rounded-xl border p-4 shadow-sm"><div class="flex items-center gap-2 text-emerald-600 mb-2"><i class="fas fa-check-double"></i><p class="text-sm font-medium">Completed</p></div><p class="text-2xl font-semibold">${totalCompleted}</p></div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-200 flex gap-6">
+              <button class="tab-btn pb-3 px-1 text-emerald-600 border-b-2 border-emerald-600 font-medium" data-tab="plans">📋 Active Payment Plans</button>
+              <button class="tab-btn pb-3 px-1 text-gray-500 hover:text-gray-700" data-tab="collections">📊 Collections Dashboard</button>
+            </div>
+            <div id="tabContentContainer"></div>
+          </div>
+        `;
+      }
+
+      function renderPlansTab() {
+        const activePlans = paymentPlansData.filter(
+          (p) => p.status !== "completed",
+        );
+        const statusConfig = {
+          active: {
+            label: "Active",
+            color: "bg-green-100 text-green-700",
+            icon: "fa-check-circle",
+          },
+          overdue: {
+            label: "Overdue",
+            color: "bg-red-100 text-red-700",
+            icon: "fa-exclamation-triangle",
+          },
+        };
+
+        return `<div class="space-y-4">${activePlans
+          .map((plan) => {
+            const config = statusConfig[plan.status] || statusConfig.active;
+            const progress = (plan.paidAmount / plan.totalAmount) * 100;
+            return `
+            <div class="bg-white border rounded-xl p-6 hover:shadow-md transition" data-plan-id="${plan.id}">
+              <div class="flex flex-col lg:flex-row gap-6">
+                <div class="flex-1">
+                  <div class="flex justify-between mb-4 flex-wrap gap-2">
+                    <div><h3 class="font-semibold text-lg">${escapeHtml(plan.customer)}</h3><p class="text-sm text-gray-500">${plan.id} • Order: ${plan.orderId}</p></div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${config.color}"><i class="fas ${config.icon} text-xs"></i> ${config.label}${plan.daysOverdue ? ` (${plan.daysOverdue} days)` : ""}</span>
+                  </div>
+                  <div class="mb-4"><div class="flex justify-between text-sm mb-2"><span>Payment Progress</span><span>${progress.toFixed(0)}%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500" style="width: ${progress}%"></div></div></div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div><p class="text-xs text-gray-500">Total</p><p class="font-semibold">${formatCurrency(plan.totalAmount)}</p></div>
+                    <div><p class="text-xs text-gray-500">Paid</p><p class="font-semibold text-green-600">${formatCurrency(plan.paidAmount)}</p></div>
+                    <div><p class="text-xs text-gray-500">Remaining</p><p class="font-semibold text-red-600">${formatCurrency(plan.remainingAmount)}</p></div>
+                    <div><p class="text-xs text-gray-500">Installment</p><p class="font-semibold">${formatCurrency(plan.installmentAmount)}</p></div>
+                  </div>
+                </div>
+                <div class="lg:w-64 space-y-3">
+                  <div class="bg-gray-50 rounded-lg p-4"><div class="flex items-center gap-2 text-gray-500 mb-2"><i class="fas fa-calendar"></i><span class="text-xs">Next Payment</span></div><p class="text-lg font-semibold">${new Date(plan.nextPaymentDate).toLocaleDateString()}</p><p class="text-xs text-gray-500">${plan.frequency} • ${plan.installments} installments</p></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-500"><i class="fas fa-mobile-alt"></i> ${plan.paymentMethod}</div>
+                  <div class="flex gap-2"><button class="remindPlanBtn flex-1 px-3 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition" data-id="${plan.id}"><i class="fas fa-paper-plane mr-1"></i> Remind</button><button class="recordPaymentBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" data-id="${plan.id}"><i class="fas fa-money-bill-wave mr-1"></i> Record</button></div>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join(
+            "",
+          )}${activePlans.length === 0 ? '<div class="bg-white rounded-xl p-12 text-center text-gray-500"><i class="fas fa-check-circle text-5xl mb-3 text-green-300"></i><p>No active payment plans. Create a new plan to get started.</p></div>' : ""}</div>`;
+      }
+
+      function renderCollectionsTab() {
+        const canvasId = "collectionChart";
+        setTimeout(() => {
+          if (chartInstance) chartInstance.destroy();
+          const ctx = document.getElementById(canvasId)?.getContext("2d");
+          if (ctx) {
+            chartInstance = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: collectionData.map((d) => d.month),
+                datasets: [
+                  {
+                    label: "Expected Collection",
+                    data: collectionData.map((d) => d.expected),
+                    borderColor: "#94a3b8",
+                    backgroundColor: "rgba(148,163,184,0.1)",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                  },
+                  {
+                    label: "Actual Collected",
+                    data: collectionData.map((d) => d.collected),
+                    borderColor: "#22c55e",
+                    backgroundColor: "rgba(34,197,94,0.1)",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `KES ${ctx.raw.toLocaleString()}`,
+                    },
+                  },
+                },
+              },
+            });
+          }
+        }, 100);
+
+        const totalCollected = collectionData.reduce(
+          (s, d) => s + d.collected,
+          0,
+        );
+        const totalExpected = collectionData.reduce(
+          (s, d) => s + d.expected,
+          0,
+        );
+        const overallRate = ((totalCollected / totalExpected) * 100).toFixed(1);
+        const thisMonthRate = (
+          (collectionData[collectionData.length - 1].collected /
+            collectionData[collectionData.length - 1].expected) *
+          100
+        ).toFixed(1);
+
+        return `<div class="space-y-6"><div class="bg-white border rounded-xl p-6"><h3 class="font-semibold mb-4 text-gray-800"><i class="fas fa-chart-line text-emerald-600 mr-2"></i>Collection Performance Trend</h3><div style="height: 320px;"><canvas id="${canvasId}"></canvas></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white border rounded-xl p-6 text-center"><i class="fas fa-chart-pie text-3xl text-green-500 mb-2"></i><h3 class="font-semibold mb-2">Overall Collection Rate</h3><p class="text-4xl font-bold text-green-600">${overallRate}%</p><p class="text-sm text-gray-500 mt-1">Last 7 months</p></div><div class="bg-white border rounded-xl p-6 text-center"><i class="fas fa-calendar-week text-3xl text-blue-500 mb-2"></i><h3 class="font-semibold mb-2">This Month Rate</h3><p class="text-4xl font-bold text-blue-600">${thisMonthRate}%</p><p class="text-sm text-gray-500">${collectionData[collectionData.length - 1].month} collection</p></div><div class="bg-white border rounded-xl p-6 text-center"><i class="fas fa-hand-holding-usd text-3xl text-purple-500 mb-2"></i><h3 class="font-semibold mb-2">Avg Plan Value</h3><p class="text-4xl font-bold text-purple-600">${formatCompactCurrency(paymentPlansData.reduce((s, p) => s + p.totalAmount, 0) / paymentPlansData.length)}</p><p class="text-sm text-gray-500">Per customer</p></div></div></div>`;
       }
       function renderAnalytics() {
-        return `<div class="bg-white rounded-2xl p-6"><h2 class="text-2xl font-bold">Analytics Engine</h2><canvas id="sampleChart" height="200"></canvas></div><script>setTimeout(()=>{const ctx=document.getElementById('sampleChart')?.getContext('2d');if(ctx)new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Revenue',data:[120,145,178}]}});},100);<\/script>`;
+        const totalRevenue = revenueData.reduce((sum, d) => sum + d.revenue, 0);
+        const totalOrders = 2054;
+        const activeCustomers = 1247;
+        const avgOrderValue = totalRevenue / totalOrders;
+        const installmentPercentage = (
+          (revenueData.reduce((sum, d) => sum + d.installments, 0) /
+            totalRevenue) *
+          100
+        ).toFixed(1);
+        const defaultRate = 3.2;
+        const retentionRate = 76;
+
+        return `
+          <div class="space-y-6 fade-in">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-pie text-emerald-600 mr-2"></i>Analytics Engine</h1>
+                <p class="text-gray-500 mt-1">Business intelligence & performance metrics</p>
+              </div>
+              <div class="flex gap-2">
+                <select id="dateRangeSelect" class="px-4 py-2 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 text-sm">
+                  <option value="last-6-months">Last 6 Months</option>
+                  <option value="last-3-months">Last 3 Months</option>
+                  <option value="last-year">Last Year</option>
+                </select>
+                <button id="exportAnalyticsBtn" class="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition flex items-center gap-2 text-sm"><i class="fas fa-download"></i> Export Report</button>
+              </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-emerald-600 mb-2"><i class="fas fa-dollar-sign text-lg"></i><p class="text-sm font-medium">Total Revenue</p></div><p class="text-2xl font-bold">${formatCompactCurrency(totalRevenue)}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+18.5% vs last period</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-shopping-bag text-lg"></i><p class="text-sm font-medium">Total Orders</p></div><p class="text-2xl font-bold">${totalOrders.toLocaleString()}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+12.3%</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-users text-lg"></i><p class="text-sm font-medium">Active Customers</p></div><p class="text-2xl font-bold">${activeCustomers.toLocaleString()}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+8.7%</span></div></div>
+              <div class="bg-white rounded-xl border p-5 shadow-sm hover-scale"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-receipt text-lg"></i><p class="text-sm font-medium">Avg Order Value</p></div><p class="text-2xl font-bold">${formatCompactCurrency(avgOrderValue)}</p><div class="flex items-center gap-1 text-sm text-green-600 mt-1"><i class="fas fa-arrow-up text-xs"></i><span>+5.2%</span></div></div>
+            </div>
+
+            <!-- Revenue Trends Chart -->
+            <div class="bg-white rounded-xl border p-6 shadow-sm">
+              <div class="mb-4"><h2 class="font-semibold text-lg">Revenue Trends</h2><p class="text-sm text-gray-500 mt-0.5">Breakdown of full payments vs installment revenue (Oct - Mar)</p></div>
+              <div style="height: 360px;"><canvas id="revenueChart"></canvas></div>
+            </div>
+
+            <!-- Category & Segment Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <div class="mb-4"><h2 class="font-semibold text-lg">Sales by Category</h2><p class="text-sm text-gray-500">Last 6 months performance</p></div>
+                <div style="height: 260px;"><canvas id="pieChart"></canvas></div>
+                <div class="mt-5 space-y-2 pt-3 border-t" id="categoryLegend"></div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <div class="mb-4"><h2 class="font-semibold text-lg">Customer Segments</h2><p class="text-sm text-gray-500">Revenue by customer tier</p></div>
+                <div style="height: 260px;"><canvas id="segmentBarChart"></canvas></div>
+                <div class="mt-5 pt-3 border-t space-y-3" id="segmentDetails"></div>
+              </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="bg-white rounded-xl border p-6 shadow-sm">
+              <div class="mb-4"><h2 class="font-semibold text-lg">Payment Methods</h2><p class="text-sm text-gray-500">Transaction volume and amounts</p></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="paymentMethodsGrid"></div>
+            </div>
+
+            <!-- Installment Analytics Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-calendar-week text-emerald-500 mr-2"></i>Plan Duration Preference</h3>
+                <div class="space-y-4">
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">6 Months</span><span class="text-sm font-medium text-blue-600">45%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:45%"></div></div></div>
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">9 Months</span><span class="text-sm font-medium text-purple-600">32%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:32%"></div></div></div>
+                  <div><div class="flex justify-between mb-1"><span class="text-sm">12 Months</span><span class="text-sm font-medium text-green-600">23%</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-green-500 rounded-full" style="width:23%"></div></div></div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-chart-line text-emerald-500 mr-2"></i>Installment Insights</h3>
+                <div class="text-center"><p class="text-4xl font-bold text-emerald-600 mb-2">${installmentPercentage}%</p><p class="text-sm text-gray-500 mb-4">of total revenue from installments</p></div>
+                <div class="pt-4 border-t space-y-2"><div class="flex justify-between text-sm"><span class="text-gray-500">Interest income</span><span class="font-medium">${formatCurrency(1240000)}</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Default losses</span><span class="font-medium text-red-600">${formatCurrency(89000)}</span></div><div class="flex justify-between text-sm pt-2"><span class="text-gray-500">Default rate</span><span class="font-medium text-red-600">${defaultRate}%</span></div></div>
+              </div>
+              <div class="bg-white rounded-xl border p-6 shadow-sm">
+                <h3 class="font-semibold text-lg mb-4"><i class="fas fa-heart text-emerald-500 mr-2"></i>Customer Retention</h3>
+                <div class="text-center"><p class="text-4xl font-bold text-blue-600 mb-2">${retentionRate}%</p><p class="text-sm text-gray-500 mb-4">Repeat customers rate</p></div>
+                <div class="pt-4 border-t space-y-2"><div class="flex justify-between text-sm"><span class="text-gray-500">New customers (LTM)</span><span class="font-medium">816</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Returning customers</span><span class="font-medium">2,598</span></div><div class="flex justify-between text-sm pt-2"><span class="text-gray-500">Customer LTV</span><span class="font-medium">${formatCurrency(11250)}</span></div></div>
+              </div>
+            </div>
+
+            <!-- Footer Insight -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-sm text-gray-700 border border-emerald-100 flex flex-wrap justify-between items-center">
+              <span><i class="fas fa-lightbulb text-emerald-600 mr-2"></i>📊 Key insight: Installment plans contribute ${installmentPercentage}% of revenue with ${retentionRate}% customer retention rate.</span>
+              <span class="text-xs text-gray-500">Data updated: ${new Date().toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function populateDynamicContent() {
+        // Category legend
+        const legendContainer = document.getElementById("categoryLegend");
+        if (legendContainer) {
+          const totalCategoryValue = categoryData.reduce(
+            (a, b) => a + b.value,
+            0,
+          );
+          legendContainer.innerHTML = categoryData
+            .map(
+              (cat) => `
+            <div class="flex items-center justify-between hover:bg-gray-50 p-1 rounded-lg transition">
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background:${cat.color}"></div><span class="text-sm">${cat.name}</span></div>
+              <span class="text-sm font-medium">${formatCompactCurrency(cat.value)} (${((cat.value / totalCategoryValue) * 100).toFixed(1)}%)</span>
+            </div>
+          `,
+            )
+            .join("");
+        }
+
+        // Segment details
+        const segmentDetails = document.getElementById("segmentDetails");
+        if (segmentDetails) {
+          segmentDetails.innerHTML = customerSegmentData
+            .map(
+              (seg) => `
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+              <div><p class="font-medium">${seg.segment}</p><p class="text-xs text-gray-500">${seg.customers} customers</p></div>
+              <p class="font-semibold text-emerald-700">${formatCompactCurrency(seg.revenue)}</p>
+            </div>
+          `,
+            )
+            .join("");
+        }
+
+        // Payment methods grid
+        const paymentGrid = document.getElementById("paymentMethodsGrid");
+        if (paymentGrid) {
+          paymentGrid.innerHTML = paymentMethodData
+            .map(
+              (m) => `
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition">
+              <div class="flex items-center justify-between mb-2"><p class="text-sm font-semibold text-gray-700">${m.method}</p><i class="fas ${m.method === "M-Pesa" ? "fa-mobile-alt" : m.method === "Cash" ? "fa-money-bill-wave" : m.method === "Bank Transfer" ? "fa-university" : "fa-mobile-alt"} text-gray-400"></i></div>
+              <p class="text-2xl font-bold text-gray-800 mb-1">${formatCompactCurrency(m.amount)}</p>
+              <p class="text-xs text-gray-500">${m.transactions.toLocaleString()} transactions</p>
+            </div>
+          `,
+            )
+            .join("");
+        }
+      }
+
+      function renderReports() {
+        return `<div class="bg-white p-6 rounded-xl">Reports coming soon...</div>`;
       }
 
       function renderCurrentTab() {
@@ -3087,11 +3939,13 @@
           container.innerHTML = renderTransactions();
           attachTransactionEvents();
           showTransactionSubTab("transactions");
-        } else if (currentTab === "installments")
+        } else if (currentTab === "installments") {
           container.innerHTML = renderInstallments();
-        else if (currentTab === "analytics")
+          attachLipaMdogoEvents();
+        } else if (currentTab === "analytics") {
           container.innerHTML = renderAnalytics();
-        else if (currentTab === "reports")
+          attachAnalyticsEvents();
+        } else if (currentTab === "reports")
           container.innerHTML = renderReports();
       }
 
@@ -3794,7 +4648,7 @@
           alert("Expense recorded");
         });
 
-        document
+      document
         .getElementById("closeManualModal")
         ?.addEventListener("click", () =>
           document
@@ -3819,6 +4673,270 @@
           document.getElementById("expenseModal").classList.add("hidden"),
         );
 
+      //Lipa Mdogo Core
+      function switchTab(tabId) {
+        const container = document.getElementById("tabContentContainer");
+        if (tabId === "plans") container.innerHTML = renderPlansTab();
+        else if (tabId === "collections")
+          container.innerHTML = renderCollectionsTab();
+        attachTabSpecificEvents(tabId);
+      }
+
+      function attachTabSpecificEvents(tabId) {
+        if (tabId === "plans") {
+          document.querySelectorAll(".remindPlanBtn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = btn.dataset.id;
+              selectedPlanForAction = paymentPlansData.find((p) => p.id === id);
+              if (selectedPlanForAction) openRemindModal();
+            });
+          });
+          document.querySelectorAll(".recordPaymentBtn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = btn.dataset.id;
+              selectedPlanForAction = paymentPlansData.find((p) => p.id === id);
+              if (selectedPlanForAction) openRecordPaymentModal();
+            });
+          });
+        }
+      }
+
+      function openRecordPaymentModal() {
+        if (!selectedPlanForAction) return;
+        document.getElementById("paymentPlanInfo").innerHTML = `
+          <div><strong>${escapeHtml(selectedPlanForAction.customer)}</strong><br>Plan: ${selectedPlanForAction.id}<br>Remaining: ${formatCurrency(selectedPlanForAction.remainingAmount)}<br>Next payment due: ${new Date(selectedPlanForAction.nextPaymentDate).toLocaleDateString()}</div>
+        `;
+        document
+          .getElementById("recordPaymentModal")
+          .classList.remove("hidden");
+        document.getElementById("recordPaymentModal").classList.add("flex");
+        document.getElementById("paymentAmount").value =
+          selectedPlanForAction.installmentAmount;
+        document.getElementById("paymentMethod").value =
+          selectedPlanForAction.paymentMethod;
+      }
+
+      function closeRecordPaymentModal() {
+        document.getElementById("recordPaymentModal").classList.add("hidden");
+        document.getElementById("recordPaymentForm").reset();
+      }
+
+      function openRemindModal() {
+        if (!selectedPlanForAction) return;
+        document.getElementById("remindPlanInfo").innerHTML =
+          `Sending reminder to: <strong>${escapeHtml(selectedPlanForAction.customer)}</strong> (${selectedPlanForAction.phone || "phone number not set"})<br>Outstanding: ${formatCurrency(selectedPlanForAction.remainingAmount)}<br>Next payment: ${new Date(selectedPlanForAction.nextPaymentDate).toLocaleDateString()}`;
+        document.getElementById("reminderMessage").value =
+          `Dear ${selectedPlanForAction.customer}, your installment payment of ${formatCurrency(selectedPlanForAction.installmentAmount)} is due on ${new Date(selectedPlanForAction.nextPaymentDate).toLocaleDateString()}. Current outstanding: ${formatCurrency(selectedPlanForAction.remainingAmount)}. Thank you for choosing Lipa Mdogo!`;
+        document.getElementById("remindModal").classList.remove("hidden");
+        document.getElementById("remindModal").classList.add("flex");
+      }
+
+      function closeRemindModal() {
+        document.getElementById("remindModal").classList.add("hidden");
+      }
+
+      function openCreatePlanModal() {
+        document.getElementById("createPlanModal").classList.remove("hidden");
+        document.getElementById("createPlanModal").classList.add("flex");
+        document.getElementById("planStartDate").value = new Date()
+          .toISOString()
+          .slice(0, 10);
+      }
+
+      function closeCreatePlanModal() {
+        document.getElementById("createPlanModal").classList.add("hidden");
+        document.getElementById("createPlanForm").reset();
+      }
+
+      function refreshMdogoUI() {
+        document
+          .getElementById("createPlanBtn")
+          ?.addEventListener("click", openCreatePlanModal);
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) =>
+                b.classList.remove(
+                  "text-emerald-600",
+                  "border-emerald-600",
+                  "font-medium",
+                  "border-b-2",
+                ),
+              );
+            btn.classList.add(
+              "text-emerald-600",
+              "border-b-2",
+              "border-emerald-600",
+              "font-medium",
+            );
+            switchTab(btn.dataset.tab);
+          });
+        });
+        switchTab("plans");
+        attachGlobalModalEvents();
+      }
+
+      function attachGlobalModalEvents() {
+        // Record payment modal
+        document
+          .getElementById("closeRecordPaymentModal")
+          ?.addEventListener("click", closeRecordPaymentModal);
+        document
+          .getElementById("cancelRecordPaymentBtn")
+          ?.addEventListener("click", closeRecordPaymentModal);
+        document
+          .getElementById("recordPaymentForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!selectedPlanForAction) return;
+            const amount = parseFloat(
+              document.getElementById("paymentAmount").value,
+            );
+            const method = document.getElementById("paymentMethod").value;
+            const ref = document.getElementById("paymentRef").value;
+            if (isNaN(amount) || amount <= 0) {
+              alert("Enter valid amount");
+              return;
+            }
+            if (recordPayment(selectedPlanForAction.id, amount, method, ref)) {
+              alert(
+                `✅ Payment of ${formatCurrency(amount)} recorded for ${selectedPlanForAction.customer}`,
+              );
+              closeRecordPaymentModal();
+              refreshMdogoUI();
+            }
+          });
+
+        // Remind modal
+        document
+          .getElementById("closeRemindModal")
+          ?.addEventListener("click", closeRemindModal);
+        document
+          .getElementById("cancelRemindBtn")
+          ?.addEventListener("click", closeRemindModal);
+        document
+          .getElementById("sendReminderBtn")
+          ?.addEventListener("click", () => {
+            const msg = document.getElementById("reminderMessage").value;
+            alert(
+              `📱 Reminder sent to ${selectedPlanForAction?.customer}\nMessage: ${msg.substring(0, 100)}...`,
+            );
+            closeRemindModal();
+          });
+
+        // Create plan modal
+        document
+          .getElementById("closeCreatePlanModal")
+          ?.addEventListener("click", closeCreatePlanModal);
+        document
+          .getElementById("cancelCreatePlanBtn")
+          ?.addEventListener("click", closeCreatePlanModal);
+        document
+          .getElementById("createPlanForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const customerName = document
+              .getElementById("planCustomerName")
+              .value.trim();
+            const orderId = document.getElementById("planOrderId").value.trim();
+            const totalAmount =
+              document.getElementById("planTotalAmount").value;
+            const installments =
+              document.getElementById("planInstallments").value;
+            const paymentMethod =
+              document.getElementById("planPaymentMethod").value;
+            const startDate = document.getElementById("planStartDate").value;
+            if (!customerName || !orderId || !totalAmount) {
+              alert("Please fill required fields");
+              return;
+            }
+            const newPlan = createNewPlan({
+              customerName,
+              orderId,
+              totalAmount,
+              installments,
+              paymentMethod,
+              startDate,
+              phone: "",
+            });
+            alert(
+              `✅ Payment plan created for ${newPlan.customer}\nID: ${newPlan.id}\nInstallment: ${formatCurrency(newPlan.installmentAmount)} monthly`,
+            );
+            closeCreatePlanModal();
+            refreshMdogoUI();
+          });
+      }
+
+      function attachLipaMdogoEvents() {
+        document
+          .getElementById("createPlanBtn")
+          ?.addEventListener("click", openCreatePlanModal);
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) =>
+                b.classList.remove(
+                  "text-emerald-600",
+                  "border-emerald-600",
+                  "font-medium",
+                  "border-b-2",
+                ),
+              );
+            btn.classList.add(
+              "text-emerald-600",
+              "border-b-2",
+              "border-emerald-600",
+              "font-medium",
+            );
+            switchTab(btn.dataset.tab);
+          });
+        });
+        switchTab("plans");
+        attachGlobalModalEvents();
+      }
+
+      // Handle window resize to redraw charts
+      let resizeTimeout;
+      function handleResize() {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          if (document.getElementById("revenueChart")) {
+            initCharts();
+          }
+        }, 250);
+      }
+
+      function attachAnalyticsEvents() {
+        // Initialize charts after DOM is ready
+        setTimeout(() => {
+          initCharts();
+          populateDynamicContent();
+        }, 50);
+
+        const exportBtn = document.getElementById("exportAnalyticsBtn");
+        if (exportBtn) {
+          exportBtn.addEventListener("click", () => {
+            alert(
+              "📊 Analytics report exported as CSV/PDF with all charts and metrics.\n\nIn production, this would generate a comprehensive business intelligence report.",
+            );
+          });
+        }
+
+        const dateRangeSelect = document.getElementById("dateRangeSelect");
+        if (dateRangeSelect) {
+          dateRangeSelect.addEventListener("change", (e) => {
+            alert(
+              `📅 Date range changed to: ${e.target.options[e.target.selectedIndex].text} (demo mode - data remains sample for preview)`,
+            );
+          });
+        }
+
+        // Add resize listener
+        window.removeEventListener("resize", handleResize);
+        window.addEventListener("resize", handleResize);
+      }
 
       // }
       // Navigation and layout
@@ -3850,7 +4968,95 @@
         document.querySelector(".split-layout").style.display = "flex";
       }
       function getAdminDashboardHTML() {
-        return `<div class="admin-layout"><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><div class="flex items-center gap-3"><div class="w-12 h-12"><img src="../images/balogo.png" alt="BA" onerror="this.src='https://placehold.co/48x48?text=BA';"></div><div><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1><p class="text-xs text-gray-500">Enterprise Admin</p></div></div></div><nav class="p-4 space-y-1.5"><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard"><i class="fas fa-chart-line w-5"></i><span>Executive Dashboard</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="catalog"><i class="fas fa-tags w-5"></i><span>Product Catalog</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="inventory"><i class="fas fa-boxes w-5"></i><span>Inventory Intelligence</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="orders"><i class="fas fa-tasks w-5"></i><span>Orders Pipeline</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="customers"><i class="fas fa-users w-5"></i><span>Customers Hub</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="transactions"><i class="fas fa-usd w-5"></i><span>Transactions Hub</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="installments"><i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo Core</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="analytics"><i class="fas fa-chart-pie w-5"></i><span>Analytics</span></div><div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl" data-tab="reports"><i class="fas fa-file-alt w-5"></i><span>Reports Center</span></div></nav><div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-emerald-700"></i></div><div class="flex-1"><p class="text-sm font-bold" id="userDisplayName">Store Manager</p><p class="text-xs text-gray-500">Admin</p></div><button id="logoutBtn" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button></div></div></div><div class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars text-emerald-600 text-xl"></i></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll" id="mainScrollArea"><div class="p-4 lg:p-8" id="pageRenderer"></div></div></div>`;
+        return `
+    <div class="admin-layout">
+      <!-- Top Bar -->
+      <div class="mobile-top-bar" id="mobileTopBar">
+        <button id="mobileMenuToggle" class="mobile-menu-btn">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+        <div class="mobile-logo">
+          <span class="font-bold text-emerald-600">BoyAlone Collection</span>
+          <span class="text-xs text-gray-500">Enterprise Admin</span>
+        </div>
+        <div class="w-8"></div> <!-- spacer for alignment -->
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-fixed" id="fixedSidebar">
+        <div class="p-6 border-b">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 flex-shrink-0">
+              <img 
+                src="./images/balogo.png" 
+                alt="BA" 
+                class="w-full h-full object-contain"
+                onerror="this.src='https://placehold.co/48x48?text=BA'; this.onerror=null;"
+              >
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold tracking-tight">Boy<span class="text-emerald-600">Alone</span></h1>
+              <p class="text-xs text-gray-500">Enterprise Admin</p>
+            </div>
+          </div>
+        </div>
+        <nav class="p-4 space-y-1 overflow-y-auto" style="max-height: calc(100vh - 140px);">
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard">
+            <i class="fas fa-chart-line w-5"></i><span>Executive Dashboard</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="catalog">
+            <i class="fas fa-tags w-5"></i><span>Product Catalog</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="inventory">
+            <i class="fas fa-boxes w-5"></i><span>Inventory Intelligence</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="orders">
+            <i class="fas fa-tasks w-5"></i><span>Orders Pipeline</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="customers">
+            <i class="fas fa-users w-5"></i><span>Customers Hub</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="transactions">
+            <i class="fas fa-usd w-5"></i><span>Transactions Hub</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="installments">
+            <i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo Core</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="analytics">
+            <i class="fas fa-chart-pie w-5"></i><span>Analytics</span>
+          </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="reports">
+            <i class="fas fa-file-alt w-5"></i><span>Reports Center</span>
+          </div>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-user-shield text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold truncate" id="userDisplayName">Store Manager</p>
+              <p class="text-xs text-gray-500">Admin</p>
+            </div>
+            <button id="logoutBtn" class="text-gray-400 hover:text-red-500 transition">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile toggle -->
+      <div class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars text-emerald-600 text-xl"></i>
+      </div>
+      <div class="overlay-backdrop" id="mobileOverlay"></div>
+
+      <!-- Main content -->
+      <div class="main-content-scroll" id="mainScrollArea">
+        <div class="p-4 lg:p-8" id="pageRenderer"></div>
+      </div>
+    </div>
+  `;
       }
       function initAdminDashboard(userEmail) {
         loadInitialData();
@@ -3875,7 +5081,8 @@
         const sidebar = document.getElementById("fixedSidebar");
         const toggleBtn = document.getElementById("mobileMenuToggle");
         const overlay = document.getElementById("mobileOverlay");
-        if (toggleBtn) {
+
+        if (toggleBtn && overlay) {
           const openMenu = () => {
             sidebar.classList.add("mobile-open");
             overlay.classList.add("active");

@@ -1,0 +1,2526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Enterprise Admin Suite + Lipa Mdogo Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .left-side {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        z-index: 10;
+      }
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 20;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 30;
+        transition: transform 0.3s ease;
+      }
+      @media (min-width: 1024px) {
+        .right-side {
+          justify-content: flex-start;
+          padding-left: 0;
+        }
+        .form-card {
+          transform: translateX(-40px);
+          margin-left: -20px;
+        }
+        .left-side {
+          margin-right: -20px;
+          justify-content: flex-end;
+          padding-right: 0;
+        }
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+          padding: 2rem;
+        }
+        .form-card {
+          transform: none;
+          margin: 0 auto;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-8px);
+        }
+        75% {
+          transform: translateX(8px);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .inventory-card:hover {
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12);
+        border-color: #cbd5e1;
+      }
+      .modal-backdrop {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+      }
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 50;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+      .main-content-scroll {
+        flex: 1;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        overflow-y: auto;
+      }
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 60;
+        background: white;
+        border-radius: 12px;
+        padding: 10px 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .main-content-scroll {
+          margin-left: 0;
+        }
+        .mobile-menu-toggle {
+          display: block;
+        }
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 45;
+          display: none;
+        }
+        .overlay-backdrop.active {
+          display: block;
+        }
+      }
+      .main-content-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .main-content-scroll::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
+      .main-content-scroll::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 10px;
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .file-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        background: #f8fafc;
+      }
+      .file-upload-area:hover {
+        border-color: #10b981;
+        background: #f0fdf4;
+      }
+      .image-preview-circle {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
+      }
+      .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .tab-active {
+        border-bottom: 2px solid #059669;
+        color: #059669;
+        font-weight: 600;
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div class="split-layout">
+      <div class="left-side">
+        <div class="logo-container">
+          <img
+            src="../images/balogo.png"
+            alt="BOY ALONE COLLECTION"
+            onerror="
+              this.src = 'https://placehold.co/400x200?text=BOY+ALONE';
+              this.onerror = null;
+            "
+          />
+        </div>
+      </div>
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div
+              class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
+            >
+              <img
+                src="../images/balogo.png"
+                alt="BOY ALONE COLLECTION"
+                onerror="this.src = 'https://placehold.co/64x64?text=BA'"
+              />
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm mt-1">
+              Sign in to access your dashboard
+            </p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-envelope mr-2 text-emerald-400"></i>Email
+                Address</label
+              ><input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-2"
+                ><i class="fas fa-lock mr-2 text-emerald-400"></i
+                >Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 input-focus transition-all pr-12"
+                /><button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer"
+                ><input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500"
+                /><span class="ml-2 text-sm text-gray-300"
+                  >Remember me</span
+                ></label
+              ><a
+                href="#"
+                id="forgotPassword"
+                class="text-sm text-emerald-400 hover:text-emerald-300"
+                >Forgot password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              id="loginBtn"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-2">Demo Credentials</p>
+            <div
+              class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"
+            >
+              <p>
+                <span class="text-emerald-400">Email:</span> admin@lipamdogo.com
+              </p>
+              <p><span class="text-emerald-400">Password:</span> admin123</p>
+            </div>
+          </div>
+          <div id="errorMessage" class="mt-4 hidden">
+            <div
+              class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"
+            >
+              <p class="text-red-300 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i
+                ><span id="errorText">Invalid credentials</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD CONTAINER -->
+    <div id="adminApp" class="hidden"></div>
+
+    <!-- MODALS (Adjust/Transfer/Product/Delete/Order/Customer/Transaction/Expense/Lipa Mdogo) -->
+    <div
+      id="adjustModal"
+      class="fixed inset-0 modal-backdrop hidden items-center justify-center z-[100]"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-sliders-h text-emerald-600 mr-2"></i>Adjust Stock
+          </h3>
+          <button
+            id="closeAdjustModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600" id="adjustProductName"></p>
+          <input
+            type="number"
+            id="adjustQuantity"
+            placeholder="New quantity"
+            class="w-full p-3 border border-gray-300 rounded-xl"
+          /><select id="adjustLocation" class="w-full p-3 border rounded-xl">
+            <option>Main Store</option>
+            <option>Warehouse A</option>
+            <option>Outlet</option>
+          </select>
+          <div class="flex gap-3">
+            <button
+              id="confirmAdjustBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+            >
+              Apply</button
+            ><button id="cancelAdjustBtn" class="flex-1 border py-2 rounded-xl">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="transferModal"
+      class="fixed inset-0 modal-backdrop hidden items-center justify-center z-[100]"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-exchange-alt text-emerald-600 mr-2"></i>Transfer
+            Stock
+          </h3>
+          <button
+            id="closeTransferModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="font-medium" id="transferProductName"></p>
+          <select id="fromLocation" class="w-full p-3 border rounded-xl">
+            <option>Main Store</option>
+            <option>Warehouse A</option>
+            <option>Outlet</option></select
+          ><select id="toLocation" class="w-full p-3 border rounded-xl">
+            <option>Warehouse A</option>
+            <option>Main Store</option>
+            <option>Outlet</option></select
+          ><input
+            type="number"
+            id="transferQty"
+            placeholder="Quantity"
+            class="w-full p-3 border rounded-xl"
+          />
+          <div class="flex gap-3">
+            <button
+              id="confirmTransferBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+            >
+              Transfer</button
+            ><button
+              id="cancelTransferBtn"
+              class="flex-1 border py-2 rounded-xl"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-3xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-custom"
+      >
+        <div
+          class="sticky top-0 bg-white border-b px-6 py-5 flex justify-between"
+        >
+          <h3 class="text-2xl font-bold" id="modalTitle">Add Product</h3>
+          <button
+            id="closeProductModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="productForm">
+            <input type="hidden" id="productId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label>Product Name *</label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label>Category</label
+                ><select
+                  id="prodCategory"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                </select>
+              </div>
+              <div>
+                <label>Buy Price (KES)</label
+                ><input type="number" id="prodBuyPrice" required />
+              </div>
+              <div>
+                <label>Sell Price (KES)</label
+                ><input type="number" id="prodSellPrice" required />
+              </div>
+              <div>
+                <label>Stock</label
+                ><input type="number" id="prodStock" required />
+              </div>
+              <div>
+                <label>Size</label
+                ><select id="prodSize">
+                  <option>XS</option>
+                  <option>S</option>
+                  <option>M</option>
+                  <option>L</option>
+                  <option>XL</option>
+                </select>
+              </div>
+              <div>
+                <label>Supplier</label><input type="text" id="prodSupplier" />
+              </div>
+              <div>
+                <div class="file-upload-area p-4 text-center relative">
+                  <input
+                    type="file"
+                    id="prodImageFile"
+                    accept="image/*"
+                    class="absolute inset-0 opacity-0 cursor-pointer"
+                  /><i
+                    class="fas fa-cloud-upload-alt text-3xl text-emerald-500"
+                  ></i>
+                  <p>Upload Image</p>
+                </div>
+                <div id="imagePreviewContainer" class="hidden mt-3">
+                  <img
+                    id="imagePreviewLocal"
+                    class="image-preview-circle"
+                  /><button
+                    type="button"
+                    id="removeImageBtn"
+                    class="text-red-500 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <textarea
+              id="prodDesc"
+              rows="3"
+              placeholder="Description"
+              class="w-full p-2.5 border rounded-xl mt-3"
+            ></textarea>
+            <div class="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="border px-6 py-2 rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold">Delete Product?</h3>
+        <div class="flex gap-3 mt-4">
+          <button
+            id="confirmDeleteBtn"
+            class="bg-red-600 text-white px-4 py-2 rounded-xl"
+          >
+            Delete</button
+          ><button id="cancelDeleteBtn" class="border px-4 py-2 rounded-xl">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Modals -->
+    <div
+      id="addOrderModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto"
+    >
+      <div class="bg-white rounded-2xl max-w-4xl w-full mx-4">
+        <div class="p-6">
+          <form id="addOrderForm">
+            <div class="grid md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                id="orderCustomerName"
+                placeholder="Customer Name"
+                required
+              /><input type="email" id="orderEmail" placeholder="Email" /><input
+                type="tel"
+                id="orderPhone"
+                placeholder="Phone"
+              /><input
+                type="text"
+                id="orderAddress"
+                placeholder="Address"
+              /><select id="orderPaymentType">
+                <option value="full">Full Payment</option>
+                <option value="installment">Installment</option>
+              </select>
+              <div id="installmentPlanDiv" class="hidden">
+                <select id="orderInstallmentPlan">
+                  <option value="3 months">3 Months</option>
+                  <option value="6 months">6 Months</option>
+                  <option value="12 months">12 Months</option>
+                </select>
+              </div>
+              <select id="orderStatus">
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+              </select>
+            </div>
+            <div class="mt-4">
+              <button
+                type="button"
+                id="addLineItemBtn"
+                class="text-emerald-600"
+              >
+                + Add Item
+              </button>
+              <div id="lineItemsContainer">
+                <div class="line-item grid grid-cols-12 gap-2">
+                  <input
+                    class="col-span-5 item-name"
+                    placeholder="Product"
+                  /><input
+                    class="col-span-2 item-qty"
+                    placeholder="Qty"
+                    value="1"
+                  /><input
+                    class="col-span-3 item-price"
+                    placeholder="Price"
+                  /><button
+                    type="button"
+                    class="remove-item text-red-500 col-span-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <div class="text-right font-bold mt-2">
+                Total: <span id="orderTotalPreview">KES 0</span>
+              </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+              <button
+                type="button"
+                id="cancelOrderBtn"
+                class="border px-6 py-2 rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+              >
+                Create Order
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="orderDetailModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full">
+        <div class="p-6" id="orderDetailContent"></div>
+        <div class="border-t p-4 flex justify-end gap-2">
+          <button id="closeDetailModal" class="border px-4 py-2 rounded-lg">
+            Close</button
+          ><button
+            id="updateStatusFromDetailBtn"
+            class="bg-emerald-600 text-white px-4 py-2 rounded-lg"
+          >
+            Update Status
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="updateStatusModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6">
+        <select id="newOrderStatus" class="w-full p-3 border rounded-xl">
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="flex gap-3 mt-4">
+          <button
+            id="confirmStatusUpdate"
+            class="bg-emerald-600 text-white px-4 py-2 rounded-xl"
+          >
+            Update</button
+          ><button id="cancelStatusUpdate" class="border px-4 py-2 rounded-xl">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Modals -->
+    <div
+      id="customerFormModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl p-6">
+        <form id="customerForm">
+          <input type="hidden" id="editCustomerId" />
+          <div class="grid md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              id="custName"
+              placeholder="Full Name"
+              required
+            /><input type="email" id="custEmail" placeholder="Email" /><input
+              type="tel"
+              id="custPhone"
+              placeholder="Phone"
+              required
+            /><select id="custSegment">
+              <option value="New">New</option>
+              <option value="Regular">Regular</option>
+              <option value="VIP">VIP</option></select
+            ><select id="custRiskLevel">
+              <option value="low">Low Risk</option>
+              <option value="medium">Medium Risk</option>
+              <option value="high">High Risk</option></select
+            ><input type="text" id="custAddress" placeholder="Address" />
+          </div>
+          <div class="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              id="cancelFormBtn"
+              class="border px-6 py-2 rounded-xl"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      id="customerDetailModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full">
+        <div id="customerDetailContent" class="p-6"></div>
+        <div class="border-t p-4 flex justify-between">
+          <div>
+            <button
+              id="editFromDetailBtn"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg"
+            >
+              Edit</button
+            ><button
+              id="deleteFromDetailBtn"
+              class="bg-red-600 text-white px-4 py-2 rounded-lg ml-2"
+            >
+              Delete
+            </button>
+          </div>
+          <button
+            id="closeCustomerModalBtn"
+            class="border px-4 py-2 rounded-lg"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteCustomerConfirmModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6 text-center">
+        <h3 class="text-xl font-bold">Confirm Delete</h3>
+        <div class="flex gap-3 justify-center mt-4">
+          <button
+            id="confirmCustomerDeleteBtn"
+            class="bg-red-600 text-white px-4 py-2 rounded-lg"
+          >
+            Delete</button
+          ><button
+            id="cancelCustomerDeleteBtn"
+            class="border px-4 py-2 rounded-lg"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction & Expense Modals -->
+    <div
+      id="manualTransactionModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl p-6">
+        <form id="manualTransactionForm">
+          <div class="grid md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              id="transRefCode"
+              placeholder="Reference Code"
+              required
+            /><select id="transPaymentMethod">
+              <option>M-Pesa</option>
+              <option>Cash</option>
+              <option>Airtel Money</option></select
+            ><input
+              type="text"
+              id="transCode"
+              placeholder="Transaction Code"
+            /><input
+              type="number"
+              id="transAmount"
+              placeholder="Amount"
+              required
+            /><select id="transStatus">
+              <option>Success</option>
+              <option>Pending</option>
+              <option>Failed</option></select
+            ><input
+              type="text"
+              id="transCustomer"
+              placeholder="Customer Name"
+            />
+          </div>
+          <textarea id="transNotes" placeholder="Notes"></textarea>
+          <div class="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              id="cancelManualBtn"
+              class="border px-6 py-2 rounded-xl"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+            >
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      id="expenseModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl p-6">
+        <form id="expenseForm">
+          <div class="grid md:grid-cols-2 gap-4">
+            <select id="expenseCategory">
+              <option>Rent</option>
+              <option>Utilities</option>
+              <option>Inventory Purchase</option>
+              <option>Salary</option></select
+            ><input
+              type="number"
+              id="expenseAmount"
+              placeholder="Amount"
+              required
+            /><input type="date" id="expenseDate" /><select id="expenseMethod">
+              <option>Bank Transfer</option>
+              <option>Cash</option>
+              <option>M-Pesa</option>
+            </select>
+          </div>
+          <textarea id="expenseDesc" placeholder="Description"></textarea>
+          <div class="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              id="cancelExpenseBtn"
+              class="border px-6 py-2 rounded-xl"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              class="bg-red-600 text-white px-6 py-2 rounded-xl"
+            >
+              Add Expense
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- LIPA MDOGO CORE MODALS (merged) -->
+    <div
+      id="recordPaymentModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+        <div
+          class="sticky top-0 bg-white border-b px-6 py-5 flex justify-between"
+        >
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Record
+            Payment
+          </h3>
+          <button id="closeRecordPaymentModal" class="text-gray-400">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="recordPaymentForm">
+            <div
+              id="paymentPlanInfo"
+              class="bg-emerald-50 p-4 rounded-xl text-sm mb-4"
+            ></div>
+            <input
+              type="number"
+              id="paymentAmount"
+              placeholder="Amount"
+              required
+              class="w-full p-2.5 border rounded-xl mb-3"
+            /><select
+              id="paymentMethod"
+              class="w-full p-2.5 border rounded-xl mb-3"
+            >
+              <option>M-Pesa</option>
+              <option>Airtel Money</option>
+              <option>Bank Transfer</option>
+              <option>Cash</option></select
+            ><input
+              type="text"
+              id="paymentRef"
+              placeholder="Reference (optional)"
+              class="w-full p-2.5 border rounded-xl"
+            />
+            <div class="flex gap-3 justify-end pt-4">
+              <button
+                type="button"
+                id="cancelRecordPaymentBtn"
+                class="border px-6 py-2 rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+              >
+                Record
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="remindModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4">
+        <div class="px-6 py-5 border-b flex justify-between">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-paper-plane text-emerald-600 mr-2"></i>Send
+            Reminder
+          </h3>
+          <button id="closeRemindModal" class="text-gray-400">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <div id="remindPlanInfo" class="mb-4 text-sm"></div>
+          <textarea
+            id="reminderMessage"
+            rows="4"
+            class="w-full border rounded-xl p-2"
+          ></textarea>
+          <div class="flex gap-3 justify-end mt-4">
+            <button id="cancelRemindBtn" class="border px-4 py-2 rounded-lg">
+              Cancel</button
+            ><button
+              id="sendReminderBtn"
+              class="bg-emerald-600 text-white px-4 py-2 rounded-lg"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="createPlanModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full mx-4">
+        <div
+          class="sticky top-0 bg-white border-b px-6 py-5 flex justify-between"
+        >
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-file-invoice text-emerald-600 mr-2"></i>Create
+            Payment Plan
+          </h3>
+          <button id="closeCreatePlanModal" class="text-gray-400">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="createPlanForm">
+            <div class="grid md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                id="planCustomerName"
+                placeholder="Customer Name"
+                required
+              /><input
+                type="text"
+                id="planOrderId"
+                placeholder="Order ID"
+                required
+              /><input
+                type="number"
+                id="planTotalAmount"
+                placeholder="Total Amount (KES)"
+                required
+              /><select id="planInstallments">
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="9">9 months</option>
+                <option value="12">12 months</option></select
+              ><select id="planPaymentMethod">
+                <option>M-Pesa</option>
+                <option>Airtel Money</option>
+                <option>Bank Transfer</option></select
+              ><input type="date" id="planStartDate" />
+            </div>
+            <div class="bg-emerald-50 p-3 rounded-xl text-sm my-4">
+              Monthly installment will be calculated automatically.
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button
+                type="button"
+                id="cancelCreatePlanBtn"
+                class="border px-6 py-2 rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+              >
+                Create Plan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ======================== FULL MERGED APPLICATION ========================
+      let products = [],
+        inventoryItems = [],
+        customersData = [],
+        successTransactions = [],
+        expensesList = [],
+        paymentPlansData = [],
+        collectionData = [];
+      let ordersData = [];
+      let currentTab = "dashboard",
+        currentSelectedLocation = "all",
+        currentSearchTerm = "";
+      let deleteTargetId = null,
+        selectedOrderForDetail = null,
+        selectedOrderForStatus = null,
+        selectedPlanForAction = null;
+      let chartInstance = null,
+        currentImageDataURL = null;
+
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat("en-KE", {
+          style: "currency",
+          currency: "KES",
+          minimumFractionDigits: 0,
+        }).format(amount);
+      }
+      function formatCompactCurrency(amount) {
+        if (amount >= 1e6) return `KES ${(amount / 1e6).toFixed(1)}M`;
+        if (amount >= 1e3) return `KES ${(amount / 1e3).toFixed(0)}K`;
+        return `KES ${amount}`;
+      }
+      function escapeHtml(str) {
+        return String(str ?? "").replace(/[&<>]/g, (m) =>
+          m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
+        );
+      }
+      function getProductImageSrc(p) {
+        return p.imageData?.startsWith("data:")
+          ? p.imageData
+          : p.imageUrl || "https://via.placeholder.com/48?text=No+Img";
+      }
+      function recalcTotalStock(item) {
+        item.totalStock = item.locations.reduce((s, l) => s + l.stock, 0);
+        if (item.totalStock === 0) item.status = "reorder";
+        else if (item.totalStock <= 5) item.status = "critical";
+        else if (item.totalStock < item.reorderPoint) item.status = "low";
+        else item.status = "healthy";
+        return item;
+      }
+      function recalcPlanStatus(plan) {
+        if (plan.remainingAmount <= 0) {
+          plan.status = "completed";
+          plan.paidAmount = plan.totalAmount;
+          plan.remainingAmount = 0;
+        } else if (plan.daysOverdue > 0) plan.status = "overdue";
+        else plan.status = "active";
+        return plan;
+      }
+      function generateProductId() {
+        return products.length ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+      }
+      function generateCustomerId() {
+        let last = 0;
+        if (customersData.length)
+          last = Math.max(
+            ...customersData.map((c) => parseInt(c.id.split("-")[1])),
+          );
+        return `CUST-${String(last + 1).padStart(3, "0")}`;
+      }
+      function generateTransactionId() {
+        return `TXN-${String(successTransactions.length + 101).padStart(3, "0")}`;
+      }
+      function generatePlanId() {
+        let last = paymentPlansData.length
+          ? Math.max(
+              ...paymentPlansData.map((p) => parseInt(p.id.split("-")[1])),
+            )
+          : 0;
+        return `PAY-${String(last + 1).padStart(3, "0")}`;
+      }
+      function generateOrderId() {
+        let last = ordersData.length
+          ? Math.max(...ordersData.map((o) => parseInt(o.id.split("-")[1])))
+          : 12841;
+        return `ORD-${last + 1}`;
+      }
+
+      function persistData() {
+        localStorage.setItem(
+          "boyalone_products_catalog",
+          JSON.stringify(products),
+        );
+        localStorage.setItem(
+          "boyalone_inventory",
+          JSON.stringify(inventoryItems),
+        );
+        localStorage.setItem(
+          "boyalone_customers_data",
+          JSON.stringify(customersData),
+        );
+        localStorage.setItem(
+          "boyalone_transactions",
+          JSON.stringify(successTransactions),
+        );
+        localStorage.setItem("boyalone_expenses", JSON.stringify(expensesList));
+        localStorage.setItem(
+          "boyalone_payment_plans",
+          JSON.stringify(paymentPlansData),
+        );
+        localStorage.setItem(
+          "boyalone_collections_data",
+          JSON.stringify(collectionData),
+        );
+      }
+      function loadInitialData() {
+        let stored = localStorage.getItem("boyalone_products_catalog");
+        if (stored) products = JSON.parse(stored);
+        else
+          products = [
+            {
+              id: 1,
+              name: "Premium Denim Jacket",
+              category: "Men's Clothing",
+              buyPrice: 1800,
+              sellPrice: 3500,
+              stock: 45,
+              size: "L",
+              supplier: "Fashion Hub",
+              imageUrl:
+                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+              description: "Classic denim jacket",
+            },
+            {
+              id: 2,
+              name: "Floral Summer Dress",
+              category: "Women's Clothing",
+              buyPrice: 1200,
+              sellPrice: 2900,
+              stock: 28,
+              size: "M",
+              supplier: "Style Africa",
+              imageUrl:
+                "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+            },
+          ];
+        let inv = localStorage.getItem("boyalone_inventory");
+        if (inv) inventoryItems = JSON.parse(inv);
+        else
+          inventoryItems = [
+            {
+              id: "1",
+              product: "Denim Jacket",
+              sku: "DJ-BLU-M",
+              locations: [
+                { name: "Main Store", stock: 25, reorderPoint: 10 },
+                { name: "Warehouse A", stock: 15, reorderPoint: 20 },
+              ],
+              totalStock: 40,
+              reorderPoint: 35,
+              status: "healthy",
+              lastRestocked: "2026-04-05",
+            },
+          ];
+        let cust = localStorage.getItem("boyalone_customers_data");
+        if (cust && JSON.parse(cust).length) customersData = JSON.parse(cust);
+        else
+          customersData = [
+            {
+              id: "CUST-001",
+              name: "Sarah Mwangi",
+              email: "sarah@email.com",
+              phone: "+254712345678",
+              totalOrders: 24,
+              totalSpent: 125400,
+              activeInstallments: 2,
+              paymentScore: 95,
+              riskLevel: "low",
+              segment: "VIP",
+              joinedDate: "2025-06-15",
+              lastPurchase: "2026-04-09",
+              address: "Nairobi",
+            },
+          ];
+        let txn = localStorage.getItem("boyalone_transactions");
+        if (txn && JSON.parse(txn).length)
+          successTransactions = JSON.parse(txn);
+        else
+          successTransactions = [
+            {
+              id: "TXN-001",
+              refCode: "INV-1001",
+              paymentMethod: "M-Pesa",
+              amount: 2075,
+              status: "Success",
+              customer: "Sarah Mwangi",
+              date: "2026-04-11",
+            },
+          ];
+        let exp = localStorage.getItem("boyalone_expenses");
+        if (exp && JSON.parse(exp).length) expensesList = JSON.parse(exp);
+        else
+          expensesList = [
+            {
+              id: "EXP-001",
+              category: "Rent",
+              amount: 50000,
+              date: "2026-04-01",
+              method: "Bank Transfer",
+              description: "April rent",
+            },
+          ];
+        let plans = localStorage.getItem("boyalone_payment_plans");
+        if (plans && JSON.parse(plans).length)
+          paymentPlansData = JSON.parse(plans);
+        else
+          paymentPlansData = [
+            {
+              id: "PAY-001",
+              customer: "Sarah Mwangi",
+              orderId: "ORD-12847",
+              totalAmount: 12450,
+              paidAmount: 6225,
+              remainingAmount: 6225,
+              installments: 6,
+              installmentAmount: 2075,
+              frequency: "monthly",
+              nextPaymentDate: "2026-05-09",
+              status: "active",
+              paymentMethod: "M-Pesa",
+              startDate: "2026-01-09",
+              daysOverdue: 0,
+              phone: "+254712345678",
+            },
+          ];
+        let coll = localStorage.getItem("boyalone_collections_data");
+        if (coll && JSON.parse(coll).length) collectionData = JSON.parse(coll);
+        else
+          collectionData = [
+            { month: "Oct", collected: 380000, expected: 420000 },
+            { month: "Nov", collected: 425000, expected: 450000 },
+            { month: "Dec", collected: 510000, expected: 520000 },
+            { month: "Jan", collected: 495000, expected: 500000 },
+            { month: "Feb", collected: 540000, expected: 550000 },
+            { month: "Mar", collected: 620000, expected: 630000 },
+            { month: "Apr", collected: 580000, expected: 600000 },
+          ];
+        ordersData = [
+          {
+            id: "ORD-12847",
+            customer: "Sarah Mwangi",
+            email: "sarah@example.com",
+            phone: "+254712345678",
+            items: 3,
+            total: 12450,
+            paymentType: "installment",
+            status: "processing",
+            createdAt: "2026-04-09",
+            installmentPlan: "6 months",
+            shippingAddress: "Nairobi",
+            lineItems: [{ name: "Jacket", qty: 1, price: 3500 }],
+          },
+        ];
+        persistData();
+      }
+      // ------------------- LIPA MDOGO CORE FUNCTIONS -------------------
+      function createNewPlan(formData) {
+        let total = parseFloat(formData.totalAmount),
+          installments = parseInt(formData.installments),
+          installmentAmount = Math.round(total / installments),
+          startDate =
+            formData.startDate || new Date().toISOString().slice(0, 10),
+          nextDate = new Date(startDate);
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        let newPlan = {
+          id: generatePlanId(),
+          customer: formData.customerName,
+          orderId: formData.orderId,
+          totalAmount: total,
+          paidAmount: 0,
+          remainingAmount: total,
+          installments: installments,
+          installmentAmount: installmentAmount,
+          frequency: "monthly",
+          nextPaymentDate: nextDate.toISOString().slice(0, 10),
+          status: "active",
+          paymentMethod: formData.paymentMethod,
+          startDate: startDate,
+          daysOverdue: 0,
+          phone: formData.phone || "",
+        };
+        paymentPlansData.unshift(newPlan);
+        persistData();
+        return newPlan;
+      }
+      function recordPaymentOnPlan(planId, amount) {
+        let plan = paymentPlansData.find((p) => p.id === planId);
+        if (!plan) return false;
+        if (amount > plan.remainingAmount) {
+          alert(`Payment exceeds balance`);
+          return false;
+        }
+        plan.paidAmount += amount;
+        plan.remainingAmount -= amount;
+        if (plan.remainingAmount > 0) {
+          let next = new Date(plan.nextPaymentDate);
+          next.setMonth(next.getMonth() + 1);
+          plan.nextPaymentDate = next.toISOString().slice(0, 10);
+          plan.daysOverdue = 0;
+        }
+        recalcPlanStatus(plan);
+        persistData();
+        return true;
+      }
+      function renderLipaMdogoCore() {
+        let totalActive = paymentPlansData.filter(
+            (p) => p.status === "active",
+          ).length,
+          totalOverdue = paymentPlansData.filter(
+            (p) => p.status === "overdue",
+          ).length,
+          totalCompleted = paymentPlansData.filter(
+            (p) => p.status === "completed",
+          ).length,
+          totalOutstanding = paymentPlansData.reduce(
+            (s, p) => s + p.remainingAmount,
+            0,
+          ),
+          totalMonthly = paymentPlansData.reduce(
+            (s, p) => s + p.installmentAmount,
+            0,
+          );
+        return `<div class="space-y-6 fade-in"><div class="flex flex-wrap justify-between"><div><h1 class="text-3xl font-bold"><i class="fas fa-hand-holding-usd text-emerald-600 mr-2"></i>Lipa Mdogo Core</h1><p class="text-gray-500">Payment plans • Installments • Collections</p></div><button id="createPlanBtn" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl"><i class="fas fa-plus-circle"></i> Create Plan</button></div><div class="grid grid-cols-2 lg:grid-cols-5 gap-4"><div class="bg-white p-4 rounded-xl border">Active<br><span class="text-2xl font-bold">${totalActive}</span></div><div class="bg-white p-4 rounded-xl border">Overdue<br><span class="text-2xl font-bold text-red-600">${totalOverdue}</span></div><div class="bg-white p-4 rounded-xl border">Monthly Expected<br><span class="text-2xl font-bold">${formatCompactCurrency(totalMonthly)}</span></div><div class="bg-white p-4 rounded-xl border">Outstanding<br><span class="text-2xl font-bold">${formatCompactCurrency(totalOutstanding)}</span></div><div class="bg-white p-4 rounded-xl border">Completed<br><span class="text-2xl font-bold">${totalCompleted}</span></div></div><div class="border-b flex gap-6"><button class="tab-btn pb-2 text-emerald-600 border-b-2 border-emerald-600 font-medium" data-tab="plans">📋 Active Plans</button><button class="tab-btn pb-2 text-gray-500" data-tab="collections">📊 Collections Dashboard</button></div><div id="lipaTabContent"></div></div>`;
+      }
+      function renderLipaPlans() {
+        let activePlans = paymentPlansData.filter(
+          (p) => p.status !== "completed",
+        );
+        if (activePlans.length === 0)
+          return '<div class="bg-white p-12 text-center text-gray-500">No active plans</div>';
+        return activePlans
+          .map((p) => {
+            let progress = (p.paidAmount / p.totalAmount) * 100;
+            return `<div class="bg-white border rounded-xl p-5 mb-4"><div class="flex flex-wrap justify-between"><div><h3 class="font-bold">${escapeHtml(p.customer)}</h3><p class="text-sm text-gray-500">${p.id} | Order ${p.orderId}</p></div><span class="px-3 py-1 rounded-full text-xs ${p.status === "overdue" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}">${p.status}</span></div><div class="mt-2 h-2 bg-gray-100 rounded-full"><div class="h-full bg-emerald-500 rounded-full" style="width:${progress}%"></div></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4"><div>Total: ${formatCurrency(p.totalAmount)}</div><div>Paid: ${formatCurrency(p.paidAmount)}</div><div>Remaining: ${formatCurrency(p.remainingAmount)}</div><div>Installment: ${formatCurrency(p.installmentAmount)}</div></div><div class="flex gap-3 mt-4"><button class="remindPlanBtn bg-amber-600 text-white px-3 py-1.5 rounded-lg" data-id="${p.id}">Remind</button><button class="recordPaymentBtn bg-emerald-600 text-white px-3 py-1.5 rounded-lg" data-id="${p.id}">Record Payment</button></div></div>`;
+          })
+          .join("");
+      }
+      function renderLipaCollections() {
+        setTimeout(() => {
+          let ctx = document
+            .getElementById("collectionChart")
+            ?.getContext("2d");
+          if (ctx) {
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: collectionData.map((d) => d.month),
+                datasets: [
+                  {
+                    label: "Expected",
+                    data: collectionData.map((d) => d.expected),
+                    borderColor: "#94a3b8",
+                    fill: true,
+                  },
+                  {
+                    label: "Collected",
+                    data: collectionData.map((d) => d.collected),
+                    borderColor: "#22c55e",
+                    fill: true,
+                  },
+                ],
+              },
+            });
+          }
+        }, 100);
+        let totalCollected = collectionData.reduce(
+            (s, d) => s + d.collected,
+            0,
+          ),
+          totalExpected = collectionData.reduce((s, d) => s + d.expected, 0),
+          overall = ((totalCollected / totalExpected) * 100).toFixed(1);
+        return `<div class="bg-white border rounded-xl p-6"><div style="height:300px"><canvas id="collectionChart"></canvas></div><div class="grid md:grid-cols-3 gap-4 mt-6"><div class="text-center"><p class="text-3xl font-bold text-green-600">${overall}%</p><p>Collection Rate</p></div></div></div>`;
+      }
+      function attachLipaEvents() {
+        document
+          .getElementById("createPlanBtn")
+          ?.addEventListener("click", () => {
+            document
+              .getElementById("createPlanModal")
+              .classList.remove("hidden");
+            document.getElementById("planStartDate").value = new Date()
+              .toISOString()
+              .slice(0, 10);
+          });
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) =>
+                b.classList.remove(
+                  "text-emerald-600",
+                  "border-b-2",
+                  "border-emerald-600",
+                ),
+              );
+            btn.classList.add(
+              "text-emerald-600",
+              "border-b-2",
+              "border-emerald-600",
+            );
+            let tab = btn.dataset.tab;
+            let cont = document.getElementById("lipaTabContent");
+            if (tab === "plans") cont.innerHTML = renderLipaPlans();
+            else cont.innerHTML = renderLipaCollections();
+            attachLipaPlanButtons();
+          });
+        });
+        document.getElementById("lipaTabContent").innerHTML = renderLipaPlans();
+        attachLipaPlanButtons();
+      }
+      function attachLipaPlanButtons() {
+        document.querySelectorAll(".remindPlanBtn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            let plan = paymentPlansData.find((p) => p.id === btn.dataset.id);
+            if (plan) {
+              selectedPlanForAction = plan;
+              document.getElementById("remindPlanInfo").innerHTML =
+                `Reminder to ${plan.customer} (${plan.phone})<br>Outstanding: ${formatCurrency(plan.remainingAmount)}`;
+              document.getElementById("reminderMessage").value =
+                `Dear ${plan.customer}, your payment of ${formatCurrency(plan.installmentAmount)} is due.`;
+              document.getElementById("remindModal").classList.remove("hidden");
+            }
+          });
+        });
+        document.querySelectorAll(".recordPaymentBtn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            let plan = paymentPlansData.find((p) => p.id === btn.dataset.id);
+            if (plan) {
+              selectedPlanForAction = plan;
+              document.getElementById("paymentPlanInfo").innerHTML =
+                `<strong>${plan.customer}</strong><br>Remaining: ${formatCurrency(plan.remainingAmount)}`;
+              document.getElementById("paymentAmount").value =
+                plan.installmentAmount;
+              document
+                .getElementById("recordPaymentModal")
+                .classList.remove("hidden");
+            }
+          });
+        });
+      }
+      function initLipaModals() {
+        document
+          .getElementById("closeCreatePlanModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("createPlanModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelCreatePlanBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("createPlanModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("createPlanForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let newPlan = createNewPlan({
+              customerName: document.getElementById("planCustomerName").value,
+              orderId: document.getElementById("planOrderId").value,
+              totalAmount: document.getElementById("planTotalAmount").value,
+              installments: document.getElementById("planInstallments").value,
+              paymentMethod: document.getElementById("planPaymentMethod").value,
+              startDate: document.getElementById("planStartDate").value,
+              phone: "",
+            });
+            alert(`Plan created for ${newPlan.customer}`);
+            document.getElementById("createPlanModal").classList.add("hidden");
+            renderCurrentTab();
+          });
+        document
+          .getElementById("closeRecordPaymentModal")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("recordPaymentModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelRecordPaymentBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("recordPaymentModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("recordPaymentForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let amt = parseFloat(
+              document.getElementById("paymentAmount").value,
+            );
+            if (
+              selectedPlanForAction &&
+              recordPaymentOnPlan(selectedPlanForAction.id, amt)
+            ) {
+              alert(`Payment recorded`);
+              document
+                .getElementById("recordPaymentModal")
+                .classList.add("hidden");
+              renderCurrentTab();
+            }
+          });
+        document
+          .getElementById("closeRemindModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("remindModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelRemindBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("remindModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("sendReminderBtn")
+          ?.addEventListener("click", () => {
+            alert(`Reminder sent to ${selectedPlanForAction?.customer}`);
+            document.getElementById("remindModal").classList.add("hidden");
+          });
+      }
+      // ------------------- MAIN RENDER -------------------
+      function renderCurrentTab() {
+        let container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard")
+          container.innerHTML = `<div class="mb-8"><h2 class="text-3xl font-bold">Executive Dashboard</h2><p class="text-gray-500">KPIs & insights</p></div><div class="grid md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-2xl shadow">Daily Sales<br><span class="text-2xl font-bold">KES 184,200</span></div><div class="bg-white p-6 rounded-2xl shadow">Installment Collection<br><span class="text-2xl font-bold">78%</span></div><div class="bg-white p-6 rounded-2xl shadow">Inventory Turnover<br><span class="text-2xl font-bold">2.4x</span></div></div>`;
+        else if (currentTab === "catalog") {
+          container.innerHTML = renderCatalog();
+          attachCatalogEvents();
+          filterProducts();
+        } else if (currentTab === "inventory") {
+          container.innerHTML = renderFullInventory();
+          attachInventoryEvents();
+        } else if (currentTab === "orders") {
+          container.innerHTML = renderOrders();
+          attachOrderEvents();
+          attachModalEvents();
+          filterOrders();
+        } else if (currentTab === "customers") {
+          container.innerHTML = renderCustomers();
+          attachCustomerEvents();
+          renderCustomersGrid(customersData);
+        } else if (currentTab === "transactions") {
+          container.innerHTML = renderTransactions();
+          attachTransactionEvents();
+          showTransactionSubTab("transactions");
+        } else if (currentTab === "installments") {
+          container.innerHTML = renderLipaMdogoCore();
+          attachLipaEvents();
+          initLipaModals();
+        } else if (currentTab === "analytics")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl">Analytics Engine<canvas id="sampleChart" height="200"></canvas></div><script>setTimeout(()=>{let ctx=document.getElementById('sampleChart')?.getContext('2d');if(ctx)new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Revenue',data:[120,145,178]}]}});},100);<\/script>`;
+        else if (currentTab === "reports")
+          container.innerHTML = `<div class="bg-white p-6 rounded-2xl">Reports Center: Coming Soon</div>`;
+      }
+      function renderCatalog() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold"><i class="fas fa-tags text-emerald-600"></i> Product Catalog</h1><button id="addProductBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl">+ Add Product</button></div><div class="flex gap-4"><input id="searchProductInput" placeholder="Search..." class="flex-1 p-2 border rounded-xl"><select id="categoryFilterSelect"><option value="all">All Categories</option><option>Men's Clothing</option><option>Women's Clothing</option></select></div><div id="productsGridContainer" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div></div>`;
+      }
+      function filterProducts() {
+        let term =
+          document.getElementById("searchProductInput")?.value.toLowerCase() ||
+          "";
+        let cat =
+          document.getElementById("categoryFilterSelect")?.value || "all";
+        let filtered = products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(term) &&
+            (cat === "all" || p.category === cat),
+        );
+        renderProductsGrid(filtered);
+      }
+      function renderProductsGrid(filtered) {
+        let container = document.getElementById("productsGridContainer");
+        if (!container) return;
+        if (!filtered.length) {
+          container.innerHTML =
+            "<div class='col-span-full text-center py-12'>No products</div>";
+          return;
+        }
+        container.innerHTML = filtered
+          .map(
+            (p) =>
+              `<div class="bg-white border rounded-xl overflow-hidden"><img src="${getProductImageSrc(p)}" class="h-40 w-full object-cover"><div class="p-4"><h3 class="font-bold">${escapeHtml(p.name)}</h3><p class="text-emerald-600 font-bold">${formatCurrency(p.sellPrice)}</p><div class="flex gap-2 mt-2"><button class="editProductBtn bg-blue-100 px-3 py-1 rounded" data-id="${p.id}">Edit</button><button class="deleteProductBtn bg-red-100 text-red-700 px-3 py-1 rounded" data-id="${p.id}">Delete</button></div></div></div>`,
+          )
+          .join("");
+        attachCatalogProductEvents();
+      }
+      function attachCatalogProductEvents() {
+        document.querySelectorAll(".editProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            let p = products.find((p) => p.id == parseInt(btn.dataset.id));
+            if (p) openProductModal(p);
+          }),
+        );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            deleteTargetId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+          }),
+        );
+      }
+      function attachCatalogEvents() {
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal(null));
+        document
+          .getElementById("searchProductInput")
+          ?.addEventListener("input", filterProducts);
+        document
+          .getElementById("categoryFilterSelect")
+          ?.addEventListener("change", filterProducts);
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (deleteTargetId) {
+              products = products.filter((p) => p.id !== deleteTargetId);
+              persistData();
+              filterProducts();
+              deleteTargetId = null;
+              document.getElementById("deleteModal").classList.add("hidden");
+            }
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        let fileInput = document.getElementById("prodImageFile");
+        if (fileInput)
+          fileInput.onchange = (e) => {
+            let file = e.target.files[0];
+            if (file) {
+              let reader = new FileReader();
+              reader.onload = (ev) => {
+                currentImageDataURL = ev.target.result;
+                document.getElementById("imagePreviewLocal").src =
+                  currentImageDataURL;
+                document
+                  .getElementById("imagePreviewContainer")
+                  .classList.remove("hidden");
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+        document
+          .getElementById("removeImageBtn")
+          ?.addEventListener("click", () => {
+            currentImageDataURL = null;
+            document
+              .getElementById("imagePreviewContainer")
+              .classList.add("hidden");
+          });
+      }
+      function openProductModal(product = null) {
+        currentImageDataURL = null;
+        document
+          .getElementById("imagePreviewContainer")
+          .classList.add("hidden");
+        if (product) {
+          document.getElementById("productId").value = product.id;
+          document.getElementById("prodName").value = product.name;
+          document.getElementById("prodCategory").value = product.category;
+          document.getElementById("prodBuyPrice").value = product.buyPrice;
+          document.getElementById("prodSellPrice").value = product.sellPrice;
+          document.getElementById("prodStock").value = product.stock;
+          document.getElementById("prodSize").value = product.size;
+          document.getElementById("prodSupplier").value =
+            product.supplier || "";
+          document.getElementById("prodDesc").value = product.description || "";
+          if (product.imageData) currentImageDataURL = product.imageData;
+          else if (product.imageUrl) currentImageDataURL = product.imageUrl;
+          if (currentImageDataURL) {
+            document.getElementById("imagePreviewLocal").src =
+              currentImageDataURL;
+            document
+              .getElementById("imagePreviewContainer")
+              .classList.remove("hidden");
+          }
+        } else document.getElementById("productForm").reset();
+        document.getElementById("productModal").classList.remove("hidden");
+      }
+      function saveProductFromForm() {
+        let id = document.getElementById("productId").value;
+        let productData = {
+          name: document.getElementById("prodName").value,
+          category: document.getElementById("prodCategory").value,
+          buyPrice: parseFloat(document.getElementById("prodBuyPrice").value),
+          sellPrice: parseFloat(document.getElementById("prodSellPrice").value),
+          stock: parseInt(document.getElementById("prodStock").value),
+          size: document.getElementById("prodSize").value,
+          supplier: document.getElementById("prodSupplier").value,
+          description: document.getElementById("prodDesc").value,
+          imageData: currentImageDataURL?.startsWith("data:")
+            ? currentImageDataURL
+            : null,
+          imageUrl:
+            !currentImageDataURL || !currentImageDataURL.startsWith("data:")
+              ? currentImageDataURL
+              : null,
+        };
+        if (id) {
+          let idx = products.findIndex((p) => p.id == parseInt(id));
+          if (idx !== -1)
+            products[idx] = {
+              ...products[idx],
+              ...productData,
+              id: parseInt(id),
+            };
+        } else products.unshift({ id: generateProductId(), ...productData });
+        persistData();
+        document.getElementById("productModal").classList.add("hidden");
+        filterProducts();
+      }
+      function renderFullInventory() {
+        let filtered = inventoryItems;
+        let stats = {
+          healthy: filtered.filter((i) => i.status === "healthy").length,
+          low: filtered.filter((i) => i.status === "low").length,
+          critical: filtered.filter((i) => i.status === "critical").length,
+          reorder: filtered.filter((i) => i.status === "reorder").length,
+        };
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold">Inventory Intelligence</h1><div><button id="globalAdjustInfoBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">Adjust Stock</button></div></div><div class="grid grid-cols-4 gap-4"><div class="bg-white p-4 rounded-xl">Healthy: ${stats.healthy}</div><div class="bg-white p-4 rounded-xl">Low: ${stats.low}</div><div class="bg-white p-4 rounded-xl">Critical: ${stats.critical}</div><div class="bg-white p-4 rounded-xl">Reorder: ${stats.reorder}</div></div><div id="inventoryListContainer">${filtered.map((item) => `<div class="bg-white border rounded-xl p-4 mb-3"><div class="flex justify-between"><div><h3 class="font-bold">${item.product}</h3><p>Total Stock: ${item.totalStock}</p></div><button class="adjustStockBtn bg-gray-200 px-3 py-1 rounded" data-id="${item.id}">Adjust</button></div></div>`).join("")}</div></div>`;
+      }
+      function attachInventoryEvents() {
+        document.querySelectorAll(".adjustStockBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            let item = inventoryItems.find((i) => i.id === btn.dataset.id);
+            if (item) {
+              activeAdjustItem = item;
+              document.getElementById("adjustProductName").innerText =
+                item.product;
+              document.getElementById("adjustModal").classList.remove("hidden");
+            }
+          }),
+        );
+        document
+          .getElementById("confirmAdjustBtn")
+          ?.addEventListener("click", () => {
+            if (activeAdjustItem) {
+              let newQty = parseInt(
+                document.getElementById("adjustQuantity").value,
+              );
+              let locName = document.getElementById("adjustLocation").value;
+              let loc = activeAdjustItem.locations.find(
+                (l) => l.name === locName,
+              );
+              if (loc && !isNaN(newQty)) {
+                loc.stock = newQty;
+                recalcTotalStock(activeAdjustItem);
+                persistData();
+                refreshInventoryView();
+                document.getElementById("adjustModal").classList.add("hidden");
+              }
+            }
+          });
+        document
+          .getElementById("closeAdjustModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("adjustModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelAdjustBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("adjustModal").classList.add("hidden"),
+          );
+      }
+      function refreshInventoryView() {
+        if (currentTab === "inventory") renderCurrentTab();
+      }
+      function renderOrders() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold">Order Pipeline</h1><button id="addOrderManuallyBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl">+ Manual Order</button></div><div class="flex gap-4"><input id="orderSearchInput" placeholder="Search..." class="flex-1 p-2 border rounded-xl"><select id="statusFilterSelect"><option value="all">All</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option></select></div><table class="w-full bg-white rounded-xl"><thead class="bg-gray-50"><tr><th class="p-3">ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody id="ordersTableBody"></tbody></table></div>`;
+      }
+      function filterOrders() {
+        let term =
+          document.getElementById("orderSearchInput")?.value.toLowerCase() ||
+          "";
+        let status =
+          document.getElementById("statusFilterSelect")?.value || "all";
+        let filtered = ordersData.filter(
+          (o) =>
+            o.id.toLowerCase().includes(term) ||
+            o.customer.toLowerCase().includes(term),
+        );
+        if (status !== "all")
+          filtered = filtered.filter((o) => o.status === status);
+        renderOrdersTable(filtered);
+      }
+      function renderOrdersTable(orders) {
+        let tbody = document.getElementById("ordersTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = orders
+          .map(
+            (o) =>
+              `<tr><td class="p-3">${o.id}</td><td>${escapeHtml(o.customer)}</td><td>${formatCurrency(o.total)}</td><td><span class="px-2 py-1 rounded-full text-xs bg-gray-100">${o.status}</span></td><td><button class="viewOrderBtn text-emerald-600" data-id="${o.id}">View</button></td></tr>`,
+          )
+          .join("");
+        document.querySelectorAll(".viewOrderBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            let order = ordersData.find((o) => o.id === btn.dataset.id);
+            if (order) openOrderDetailModal(order);
+          }),
+        );
+      }
+      function openOrderDetailModal(order) {
+        selectedOrderForDetail = order;
+        document.getElementById("orderDetailContent").innerHTML =
+          `<p><strong>${order.customer}</strong><br>Total: ${formatCurrency(order.total)}<br>Status: ${order.status}</p>`;
+        document.getElementById("orderDetailModal").classList.remove("hidden");
+      }
+      function attachOrderEvents() {
+        document
+          .getElementById("orderSearchInput")
+          ?.addEventListener("input", filterOrders);
+        document
+          .getElementById("statusFilterSelect")
+          ?.addEventListener("change", filterOrders);
+        document
+          .getElementById("addOrderManuallyBtn")
+          ?.addEventListener("click", () => {
+            resetAddOrderModal();
+            document.getElementById("addOrderModal").classList.remove("hidden");
+          });
+        filterOrders();
+      }
+      function resetAddOrderModal() {
+        document.getElementById("addOrderForm").reset();
+        document.getElementById("lineItemsContainer").innerHTML =
+          `<div class="line-item grid grid-cols-12 gap-2"><input class="col-span-5 item-name" placeholder="Product"><input class="col-span-2 item-qty" value="1"><input class="col-span-3 item-price" placeholder="Price"><button type="button" class="remove-item text-red-500">Remove</button></div>`;
+        attachLineItemEvents();
+        calculateTotalFromItems();
+      }
+      function attachLineItemEvents() {
+        document
+          .querySelectorAll(".item-qty, .item-price")
+          .forEach((el) =>
+            el.addEventListener("input", calculateTotalFromItems),
+          );
+        document.querySelectorAll(".remove-item").forEach((btn) =>
+          btn.addEventListener("click", function () {
+            this.closest(".line-item").remove();
+            calculateTotalFromItems();
+          }),
+        );
+      }
+      function calculateTotalFromItems() {
+        let total = 0;
+        document.querySelectorAll(".line-item").forEach((item) => {
+          let qty = parseFloat(item.querySelector(".item-qty")?.value) || 0;
+          let price = parseFloat(item.querySelector(".item-price")?.value) || 0;
+          total += qty * price;
+        });
+        document.getElementById("orderTotalPreview").innerText =
+          `KES ${total.toLocaleString()}`;
+        return total;
+      }
+      function attachModalEvents() {
+        document
+          .getElementById("addOrderForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let customerName =
+              document.getElementById("orderCustomerName").value;
+            if (!customerName) return alert("Customer name required");
+            let lineItems = [];
+            document.querySelectorAll(".line-item").forEach((item) => {
+              let name = item.querySelector(".item-name")?.value;
+              let qty = parseInt(item.querySelector(".item-qty")?.value);
+              let price = parseFloat(item.querySelector(".item-price")?.value);
+              if (name && qty > 0 && price > 0)
+                lineItems.push({ name, qty, price });
+            });
+            if (lineItems.length === 0) return alert("Add at least one item");
+            let total = lineItems.reduce((s, i) => s + i.qty * i.price, 0);
+            let newOrder = {
+              id: generateOrderId(),
+              customer: customerName,
+              email: document.getElementById("orderEmail").value,
+              phone: document.getElementById("orderPhone").value,
+              items: lineItems.reduce((s, i) => s + i.qty, 0),
+              total: total,
+              paymentType: document.getElementById("orderPaymentType").value,
+              status: document.getElementById("orderStatus").value,
+              createdAt: new Date().toISOString().slice(0, 10),
+              shippingAddress: document.getElementById("orderAddress").value,
+              lineItems,
+            };
+            if (newOrder.paymentType === "installment")
+              newOrder.installmentPlan = document.getElementById(
+                "orderInstallmentPlan",
+              ).value;
+            ordersData.unshift(newOrder);
+            alert("Order created");
+            document.getElementById("addOrderModal").classList.add("hidden");
+            renderCurrentTab();
+          });
+        document
+          .getElementById("closeDetailModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("orderDetailModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("updateStatusFromDetailBtn")
+          ?.addEventListener("click", () => {
+            if (selectedOrderForDetail)
+              openUpdateStatusModal(selectedOrderForDetail);
+          });
+        document
+          .getElementById("confirmStatusUpdate")
+          ?.addEventListener("click", () => {
+            if (selectedOrderForStatus) {
+              selectedOrderForStatus.status =
+                document.getElementById("newOrderStatus").value;
+              alert("Status updated");
+              closeUpdateStatusModal();
+              renderCurrentTab();
+            }
+          });
+        document
+          .getElementById("cancelStatusUpdate")
+          ?.addEventListener("click", closeUpdateStatusModal);
+        document
+          .getElementById("closeAddOrderModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("addOrderModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelOrderBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("addOrderModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("orderPaymentType")
+          ?.addEventListener("change", (e) =>
+            document
+              .getElementById("installmentPlanDiv")
+              .classList.toggle("hidden", e.target.value !== "installment"),
+          );
+        document
+          .getElementById("addLineItemBtn")
+          ?.addEventListener("click", () => {
+            let container = document.getElementById("lineItemsContainer");
+            let div = document.createElement("div");
+            div.className = "line-item grid grid-cols-12 gap-2";
+            div.innerHTML = `<input class="col-span-5 item-name" placeholder="Product"><input class="col-span-2 item-qty" value="1"><input class="col-span-3 item-price" placeholder="Price"><button type="button" class="remove-item text-red-500">Remove</button>`;
+            container.appendChild(div);
+            attachLineItemEvents();
+          });
+      }
+      function openUpdateStatusModal(order) {
+        selectedOrderForStatus = order;
+        document.getElementById("newOrderStatus").value = order.status;
+        document.getElementById("updateStatusModal").classList.remove("hidden");
+      }
+      function closeUpdateStatusModal() {
+        document.getElementById("updateStatusModal").classList.add("hidden");
+      }
+      function renderCustomers() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold">Customer Hub</h1><button id="globalAddCustomerBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl">+ Add Customer</button></div><input id="customerSearchInput" placeholder="Search..." class="w-full p-2 border rounded-xl"><div id="customersGridContainer" class="grid md:grid-cols-2 gap-5"></div></div>`;
+      }
+      function renderCustomersGrid(customers) {
+        let container = document.getElementById("customersGridContainer");
+        if (!container) return;
+        container.innerHTML = customers
+          .map(
+            (c) =>
+              `<div class="bg-white p-5 rounded-xl border cursor-pointer" data-customer-id="${c.id}"><div class="flex justify-between"><h3 class="font-bold">${escapeHtml(c.name)}</h3><div><button class="edit-card-btn text-blue-600 mr-2" data-id="${c.id}"><i class="fas fa-edit"></i></button><button class="delete-card-btn text-red-600" data-id="${c.id}"><i class="fas fa-trash"></i></button></div></div><p>${c.email || ""} | ${c.phone}</p><p>Segment: ${c.segment} | Risk: ${c.riskLevel}</p></div>`,
+          )
+          .join("");
+        attachCustomerCardEvents(customers);
+      }
+      function attachCustomerCardEvents(customers) {
+        document.querySelectorAll(".edit-card-btn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            let cust = customers.find((c) => c.id === btn.dataset.id);
+            if (cust) openEditCustomerModal(cust);
+          }),
+        );
+        document.querySelectorAll(".delete-card-btn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            pendingCustomerDeleteId = btn.dataset.id;
+            document
+              .getElementById("deleteCustomerConfirmModal")
+              .classList.remove("hidden");
+          }),
+        );
+        document.querySelectorAll("[data-customer-id]").forEach((card) =>
+          card.addEventListener("click", () => {
+            let cust = customers.find(
+              (c) => c.id === card.getAttribute("data-customer-id"),
+            );
+            if (cust) openCustomerDetailModal(cust);
+          }),
+        );
+      }
+      function openAddCustomerModal() {
+        document.getElementById("editCustomerId").value = "";
+        document.getElementById("customerForm").reset();
+        document.getElementById("customerFormModal").classList.remove("hidden");
+      }
+      function openEditCustomerModal(cust) {
+        document.getElementById("editCustomerId").value = cust.id;
+        document.getElementById("custName").value = cust.name;
+        document.getElementById("custEmail").value = cust.email || "";
+        document.getElementById("custPhone").value = cust.phone;
+        document.getElementById("custSegment").value = cust.segment;
+        document.getElementById("custRiskLevel").value = cust.riskLevel;
+        document.getElementById("custAddress").value = cust.address || "";
+        document.getElementById("customerFormModal").classList.remove("hidden");
+      }
+      function openCustomerDetailModal(cust) {
+        selectedCustomerForDetail = cust;
+        document.getElementById("customerDetailContent").innerHTML =
+          `<p><strong>${cust.name}</strong><br>Email: ${cust.email}<br>Phone: ${cust.phone}<br>Segment: ${cust.segment}<br>Risk: ${cust.riskLevel}</p>`;
+        document
+          .getElementById("customerDetailModal")
+          .classList.remove("hidden");
+      }
+      function attachCustomerEvents() {
+        document
+          .getElementById("globalAddCustomerBtn")
+          ?.addEventListener("click", openAddCustomerModal);
+        document
+          .getElementById("customerSearchInput")
+          ?.addEventListener("input", () => {
+            let term = document
+              .getElementById("customerSearchInput")
+              .value.toLowerCase();
+            let filtered = customersData.filter(
+              (c) =>
+                c.name.toLowerCase().includes(term) ||
+                c.email.toLowerCase().includes(term) ||
+                c.phone.includes(term),
+            );
+            renderCustomersGrid(filtered);
+          });
+        document
+          .getElementById("customerForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let id = document.getElementById("editCustomerId").value;
+            let data = {
+              name: document.getElementById("custName").value,
+              email: document.getElementById("custEmail").value,
+              phone: document.getElementById("custPhone").value,
+              segment: document.getElementById("custSegment").value,
+              riskLevel: document.getElementById("custRiskLevel").value,
+              address: document.getElementById("custAddress").value,
+            };
+            if (id) {
+              let idx = customersData.findIndex((c) => c.id === id);
+              if (idx !== -1)
+                customersData[idx] = { ...customersData[idx], ...data };
+            } else
+              customersData.unshift({
+                id: generateCustomerId(),
+                totalOrders: 0,
+                totalSpent: 0,
+                activeInstallments: 0,
+                paymentScore: data.riskLevel === "low" ? 85 : 65,
+                joinedDate: new Date().toISOString().slice(0, 10),
+                lastPurchase: new Date().toISOString().slice(0, 10),
+                ...data,
+              });
+            persistData();
+            document
+              .getElementById("customerFormModal")
+              .classList.add("hidden");
+            renderCurrentTab();
+          });
+        document
+          .getElementById("closeFormModalBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("customerFormModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelFormBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("customerFormModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("confirmCustomerDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (pendingCustomerDeleteId) {
+              customersData = customersData.filter(
+                (c) => c.id !== pendingCustomerDeleteId,
+              );
+              persistData();
+              renderCurrentTab();
+              pendingCustomerDeleteId = null;
+            }
+            document
+              .getElementById("deleteCustomerConfirmModal")
+              .classList.add("hidden");
+          });
+        document
+          .getElementById("cancelCustomerDeleteBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("deleteCustomerConfirmModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("closeCustomerModalBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("customerDetailModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("editFromDetailBtn")
+          ?.addEventListener("click", () => {
+            if (selectedCustomerForDetail) {
+              closeCustomerDetailModal();
+              openEditCustomerModal(selectedCustomerForDetail);
+            }
+          });
+        document
+          .getElementById("deleteFromDetailBtn")
+          ?.addEventListener("click", () => {
+            if (selectedCustomerForDetail) {
+              pendingCustomerDeleteId = selectedCustomerForDetail.id;
+              closeCustomerDetailModal();
+              document
+                .getElementById("deleteCustomerConfirmModal")
+                .classList.remove("hidden");
+            }
+          });
+      }
+      function closeCustomerDetailModal() {
+        document.getElementById("customerDetailModal").classList.add("hidden");
+      }
+      function renderTransactions() {
+        return `<div class="space-y-6"><div class="flex gap-3"><button id="manualTransBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl">+ Transaction</button><button id="addExpenseBtn" class="bg-red-600 text-white px-4 py-2 rounded-xl">+ Expense</button></div><div id="transactionSubContent"></div></div>`;
+      }
+      function showTransactionSubTab(tab) {
+        let cont = document.getElementById("transactionSubContent");
+        if (tab === "transactions")
+          cont.innerHTML = `<table class="w-full bg-white"><thead><tr><th>Ref</th><th>Amount</th><th>Customer</th></tr></thead><tbody>${successTransactions.map((t) => `<tr><td>${t.refCode}</td><td>${formatCurrency(t.amount)}</td><td>${t.customer}</td><td><button class="delTxnBtn text-red-500" data-id="${t.id}">Del</button></td></tr>`).join("")}</tbody></table>`;
+        else
+          cont.innerHTML = `<table class="w-full bg-white"><thead><tr><th>Category</th><th>Amount</th><th>Date</th></tr></thead><tbody>${expensesList.map((e) => `<tr><td>${e.category}</td><td>${formatCurrency(e.amount)}</td><td>${e.date}</td><td><button class="deleteExpenseBtn text-red-500" data-id="${e.id}">Del</button></td></tr>`).join("")}</tbody></table>`;
+        attachTransactionButtons();
+      }
+      function attachTransactionButtons() {
+        document.querySelectorAll(".delTxnBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            successTransactions = successTransactions.filter(
+              (t) => t.id !== btn.dataset.id,
+            );
+            persistData();
+            renderCurrentTab();
+          }),
+        );
+        document.querySelectorAll(".deleteExpenseBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            expensesList = expensesList.filter((e) => e.id !== btn.dataset.id);
+            persistData();
+            renderCurrentTab();
+          }),
+        );
+      }
+      function attachTransactionEvents() {
+        document
+          .getElementById("manualTransBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.remove("hidden"),
+          );
+        document
+          .getElementById("addExpenseBtn")
+          ?.addEventListener("click", () => {
+            document.getElementById("expenseDate").value = new Date()
+              .toISOString()
+              .slice(0, 10);
+            document.getElementById("expenseModal").classList.remove("hidden");
+          });
+        document
+          .getElementById("manualTransactionForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let newTxn = {
+              id: generateTransactionId(),
+              refCode: document.getElementById("transRefCode").value,
+              paymentMethod:
+                document.getElementById("transPaymentMethod").value,
+              transCode: document.getElementById("transCode").value,
+              amount: parseFloat(document.getElementById("transAmount").value),
+              status: "Success",
+              customer:
+                document.getElementById("transCustomer").value || "Walk-in",
+              date: new Date().toISOString().slice(0, 10),
+              notes: document.getElementById("transNotes").value,
+            };
+            successTransactions.unshift(newTxn);
+            persistData();
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden");
+            renderCurrentTab();
+          });
+        document
+          .getElementById("expenseForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let newExp = {
+              id: `EXP-${String(expensesList.length + 101).padStart(3, "0")}`,
+              category: document.getElementById("expenseCategory").value,
+              amount: parseFloat(
+                document.getElementById("expenseAmount").value,
+              ),
+              date: document.getElementById("expenseDate").value,
+              method: document.getElementById("expenseMethod").value,
+              description: document.getElementById("expenseDesc").value,
+            };
+            expensesList.push(newExp);
+            persistData();
+            document.getElementById("expenseModal").classList.add("hidden");
+            renderCurrentTab();
+          });
+        document
+          .getElementById("closeManualModal")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelManualBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("manualTransactionModal")
+              .classList.add("hidden"),
+          );
+        document
+          .getElementById("closeExpenseModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("expenseModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelExpenseBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("expenseModal").classList.add("hidden"),
+          );
+      }
+      // Admin
+      function initAdminDashboard(userEmail) {
+        loadInitialData();
+        let adminContainer = document.getElementById("adminApp");
+        adminContainer.innerHTML = `<div class="admin-layout"><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1></div><nav class="p-4 space-y-2"><div class="nav-item cursor-pointer p-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard">Dashboard</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="catalog">Catalog</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="inventory">Inventory</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="orders">Orders</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="customers">Customers</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="transactions">Transactions</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="installments">Lipa Mdogo</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="analytics">Analytics</div><div class="nav-item cursor-pointer p-3 rounded-xl" data-tab="reports">Reports</div></nav><div class="absolute bottom-0 p-6 border-t w-full"><button id="logoutBtn" class="text-red-500 w-full text-left"><i class="fas fa-sign-out-alt"></i> Logout</button></div></div><div class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll"><div class="p-6" id="pageRenderer"></div></div></div>`;
+        adminContainer.classList.remove("hidden");
+        document.querySelector(".split-layout").style.display = "none";
+        document.querySelectorAll(".nav-item").forEach((item) =>
+          item.addEventListener("click", () => {
+            document
+              .querySelectorAll(".nav-item")
+              .forEach((n) =>
+                n.classList.remove(
+                  "bg-emerald-50",
+                  "text-emerald-700",
+                  "font-semibold",
+                ),
+              );
+            item.classList.add(
+              "bg-emerald-50",
+              "text-emerald-700",
+              "font-semibold",
+            );
+            currentTab = item.dataset.tab;
+            renderCurrentTab();
+            if (window.innerWidth <= 768 && window.closeMobileMenu)
+              window.closeMobileMenu();
+          }),
+        );
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+          localStorage.removeItem("lipamdogo_auth");
+          sessionStorage.removeItem("lipamdogo_auth_temp");
+          document.getElementById("adminApp").classList.add("hidden");
+          document.querySelector(".split-layout").style.display = "flex";
+        });
+        renderCurrentTab();
+        let sidebar = document.getElementById("fixedSidebar"),
+          toggle = document.getElementById("mobileMenuToggle"),
+          overlay = document.getElementById("mobileOverlay");
+        if (toggle) {
+          toggle.onclick = () => {
+            sidebar.classList.add("mobile-open");
+            overlay.classList.add("active");
+            document.body.style.overflow = "hidden";
+          };
+          overlay.onclick = () => {
+            sidebar.classList.remove("mobile-open");
+            overlay.classList.remove("active");
+            document.body.style.overflow = "";
+          };
+          window.closeMobileMenu = () => {
+            sidebar.classList.remove("mobile-open");
+            overlay.classList.remove("active");
+            document.body.style.overflow = "";
+          };
+        }
+      }
+      // Login
+      const VALID_EMAIL = "admin@lipamdogo.com",
+        VALID_PASSWORD = "admin123";
+      function checkSavedSession() {
+        let saved = localStorage.getItem("lipamdogo_auth");
+        if (saved) {
+          try {
+            let data = JSON.parse(saved);
+            if (data.email === VALID_EMAIL && data.remember) {
+              initAdminDashboard(data.email);
+              return true;
+            }
+          } catch (e) {}
+        }
+        if (sessionStorage.getItem("lipamdogo_auth_temp")) {
+          initAdminDashboard(VALID_EMAIL);
+          return true;
+        }
+        return false;
+      }
+      document.getElementById("togglePassword").onclick = () => {
+        let pwd = document.getElementById("password");
+        let type =
+          pwd.getAttribute("type") === "password" ? "text" : "password";
+        pwd.setAttribute("type", type);
+        document.getElementById("togglePassword").innerHTML =
+          type === "password"
+            ? '<i class="fas fa-eye"></i>'
+            : '<i class="fas fa-eye-slash"></i>';
+      };
+      document.getElementById("forgotPassword").onclick = (e) => {
+        e.preventDefault();
+        alert("Reset demo: admin@lipamdogo.com / admin123");
+      };
+      document.getElementById("loginForm").onsubmit = (e) => {
+        e.preventDefault();
+        let email = document.getElementById("email").value.trim(),
+          password = document.getElementById("password").value;
+        if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+          if (document.getElementById("rememberMe").checked)
+            localStorage.setItem(
+              "lipamdogo_auth",
+              JSON.stringify({ email, remember: true }),
+            );
+          else sessionStorage.setItem("lipamdogo_auth_temp", "true");
+          document.getElementById("loginBtn").innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Signing...';
+          setTimeout(() => initAdminDashboard(email), 500);
+        } else {
+          document.getElementById("errorText").innerText =
+            "Invalid credentials";
+          document.getElementById("errorMessage").classList.remove("hidden");
+          setTimeout(
+            () =>
+              document.getElementById("errorMessage").classList.add("hidden"),
+            2000,
+          );
+        }
+      };
+      if (!checkSavedSession()) loadInitialData();
+    </script>
+  </body>
+</html>
