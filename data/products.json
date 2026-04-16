@@ -1,0 +1,129 @@
+{
+  "products": [
+    {
+      "id": "PRD-0001",
+      "name": "Premium Denim Jacket",
+      "category": "Men's Clothing",
+      "brand": "Fashion Hub Ltd",
+      "description": "Classic blue denim jacket with premium stitching.",
+      "imageUrl": "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
+      "variants": [
+        {
+          "id": "var_001",
+          "sku": "DJ-BLU-M",
+          "color": "Blue",
+          "size": "M",
+          "buyPrice": 1800,
+          "sellPrice": 3500,
+          "inventory": {
+            "totalStock": 45,
+            "reorderPoint": 35,
+            "status": "healthy",
+            "lastRestocked": "2026-04-05",
+            "locations": [
+              { "name": "Main Store", "stock": 25, "reorderPoint": 10 },
+              { "name": "Warehouse A", "stock": 15, "reorderPoint": 20 },
+              { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+            ]
+          }
+        },
+        {
+          "id": "var_002",
+          "sku": "DJ-BLU-L",
+          "color": "Blue",
+          "size": "L",
+          "buyPrice": 1800,
+          "sellPrice": 3500,
+          "inventory": {
+            "totalStock": 30,
+            "reorderPoint": 25,
+            "status": "healthy",
+            "lastRestocked": "2026-04-06",
+            "locations": [
+              { "name": "Main Store", "stock": 15, "reorderPoint": 8 },
+              { "name": "Warehouse A", "stock": 10, "reorderPoint": 12 },
+              { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "PRD-0002",
+      "name": "Floral Summer Dress",
+      "category": "Women's Clothing",
+      "brand": "Style Africa",
+      "description": "Lightweight floral dress, perfect for summer days.",
+      "imageUrl": "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
+      "variants": [
+        {
+          "id": "var_003",
+          "sku": "SD-FLR-S",
+          "color": "Floral",
+          "size": "S",
+          "buyPrice": 1200,
+          "sellPrice": 2900,
+          "inventory": {
+            "totalStock": 5,
+            "reorderPoint": 30,
+            "status": "critical",
+            "lastRestocked": "2026-03-28",
+            "locations": [
+              { "name": "Main Store", "stock": 3, "reorderPoint": 10 },
+              { "name": "Warehouse A", "stock": 2, "reorderPoint": 15 },
+              { "name": "Outlet", "stock": 0, "reorderPoint": 5 }
+            ]
+          }
+        },
+        {
+          "id": "var_004",
+          "sku": "SD-FLR-M",
+          "color": "Floral",
+          "size": "M",
+          "buyPrice": 1200,
+          "sellPrice": 2900,
+          "inventory": {
+            "totalStock": 18,
+            "reorderPoint": 25,
+            "status": "healthy",
+            "lastRestocked": "2026-04-04",
+            "locations": [
+              { "name": "Main Store", "stock": 10, "reorderPoint": 8 },
+              { "name": "Warehouse A", "stock": 5, "reorderPoint": 10 },
+              { "name": "Outlet", "stock": 3, "reorderPoint": 5 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "PRD-0003",
+      "name": "Leather Sneakers",
+      "category": "Footwear",
+      "brand": "Urban Kicks",
+      "description": "Genuine leather sneakers with comfortable sole.",
+      "imageUrl": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop",
+      "variants": [
+        {
+          "id": "var_005",
+          "sku": "SN-WHT-42",
+          "color": "White",
+          "size": "42",
+          "buyPrice": 2200,
+          "sellPrice": 4500,
+          "inventory": {
+            "totalStock": 32,
+            "reorderPoint": 20,
+            "status": "healthy",
+            "lastRestocked": "2026-04-07",
+            "locations": [
+              { "name": "Main Store", "stock": 15, "reorderPoint": 10 },
+              { "name": "Warehouse A", "stock": 10, "reorderPoint": 8 },
+              { "name": "Outlet", "stock": 7, "reorderPoint": 5 }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

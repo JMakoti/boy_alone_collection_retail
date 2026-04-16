@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Boy Alone | Enterprise Admin Suite</title>
+    <title>QwetuLinks | Enterprise Admin Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link
@@ -435,7 +435,7 @@
       <div class="left-side">
         <div class="logo-container">
           <img
-            src="./images/balogo.png"
+            src="./images/qwetu_logo.png"
             alt="BOY ALONE COLLECTION"
             onerror="
               this.src = 'https://placehold.co/400x200?text=BOY+ALONE';
@@ -451,7 +451,7 @@
               class="img-container1 inline-flex items-center justify-center w-16 h-16 mb-4"
             >
               <img
-                src="./images/balogo.png"
+                src="./images/qwetu_logo.png"
                 alt="BOY ALONE COLLECTION"
                 onerror="
                   this.src = 'https://placehold.co/64x64?text=BA';
@@ -2013,7 +2013,7 @@
         }
 
         // order Data
-        const storedOrders = localStorage.getItem("boyalone_inventory");
+        const storedOrders = localStorage.getItem("boyalone_product_orders");
         if (storedOrders) {
           ordersData = JSON.parse(storedOrders);
         } else {
@@ -2544,6 +2544,10 @@
         localStorage.setItem(
           "boyalone_payment_method_data",
           JSON.stringify(paymentMethodData),
+        );
+        localStorage.setItem(
+          "boyalone_products_orders",
+          JSON.stringify(ordersData),
         );
       }
       // generate product id
@@ -3911,6 +3915,10 @@
         return `<div class="bg-white p-6 rounded-xl">Reports coming soon...</div>`;
       }
 
+      function renderSettings() {
+        return `<div class="bg-white p-6 rounded-xl">Settings coming soon...</div>`;
+      }
+
       function renderCurrentTab() {
         const container = document.getElementById("pageRenderer");
         if (!container) return;
@@ -3940,8 +3948,11 @@
         } else if (currentTab === "analytics") {
           container.innerHTML = renderAnalytics();
           attachAnalyticsEvents();
-        } else if (currentTab === "reports")
+        } else if (currentTab === "reports") {
           container.innerHTML = renderReports();
+        } else if (currentTab === "settings") {
+          container.innerHTML = renderSettings();
+        }
       }
 
       // Product Catalog Modal Logic and Functions
@@ -4971,7 +4982,7 @@
           <i class="fas fa-bars text-xl"></i>
         </button>
         <div class="mobile-logo">
-          <span class="font-bold text-emerald-600">BoyAlone Collection</span>
+          <span class="font-bold text-emerald-600">QwetuLinks POS</span>
           <span class="text-xs text-gray-500">Enterprise Admin</span>
         </div>
         <div class="w-8"></div> <!-- spacer for alignment -->
@@ -4979,23 +4990,23 @@
 
       <!-- Sidebar -->
       <div class="sidebar-fixed" id="fixedSidebar">
-        <div class="p-6 border-b">
+        <div class="p-5 border-b">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 flex-shrink-0">
               <img 
-                src="./images/balogo.png" 
+                src="./images/qwetu_logo.png" 
                 alt="BA" 
                 class="w-full h-full object-contain"
                 onerror="this.src='https://placehold.co/48x48?text=BA'; this.onerror=null;"
               >
             </div>
             <div>
-              <h1 class="text-2xl font-bold tracking-tight">Boy<span class="text-emerald-600">Alone</span></h1>
+              <h1 class="text-2xl font-bold tracking-tight">Qwetu<span class="text-emerald-600">Links</span></h1>
               <p class="text-xs text-gray-500">Enterprise Admin</p>
             </div>
           </div>
         </div>
-        <nav class="p-4 space-y-1 overflow-y-auto" style="max-height: calc(100vh - 140px);">
+        <nav class="p-3 space-y-1 overflow-y-auto" style="max-height: calc(100vh - 140px);">
           <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard">
             <i class="fas fa-chart-line w-5"></i><span>Executive Dashboard</span>
           </div>
@@ -5018,13 +5029,16 @@
             <i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo Core</span>
           </div>
           <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="analytics">
-            <i class="fas fa-chart-pie w-5"></i><span>Analytics</span>
+            <i class="fas fa-chart-pie w-5"></i><span>Analytics Engine</span>
           </div>
           <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="reports">
             <i class="fas fa-file-alt w-5"></i><span>Reports Center</span>
           </div>
+          <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="settings">
+            <i class="fas fa-cog w-5"></i><span>Settings</span>
+          </div>
         </nav>
-        <div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-white">
+        <div class="absolute bottom-0 left-0 right-0 p-5 border-t bg-white">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
               <i class="fas fa-user-shield text-emerald-700"></i>
