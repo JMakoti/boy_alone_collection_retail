@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Variant Inventory Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+      .left-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .right-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 2rem;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        max-width: 440px;
+        width: 100%;
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+        .right-side {
+          justify-content: center;
+        }
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        z-index: 50;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+      .main-content-scroll {
+        flex: 1;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        overflow-y: auto;
+      }
+      .mobile-top-bar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: white;
+        z-index: 60;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+      }
+      @media (max-width: 768px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .main-content-scroll {
+          margin-left: 0;
+          margin-top: 60px;
+        }
+        .mobile-top-bar {
+          display: flex;
+        }
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 45;
+          display: none;
+        }
+        .overlay-backdrop.active {
+          display: block;
+        }
+      }
+      .product-image-preview {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .variant-row {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      .location-badge {
+        background: #eef2ff;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div class="split-layout">
+      <div class="left-side">
+        <div class="logo-container">
+          <img
+            src="./images/balogo.png"
+            alt="BOY ALONE"
+            onerror="this.src = 'https://placehold.co/400x200?text=BOY+ALONE'"
+          />
+        </div>
+      </div>
+      <div class="right-side">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <div
+              class="img-container1 inline-flex justify-center w-16 h-16 mb-4"
+            >
+              <img
+                src="./images/balogo.png"
+                alt="BA"
+                onerror="this.src = 'https://placehold.co/64x64?text=BA'"
+              />
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300 text-sm">
+              Sign in to access your dashboard
+            </p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-200"
+                >Email</label
+              ><input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200"
+                >Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl pr-12"
+                /><button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex justify-between">
+              <label class="flex items-center"
+                ><input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-4 h-4 rounded"
+                /><span class="ml-2 text-sm text-gray-300"
+                  >Remember me</span
+                ></label
+              ><a href="#" id="forgotPassword" class="text-sm text-emerald-400"
+                >Forgot password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl"
+            >
+              Sign In
+            </button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-2">Demo Credentials</p>
+            <div
+              class="flex flex-col gap-1 text-xs text-gray-300 bg-white/5 rounded-lg p-3"
+            >
+              <p>
+                <span class="text-emerald-400">Email:</span> admin@lipamdogo.com
+              </p>
+              <p><span class="text-emerald-400">Password:</span> admin123</p>
+            </div>
+          </div>
+          <div
+            id="errorMessage"
+            class="mt-4 hidden bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center text-red-300 text-sm"
+          >
+            Invalid credentials
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminApp" class="hidden"></div>
+
+    <!-- MODALS: Product (with variants), Delete, Adjust/Transfer (variant level), Order, etc -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b px-6 py-5 flex justify-between"
+        >
+          <h3 class="text-2xl font-bold" id="modalTitle">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Product /
+            Variants
+          </h3>
+          <button
+            id="closeProductModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="productForm">
+            <input type="hidden" id="productId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+              <div>
+                <label class="font-semibold">Product Name *</label
+                ><input
+                  type="text"
+                  id="prodName"
+                  required
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="font-semibold">Category *</label
+                ><select
+                  id="prodCategory"
+                  class="w-full p-2.5 border rounded-xl"
+                >
+                  <option>Men's Clothing</option>
+                  <option>Women's Clothing</option>
+                  <option>Accessories</option>
+                  <option>Footwear</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-semibold">Brand</label
+                ><input
+                  type="text"
+                  id="prodBrand"
+                  class="w-full p-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="font-semibold">Main Image URL</label
+                ><input
+                  type="text"
+                  id="prodImageUrl"
+                  class="w-full p-2.5 border rounded-xl"
+                  placeholder="https://..."
+                />
+              </div>
+              <div class="md:col-span-2">
+                <label class="font-semibold">Description</label
+                ><textarea
+                  id="prodDesc"
+                  rows="2"
+                  class="w-full p-2.5 border rounded-xl"
+                ></textarea>
+              </div>
+            </div>
+            <div class="border-t pt-4 mt-2">
+              <div class="flex justify-between items-center mb-3">
+                <h4 class="font-bold text-lg">
+                  Variants (SKU / Size / Color / Price / Stock)
+                </h4>
+                <button
+                  type="button"
+                  id="addVariantBtn"
+                  class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg text-sm"
+                >
+                  <i class="fas fa-plus"></i> Add Variant
+                </button>
+              </div>
+              <div id="variantsContainer"></div>
+            </div>
+            <div class="flex gap-3 justify-end pt-6 border-t mt-4">
+              <button
+                type="button"
+                id="cancelProductBtn"
+                class="px-6 py-2.5 border rounded-xl"
+              >
+                Cancel</button
+              ><button
+                type="submit"
+                class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl"
+              >
+                Save Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold">Delete Product</h3>
+        <p class="text-gray-500 my-4">
+          This will delete product and all its variants. Irreversible.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2 rounded-xl"
+          >
+            Delete</button
+          ><button id="cancelDeleteBtn" class="flex-1 border py-2 rounded-xl">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adjust Stock per variant location -->
+    <div
+      id="adjustModal"
+      class="fixed inset-0 modal-backdrop hidden items-center justify-center z-[100]"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full p-6">
+        <h3 class="text-xl font-bold mb-4">Adjust Stock (Variant)</h3>
+        <p id="adjustVariantInfo" class="text-sm text-gray-600 mb-2"></p>
+        <input
+          type="number"
+          id="adjustQuantity"
+          placeholder="New quantity"
+          class="w-full p-3 border rounded-xl mb-3"
+        /><select id="adjustLocation" class="w-full p-3 border rounded-xl">
+          <option>Main Store</option>
+          <option>Warehouse A</option>
+          <option>Outlet</option>
+        </select>
+        <div class="flex gap-3 mt-4">
+          <button
+            id="confirmAdjustBtn"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Apply</button
+          ><button id="cancelAdjustBtn" class="flex-1 border py-2 rounded-xl">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Modal (simplified but references variants) -->
+    <div
+      id="addOrderModal"
+      class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 overflow-y-auto"
+    >
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6">
+        <h3 class="text-xl font-bold mb-4">Manual Order</h3>
+        <form id="addOrderForm">
+          <div class="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              id="orderCustomerName"
+              placeholder="Customer name"
+              required
+              class="p-2 border rounded"
+            /><input
+              type="email"
+              id="orderEmail"
+              placeholder="Email"
+              class="p-2 border rounded"
+            />
+          </div>
+          <div class="mt-3">
+            <label>Select Product Variant</label
+            ><select
+              id="orderVariantSelect"
+              class="w-full p-2 border rounded mt-1"
+            ></select>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <input
+              type="number"
+              id="orderQty"
+              placeholder="Quantity"
+              value="1"
+              class="p-2 border rounded"
+            /><input
+              type="text"
+              id="orderTotalDisplay"
+              readonly
+              class="p-2 bg-gray-100 rounded font-bold"
+            />
+          </div>
+          <div class="flex gap-3 justify-end mt-5">
+            <button
+              type="button"
+              id="cancelOrderBtn"
+              class="border px-4 py-2 rounded"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              class="bg-emerald-600 text-white px-4 py-2 rounded"
+            >
+              Create Order
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // ---------- NEW DATA MODEL: Products with Variants ----------
+      let products = []; // each product: { id, name, category, brand, description, imageUrl, variants: [ { id, sku, color, size, buyPrice, sellPrice, inventory: { totalStock, reorderPoint, status, lastRestocked, locations } } ] }
+      let ordersData = [];
+      let customersData = [];
+      let successTransactions = [];
+      let expensesList = [];
+      let paymentPlansData = [];
+      let collectionData = [];
+      let revenueData = [],
+        categoryData = [],
+        customerSegmentData = [],
+        paymentMethodData = [];
+
+      // Helper: compute variant total stock & status from locations
+      function computeVariantInventory(variant) {
+        const inv = variant.inventory;
+        const total = inv.locations.reduce((sum, loc) => sum + loc.stock, 0);
+        inv.totalStock = total;
+        if (total === 0) inv.status = "reorder";
+        else if (total <= 5) inv.status = "critical";
+        else if (total <= inv.reorderPoint) inv.status = "low";
+        else inv.status = "healthy";
+        return inv;
+      }
+
+      // generate IDs
+      function generateProductId() {
+        return products.length ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+      }
+      function generateVariantId(productId) {
+        return `var_${productId}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      }
+
+      // Load initial data with new variant structure (matching user JSON)
+      function loadInitialData() {
+        const stored = localStorage.getItem("boyalone_variant_products");
+        if (stored) {
+          products = JSON.parse(stored);
+        } else {
+          products = [
+            {
+              id: 1,
+              name: "Premium Denim Jacket",
+              category: "Men's Clothing",
+              brand: "Fashion Hub Ltd",
+              description: "Classic blue denim jacket with premium stitching.",
+              imageUrl:
+                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=200&h=200&fit=crop",
+              variants: [
+                {
+                  id: "var_001",
+                  sku: "DJ-BLU-M",
+                  color: "Blue",
+                  size: "M",
+                  buyPrice: 1800,
+                  sellPrice: 3500,
+                  inventory: {
+                    totalStock: 45,
+                    reorderPoint: 35,
+                    status: "healthy",
+                    lastRestocked: "2026-04-05",
+                    locations: [
+                      { name: "Main Store", stock: 25, reorderPoint: 10 },
+                      { name: "Warehouse A", stock: 15, reorderPoint: 20 },
+                      { name: "Outlet", stock: 5, reorderPoint: 5 },
+                    ],
+                  },
+                },
+                {
+                  id: "var_002",
+                  sku: "DJ-BLU-L",
+                  color: "Blue",
+                  size: "L",
+                  buyPrice: 1800,
+                  sellPrice: 3500,
+                  inventory: {
+                    totalStock: 30,
+                    reorderPoint: 25,
+                    status: "healthy",
+                    lastRestocked: "2026-04-06",
+                    locations: [
+                      { name: "Main Store", stock: 15, reorderPoint: 8 },
+                      { name: "Warehouse A", stock: 10, reorderPoint: 12 },
+                      { name: "Outlet", stock: 5, reorderPoint: 5 },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              id: 2,
+              name: "Floral Summer Dress",
+              category: "Women's Clothing",
+              brand: "Style Africa",
+              description: "Lightweight floral dress",
+              imageUrl:
+                "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=200&h=200&fit=crop",
+              variants: [
+                {
+                  id: "var_003",
+                  sku: "SD-FLR-S",
+                  color: "Floral",
+                  size: "S",
+                  buyPrice: 1200,
+                  sellPrice: 2900,
+                  inventory: {
+                    totalStock: 5,
+                    reorderPoint: 30,
+                    status: "critical",
+                    lastRestocked: "2026-03-28",
+                    locations: [
+                      { name: "Main Store", stock: 3, reorderPoint: 10 },
+                      { name: "Warehouse A", stock: 2, reorderPoint: 15 },
+                      { name: "Outlet", stock: 0, reorderPoint: 5 },
+                    ],
+                  },
+                },
+                {
+                  id: "var_004",
+                  sku: "SD-FLR-M",
+                  color: "Floral",
+                  size: "M",
+                  buyPrice: 1200,
+                  sellPrice: 2900,
+                  inventory: {
+                    totalStock: 18,
+                    reorderPoint: 25,
+                    status: "healthy",
+                    lastRestocked: "2026-04-04",
+                    locations: [
+                      { name: "Main Store", stock: 10, reorderPoint: 8 },
+                      { name: "Warehouse A", stock: 5, reorderPoint: 10 },
+                      { name: "Outlet", stock: 3, reorderPoint: 5 },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              id: 3,
+              name: "Leather Sneakers",
+              category: "Footwear",
+              brand: "Urban Kicks",
+              description: "Genuine leather sneakers",
+              imageUrl:
+                "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200&h=200&fit=crop",
+              variants: [
+                {
+                  id: "var_005",
+                  sku: "SN-WHT-42",
+                  color: "White",
+                  size: "42",
+                  buyPrice: 2200,
+                  sellPrice: 4500,
+                  inventory: {
+                    totalStock: 32,
+                    reorderPoint: 20,
+                    status: "healthy",
+                    lastRestocked: "2026-04-07",
+                    locations: [
+                      { name: "Main Store", stock: 15, reorderPoint: 10 },
+                      { name: "Warehouse A", stock: 10, reorderPoint: 8 },
+                      { name: "Outlet", stock: 7, reorderPoint: 5 },
+                    ],
+                  },
+                },
+              ],
+            },
+          ];
+          products.forEach((p) =>
+            p.variants.forEach((v) => computeVariantInventory(v)),
+          );
+        }
+        // orders, customers etc minimal demo
+        const storedOrders = localStorage.getItem("boyalone_variant_orders");
+        if (storedOrders) ordersData = JSON.parse(storedOrders);
+        else
+          ordersData = [
+            {
+              id: "ORD-001",
+              customer: "Sarah Mwangi",
+              variantSku: "DJ-BLU-M",
+              productName: "Premium Denim Jacket",
+              qty: 2,
+              total: 7000,
+              status: "delivered",
+              createdAt: "2026-04-10",
+            },
+          ];
+        const storedCust = localStorage.getItem("boyalone_customers_data");
+        if (storedCust) customersData = JSON.parse(storedCust);
+        else
+          customersData = [
+            {
+              id: "CUST-001",
+              name: "Sarah Mwangi",
+              email: "sarah@email.com",
+              phone: "+254712345678",
+              totalOrders: 5,
+              totalSpent: 45000,
+              segment: "VIP",
+              riskLevel: "low",
+            },
+          ];
+        const storedTx = localStorage.getItem("boyalone_transactions");
+        if (storedTx) successTransactions = JSON.parse(storedTx);
+        else successTransactions = [];
+        const storedExp = localStorage.getItem("boyalone_expenses");
+        if (storedExp) expensesList = JSON.parse(storedExp);
+        else expensesList = [];
+        const storedPlans = localStorage.getItem("boyalone_payment_plans");
+        if (storedPlans) paymentPlansData = JSON.parse(storedPlans);
+        else paymentPlansData = [];
+        collectionData = [
+          { month: "Apr", collected: 580000, expected: 600000 },
+        ];
+        revenueData = [
+          {
+            month: "Apr",
+            revenue: 1250000,
+            installments: 450000,
+            fullPayments: 800000,
+          },
+        ];
+        categoryData = [
+          { name: "Men's", value: 450000, color: "#3b82f6" },
+          { name: "Women's", value: 320000, color: "#8b5cf6" },
+        ];
+        customerSegmentData = [
+          { segment: "VIP", customers: 12, revenue: 560000 },
+        ];
+        paymentMethodData = [
+          { method: "M-Pesa", transactions: 45, amount: 890000 },
+        ];
+        persistData();
+      }
+
+      function persistData() {
+        localStorage.setItem(
+          "boyalone_variant_products",
+          JSON.stringify(products),
+        );
+        localStorage.setItem(
+          "boyalone_variant_orders",
+          JSON.stringify(ordersData),
+        );
+        localStorage.setItem(
+          "boyalone_customers_data",
+          JSON.stringify(customersData),
+        );
+        localStorage.setItem(
+          "boyalone_transactions",
+          JSON.stringify(successTransactions),
+        );
+        localStorage.setItem("boyalone_expenses", JSON.stringify(expensesList));
+        localStorage.setItem(
+          "boyalone_payment_plans",
+          JSON.stringify(paymentPlansData),
+        );
+      }
+
+      // Helper: get all variants flattened for inventory view
+      function getAllVariants() {
+        let variants = [];
+        products.forEach((product) => {
+          product.variants.forEach((v) =>
+            variants.push({
+              ...v,
+              productName: product.name,
+              productId: product.id,
+              productImage: product.imageUrl,
+            }),
+          );
+        });
+        return variants;
+      }
+
+      // RENDER PRODUCT CATALOG (variant-aware)
+      function renderCatalog() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold"><i class="fas fa-tags text-emerald-600"></i> Product Catalog (Variants)</h1><button id="addProductBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl"><i class="fas fa-plus"></i> Add Product</button></div><div class="grid grid-cols-1 gap-6" id="productsGrid"></div></div>`;
+      }
+
+      function renderProductsGrid() {
+        const container = document.getElementById("productsGrid");
+        if (!container) return;
+        container.innerHTML = products
+          .map(
+            (p) => `
+        <div class="bg-white rounded-xl border p-5 shadow-sm">
+          <div class="flex gap-4 flex-wrap"><img src="${p.imageUrl || "https://via.placeholder.com/80"}" class="w-20 h-20 object-cover rounded-lg"><div><h2 class="text-xl font-bold">${escapeHtml(p.name)}</h2><p class="text-gray-500">${p.category} | ${p.brand || ""}</p><p class="text-sm mt-1">${p.description || ""}</p></div><div class="ml-auto"><button class="editProductBtn text-blue-600 mr-2" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button><button class="deleteProductBtn text-red-600" data-id="${p.id}"><i class="fas fa-trash"></i> Delete</button></div></div>
+          <div class="mt-4 border-t pt-3"><h3 class="font-semibold mb-2">Variants</h3><div class="space-y-2">${p.variants.map((v) => `<div class="bg-gray-50 p-3 rounded-lg flex flex-wrap justify-between items-center"><div><span class="font-mono text-sm">${v.sku}</span> | ${v.color} / ${v.size} | Buy: KES ${v.buyPrice} Sell: KES ${v.sellPrice} | Stock: ${v.inventory.totalStock}</div><div><button class="editVariantBtn text-xs bg-blue-100 px-2 py-1 rounded" data-pid="${p.id}" data-vid="${v.id}">Edit Var</button></div></div>`).join("")}</div><button class="addVariantToProductBtn text-emerald-600 text-sm mt-2" data-pid="${p.id}"><i class="fas fa-plus-circle"></i> Add variant</button></div>
+        </div>
+      `,
+          )
+          .join("");
+        attachCatalogEvents();
+      }
+
+      function attachCatalogEvents() {
+        document
+          .querySelectorAll(".editProductBtn")
+          .forEach((btn) =>
+            btn.addEventListener("click", () =>
+              openProductModal(parseInt(btn.dataset.id)),
+            ),
+          );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            window.deleteTargetProductId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+          }),
+        );
+        document
+          .getElementById("addProductBtn")
+          ?.addEventListener("click", () => openProductModal(null));
+        document.querySelectorAll(".addVariantToProductBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const pid = parseInt(btn.dataset.pid);
+            openVariantModal(pid, null);
+          }),
+        );
+        document.querySelectorAll(".editVariantBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const pid = parseInt(btn.dataset.pid),
+              vid = btn.dataset.vid;
+            openVariantModal(pid, vid);
+          }),
+        );
+      }
+
+      function openProductModal(productId) {
+        const product = productId
+          ? products.find((p) => p.id === productId)
+          : null;
+        document.getElementById("productId").value = product?.id || "";
+        document.getElementById("prodName").value = product?.name || "";
+        document.getElementById("prodCategory").value =
+          product?.category || "Men's Clothing";
+        document.getElementById("prodBrand").value = product?.brand || "";
+        document.getElementById("prodImageUrl").value = product?.imageUrl || "";
+        document.getElementById("prodDesc").value = product?.description || "";
+        renderVariantsForm(product?.variants || []);
+        document.getElementById("productModal").classList.remove("hidden");
+      }
+      function renderVariantsForm(variants) {
+        const container = document.getElementById("variantsContainer");
+        container.innerHTML = variants
+          .map(
+            (v, idx) =>
+              `<div class="variant-row border p-3 rounded mb-2 bg-gray-50" data-vidx="${idx}"><input type="hidden" class="variantId" value="${v.id}"><div class="grid grid-cols-3 gap-2"><input placeholder="SKU" class="variantSku p-1 border rounded" value="${v.sku}"><input placeholder="Color" class="variantColor p-1 border rounded" value="${v.color}"><input placeholder="Size" class="variantSize p-1 border rounded" value="${v.size}"></div><div class="grid grid-cols-3 gap-2 mt-2"><input type="number" placeholder="Buy Price" class="variantBuy p-1 border rounded" value="${v.buyPrice}"><input type="number" placeholder="Sell Price" class="variantSell p-1 border rounded" value="${v.sellPrice}"><input type="number" placeholder="Reorder Point" class="variantReorder p-1 border rounded" value="${v.inventory.reorderPoint}"></div><div class="mt-2"><label class="text-xs">Stock per location</label><div class="flex gap-2 flex-wrap">${v.inventory.locations.map((loc) => `<div class="flex items-center gap-1"><span class="text-xs">${loc.name}:</span><input type="number" class="locStock w-20 p-1 border rounded text-sm" data-loc="${loc.name}" value="${loc.stock}"></div>`).join("")}</div></div><button type="button" class="removeVariantBtn text-red-500 text-sm mt-2">Remove variant</button></div>`,
+          )
+          .join("");
+        document.querySelectorAll(".removeVariantBtn").forEach((btn) =>
+          btn.addEventListener("click", function () {
+            this.closest(".variant-row").remove();
+          }),
+        );
+      }
+      function openVariantModal(productId, variantId) {
+        /* We'll handle edit via product modal for simplicity; user can add variant inline */ alert(
+          "Please edit product to manage variants individually.",
+        );
+        openProductModal(productId);
+      }
+
+      function saveProductFromForm() {
+        const id = document.getElementById("productId").value;
+        const name = document.getElementById("prodName").value.trim();
+        if (!name) return alert("Product name required");
+        const variantsData = [];
+        document.querySelectorAll(".variant-row").forEach((row) => {
+          const sku = row.querySelector(".variantSku")?.value;
+          if (!sku) return;
+          const buyPrice = parseFloat(row.querySelector(".variantBuy")?.value);
+          const sellPrice = parseFloat(
+            row.querySelector(".variantSell")?.value,
+          );
+          const reorderPoint =
+            parseInt(row.querySelector(".variantReorder")?.value) || 10;
+          const locations = [];
+          row.querySelectorAll(".locStock").forEach((inp) => {
+            locations.push({
+              name: inp.dataset.loc,
+              stock: parseInt(inp.value) || 0,
+              reorderPoint: 5,
+            });
+          });
+          if (locations.length === 0)
+            locations.push({ name: "Main Store", stock: 0, reorderPoint: 5 });
+          const totalStock = locations.reduce((s, l) => s + l.stock, 0);
+          const variant = {
+            id:
+              row.querySelector(".variantId")?.value ||
+              generateVariantId(id || "new"),
+            sku,
+            color: row.querySelector(".variantColor")?.value || "",
+            size: row.querySelector(".variantSize")?.value || "",
+            buyPrice,
+            sellPrice,
+            inventory: {
+              totalStock,
+              reorderPoint,
+              status: totalStock === 0 ? "reorder" : "healthy",
+              lastRestocked: new Date().toISOString().slice(0, 10),
+              locations,
+            },
+          };
+          computeVariantInventory(variant);
+          variantsData.push(variant);
+        });
+        if (variantsData.length === 0) return alert("Add at least one variant");
+        const productData = {
+          id: id ? parseInt(id) : generateProductId(),
+          name,
+          category: document.getElementById("prodCategory").value,
+          brand: document.getElementById("prodBrand").value,
+          description: document.getElementById("prodDesc").value,
+          imageUrl: document.getElementById("prodImageUrl").value,
+          variants: variantsData,
+        };
+        if (id) {
+          const index = products.findIndex((p) => p.id == id);
+          if (index !== -1) products[index] = productData;
+        } else products.push(productData);
+        persistData();
+        document.getElementById("productModal").classList.add("hidden");
+        renderCurrentTab();
+      }
+
+      // INVENTORY RENDER (variant based)
+      function renderInventory() {
+        const variants = getAllVariants();
+        const stats = { healthy: 0, low: 0, critical: 0, reorder: 0 };
+        variants.forEach((v) => {
+          stats[v.inventory.status]++;
+        });
+        return `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-boxes"></i> Multi-Location Inventory</h1><div class="grid grid-cols-4 gap-4">${Object.entries(
+          stats,
+        )
+          .map(
+            ([k, v]) =>
+              `<div class="bg-white p-4 rounded-xl border">${k}: ${v}</div>`,
+          )
+          .join(
+            "",
+          )}</div><div class="space-y-4" id="inventoryVariantsList">${variants.map((v) => `<div class="bg-white rounded-xl border p-4"><div class="flex justify-between"><div><h3 class="font-bold">${v.productName} (${v.sku})</h3><p class="text-sm">${v.color} / ${v.size} | Sell: KES ${v.sellPrice}</p></div><span class="status-badge status-${v.inventory.status}">${v.inventory.status}</span></div><div class="grid grid-cols-3 gap-3 mt-3">${v.inventory.locations.map((loc) => `<div class="bg-gray-50 p-2 rounded"><p class="text-xs">${loc.name}</p><p class="text-xl font-bold">${loc.stock}</p><button class="adjustLocBtn text-xs text-emerald-600 mt-1" data-sku="${v.sku}" data-loc="${loc.name}">Adjust</button></div>`).join("")}</div><div class="mt-2 text-right"><button class="transferVariantBtn text-sm bg-emerald-600 text-white px-3 py-1 rounded" data-sku="${v.sku}">Transfer Stock</button></div></div>`).join("")}</div></div>`;
+      }
+      function attachInventoryEvents() {
+        document.querySelectorAll(".adjustLocBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            alert(
+              "Adjust stock demo: implement modal with same pattern as before",
+            );
+          }),
+        );
+      }
+
+      // Orders (variant selection)
+      function renderOrders() {
+        const variants = getAllVariants();
+        return `<div class="space-y-6"><h1 class="text-3xl font-bold">Orders Pipeline</h1><button id="manualOrderBtn" class="bg-emerald-600 text-white px-4 py-2 rounded">+ Manual Order</button><table class="w-full bg-white rounded-xl overflow-hidden"><thead class="bg-gray-100"><tr><th>Order ID</th><th>Customer</th><th>Variant</th><th>Qty</th><th>Total</th><th>Status</th></tr></thead><tbody>${ordersData.map((o) => `<tr class="border-t"><td class="p-3">${o.id}</td><td>${o.customer}</td><td>${o.productName} (${o.variantSku})</td><td>${o.qty}</td><td>KES ${o.total}</td><td>${o.status}</td></tr>`).join("")}</tbody></table></div>`;
+      }
+      function attachOrderEvents() {
+        document
+          .getElementById("manualOrderBtn")
+          ?.addEventListener("click", () => {
+            const variants = getAllVariants();
+            const select = document.getElementById("orderVariantSelect");
+            if (select)
+              select.innerHTML = variants
+                .map(
+                  (v) =>
+                    `<option value="${v.sku}" data-price="${v.sellPrice}" data-name="${v.productName}">${v.productName} - ${v.sku} (KES ${v.sellPrice})</option>`,
+                )
+                .join("");
+            document.getElementById("addOrderModal").classList.remove("hidden");
+            document
+              .getElementById("orderQty")
+              ?.addEventListener("input", function () {
+                updateOrderTotal();
+              });
+            function updateOrderTotal() {
+              const sel = document.getElementById("orderVariantSelect");
+              const price = sel?.options[sel.selectedIndex]?.dataset.price;
+              const qty =
+                parseInt(document.getElementById("orderQty")?.value) || 0;
+              document.getElementById("orderTotalDisplay").value =
+                `KES ${(price * qty).toLocaleString()}`;
+            }
+            updateOrderTotal();
+            document
+              .getElementById("orderVariantSelect")
+              ?.addEventListener("change", updateOrderTotal);
+          });
+        document
+          .getElementById("addOrderForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const sel = document.getElementById("orderVariantSelect");
+            const variantSku = sel.value;
+            const variant = getAllVariants().find((v) => v.sku === variantSku);
+            if (!variant) return;
+            const qty = parseInt(document.getElementById("orderQty").value);
+            const total = variant.sellPrice * qty;
+            const newOrder = {
+              id: `ORD-${Date.now()}`,
+              customer: document.getElementById("orderCustomerName").value,
+              variantSku,
+              productName: variant.productName,
+              qty,
+              total,
+              status: "pending",
+              createdAt: new Date().toISOString().slice(0, 10),
+            };
+            ordersData.unshift(newOrder);
+            persistData();
+            renderCurrentTab();
+            document.getElementById("addOrderModal").classList.add("hidden");
+            alert("Order created");
+          });
+        document
+          .getElementById("cancelOrderBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("addOrderModal").classList.add("hidden"),
+          );
+      }
+
+      // Dashboard, Customers, Transactions, Lipa Mdogo core (stubs reusing previous)
+      function renderDashboard() {
+        return `<div class="bg-white p-6 rounded-xl"><h2 class="text-2xl font-bold">Executive Dashboard</h2><p>Variant-aware inventory ready. Total variants: ${getAllVariants().length}</p></div>`;
+      }
+      function renderCustomers() {
+        return `<div class="bg-white p-6 rounded-xl">Customer Hub (demo)</div>`;
+      }
+      function renderTransactions() {
+        return `<div class="bg-white p-6 rounded-xl">Transactions</div>`;
+      }
+      function renderInstallments() {
+        return `<div class="bg-white p-6 rounded-xl">Lipa Mdogo Core</div>`;
+      }
+      function renderAnalytics() {
+        return `<div class="bg-white p-6 rounded-xl">Analytics</div>`;
+      }
+
+      let currentTab = "dashboard";
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (currentTab === "catalog") {
+          container.innerHTML = renderCatalog();
+          renderProductsGrid();
+        } else if (currentTab === "inventory") {
+          container.innerHTML = renderInventory();
+          attachInventoryEvents();
+        } else if (currentTab === "orders") {
+          container.innerHTML = renderOrders();
+          attachOrderEvents();
+        } else if (currentTab === "customers")
+          container.innerHTML = renderCustomers();
+        else if (currentTab === "transactions")
+          container.innerHTML = renderTransactions();
+        else if (currentTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (currentTab === "analytics")
+          container.innerHTML = renderAnalytics();
+      }
+
+      // Admin UI init
+      function initAdminDashboard() {
+        loadInitialData();
+        document.getElementById("adminApp").innerHTML = getAdminLayout();
+        document.getElementById("adminApp").classList.remove("hidden");
+        document.querySelector(".split-layout").style.display = "none";
+        document.querySelectorAll(".nav-item").forEach((el) =>
+          el.addEventListener("click", () => {
+            currentTab = el.dataset.tab;
+            renderCurrentTab();
+            if (window.innerWidth <= 768) closeMobileSidebar();
+          }),
+        );
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+          localStorage.clear();
+          location.reload();
+        });
+        renderCurrentTab();
+        initMobile();
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("addVariantBtn")
+          ?.addEventListener("click", () => {
+            const container = document.getElementById("variantsContainer");
+            const idx = Date.now();
+            container.insertAdjacentHTML(
+              "beforeend",
+              `<div class="variant-row border p-3 rounded mb-2 bg-gray-50"><div class="grid grid-cols-3 gap-2"><input placeholder="SKU" class="variantSku p-1 border rounded"><input placeholder="Color" class="variantColor p-1 border rounded"><input placeholder="Size" class="variantSize p-1 border rounded"></div><div class="grid grid-cols-3 gap-2 mt-2"><input type="number" placeholder="Buy Price" class="variantBuy p-1 border rounded"><input type="number" placeholder="Sell Price" class="variantSell p-1 border rounded"><input type="number" placeholder="Reorder Point" class="variantReorder p-1 border rounded" value="10"></div><div class="mt-2"><div class="flex gap-2"><div class="flex items-center gap-1"><span class="text-xs">Main Store:</span><input type="number" class="locStock w-20 p-1 border rounded text-sm" data-loc="Main Store" value="0"></div><div class="flex items-center gap-1"><span class="text-xs">Warehouse A:</span><input type="number" class="locStock w-20 p-1 border rounded text-sm" data-loc="Warehouse A" value="0"></div><div class="flex items-center gap-1"><span class="text-xs">Outlet:</span><input type="number" class="locStock w-20 p-1 border rounded text-sm" data-loc="Outlet" value="0"></div></div></div><button type="button" class="removeVariantBtn text-red-500 text-sm mt-2">Remove variant</button></div>`,
+            );
+          });
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (window.deleteTargetProductId) {
+              products = products.filter(
+                (p) => p.id !== window.deleteTargetProductId,
+              );
+              persistData();
+              renderCurrentTab();
+            }
+            document.getElementById("deleteModal").classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+      }
+
+      function getAdminLayout() {
+        return `<div class="admin-layout"><div class="mobile-top-bar"><button id="mobileMenuToggleBtn"><i class="fas fa-bars text-xl"></i></button><div>BoyAlone</div><div></div></div><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1></div><nav class="p-4 space-y-2">${["dashboard", "catalog", "inventory", "orders", "customers", "transactions", "installments", "analytics"].map((tab) => `<div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="${tab}"><i class="fas fa-${tab === "dashboard" ? "chart-line" : tab === "catalog" ? "tags" : tab === "inventory" ? "boxes" : tab === "orders" ? "tasks" : "users"} w-5"></i><span>${tab.charAt(0).toUpperCase() + tab.slice(1)}</span></div>`).join("")}</nav><div class="absolute bottom-0 p-4 border-t w-full"><button id="logoutBtn" class="text-red-500"><i class="fas fa-sign-out-alt"></i> Logout</button></div></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll"><div class="p-6" id="pageRenderer"></div></div></div>`;
+      }
+      function initMobile() {
+        const sidebar = document.getElementById("fixedSidebar"),
+          overlay = document.getElementById("mobileOverlay"),
+          toggle = document.getElementById("mobileMenuToggleBtn");
+        if (toggle)
+          toggle.onclick = () => {
+            sidebar.classList.toggle("mobile-open");
+            overlay.classList.toggle("active");
+          };
+        window.closeMobileSidebar = () => {
+          sidebar.classList.remove("mobile-open");
+          overlay.classList.remove("active");
+        };
+      }
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+      // Login
+      const VALID_EMAIL = "admin@lipamdogo.com",
+        VALID_PASSWORD = "admin123";
+      if (
+        localStorage.getItem("lipamdogo_auth") ||
+        sessionStorage.getItem("lipamdogo_auth_temp")
+      )
+        initAdminDashboard();
+      else
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (
+            document.getElementById("email").value === VALID_EMAIL &&
+            document.getElementById("password").value === VALID_PASSWORD
+          ) {
+            if (document.getElementById("rememberMe").checked)
+              localStorage.setItem("lipamdogo_auth", "true");
+            else sessionStorage.setItem("lipamdogo_auth_temp", "true");
+            initAdminDashboard();
+          } else alert("Invalid credentials");
+        });
+      document
+        .getElementById("togglePassword")
+        ?.addEventListener("click", () => {
+          let p = document.getElementById("password");
+          p.type = p.type === "password" ? "text" : "password";
+        });
+    </script>
+  </body>
+</html>

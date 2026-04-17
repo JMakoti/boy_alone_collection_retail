@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Boy Alone | Variant Inventory Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+      }
+      .split-layout {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+      .form-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 1.2rem;
+        max-width: 440px;
+        width: 100%;
+      }
+      @media (max-width: 1024px) {
+        .split-layout {
+          flex-direction: column;
+        }
+        .left-side {
+          display: none;
+        }
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        background: white;
+        z-index: 50;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+      .main-content-scroll {
+        flex: 1;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+      .mobile-top-bar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: white;
+        z-index: 60;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+      }
+      @media (max-width: 768px) {
+        .sidebar-fixed {
+          transform: translateX(-100%);
+        }
+        .sidebar-fixed.mobile-open {
+          transform: translateX(0);
+        }
+        .main-content-scroll {
+          margin-left: 0;
+          margin-top: 60px;
+        }
+        .mobile-top-bar {
+          display: flex;
+        }
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 45;
+          display: none;
+        }
+        .overlay-backdrop.active {
+          display: block;
+        }
+      }
+      .variant-item {
+        transition: all 0.2s;
+      }
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      .step {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #475569;
+      }
+      .step.active {
+        background: #10b981;
+        color: white;
+      }
+      .step.completed {
+        background: #059669;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN SECTION -->
+    <div class="split-layout">
+      <div class="left-side flex items-center justify-center">
+        <img
+          src="./images/balogo.png"
+          alt="BOY ALONE"
+          onerror="this.src = 'https://placehold.co/400x200?text=BOY+ALONE'"
+          class="max-w-md"
+        />
+      </div>
+      <div class="right-side flex items-center justify-center p-4">
+        <div class="form-card p-8 fade-in">
+          <div class="text-center mb-6">
+            <img
+              src="./images/balogo.png"
+              class="w-16 h-16 mx-auto mb-2"
+              onerror="this.src = 'https://placehold.co/64x64?text=BA'"
+            />
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="text-gray-300">Sign in to dashboard</p>
+          </div>
+          <form id="loginForm" class="space-y-5">
+            <div>
+              <label class="text-gray-200">Email</label
+              ><input
+                type="email"
+                id="email"
+                required
+                placeholder="admin@lipamdogo.com"
+                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white"
+              />
+            </div>
+            <div>
+              <label class="text-gray-200">Password</label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  required
+                  class="w-full px-4 py-3 bg-white/10 border rounded-xl pr-12"
+                /><button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex justify-between">
+              <label class="flex items-center"
+                ><input type="checkbox" id="rememberMe" class="rounded" /><span
+                  class="ml-2 text-sm text-gray-300"
+                  >Remember</span
+                ></label
+              ><a href="#" id="forgotPassword" class="text-sm text-emerald-400"
+                >Forgot?</a
+              >
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3 rounded-xl"
+            >
+              Sign In
+            </button>
+          </form>
+          <div
+            class="mt-6 text-center text-xs text-gray-400 bg-white/5 p-3 rounded-lg"
+          >
+            Demo: admin@lipamdogo.com / admin123
+          </div>
+          <div
+            id="errorMessage"
+            class="mt-4 hidden bg-red-500/20 p-3 rounded text-red-300 text-sm"
+          >
+            Invalid credentials
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminApp" class="hidden"></div>
+
+    <!-- PRODUCT MODAL (Multi-step variant addition) -->
+    <div
+      id="productModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto py-8"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b px-6 py-5 flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold" id="modalTitle">
+            <i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Product /
+            Variants
+          </h3>
+          <button id="closeProductModalBtn" class="text-gray-400">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="productForm">
+            <input type="hidden" id="productId" />
+            <!-- Step indicator -->
+            <div class="step-indicator mb-6">
+              <div class="step active" id="step1Indicator">1</div>
+              <span class="text-sm">Product Info</span>
+              <div class="w-8 h-px bg-gray-300 mx-1"></div>
+              <div class="step" id="step2Indicator">2</div>
+              <span class="text-sm">Variants</span>
+            </div>
+            <!-- Step 1: Basic Info -->
+            <div id="step1Content" class="space-y-5">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="font-semibold">Product Name *</label
+                  ><input
+                    type="text"
+                    id="prodName"
+                    required
+                    class="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label class="font-semibold">Category *</label
+                  ><select
+                    id="prodCategory"
+                    class="w-full p-2.5 border rounded-xl"
+                  >
+                    <option>Men's Clothing</option>
+                    <option>Women's Clothing</option>
+                    <option>Accessories</option>
+                    <option>Footwear</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="font-semibold">Brand</label
+                  ><input
+                    type="text"
+                    id="prodBrand"
+                    class="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label class="font-semibold">Image URL</label
+                  ><input
+                    type="text"
+                    id="prodImageUrl"
+                    class="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label>Description</label
+                  ><textarea
+                    id="prodDesc"
+                    rows="2"
+                    class="w-full p-2.5 border rounded-xl"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button
+                  type="button"
+                  id="nextToVariantsBtn"
+                  class="bg-emerald-600 text-white px-6 py-2 rounded-xl"
+                >
+                  Next: Add Variants →
+                </button>
+              </div>
+            </div>
+            <!-- Step 2: Variants management -->
+            <div id="step2Content" class="hidden space-y-5">
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold text-lg">Product Variants</h4>
+                <button
+                  type="button"
+                  id="openAddVariantModalBtn"
+                  class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-sm"
+                >
+                  <i class="fas fa-plus"></i> Add Variant
+                </button>
+              </div>
+              <div
+                id="variantsListContainer"
+                class="space-y-3 max-h-96 overflow-y-auto border rounded-xl p-3 bg-gray-50"
+              ></div>
+              <div class="flex justify-between gap-3 pt-4">
+                <button
+                  type="button"
+                  id="backToInfoBtn"
+                  class="px-6 py-2.5 border rounded-xl"
+                >
+                  ← Back
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl"
+                >
+                  Save Product
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Variant Modal (Step inside product modal) -->
+    <div
+      id="addVariantModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4"
+    >
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6">
+        <h3 class="text-xl font-bold mb-4">
+          <i class="fas fa-cubes text-emerald-600"></i> Add New Variant
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="font-semibold">SKU (auto-generated, editable)</label
+            ><input
+              type="text"
+              id="newVariantSku"
+              class="w-full p-2 border rounded"
+              placeholder="Auto SKU"
+            />
+          </div>
+          <div>
+            <label class="font-semibold">Color</label
+            ><input
+              type="text"
+              id="newVariantColor"
+              class="w-full p-2 border rounded"
+              placeholder="e.g., Red, Blue"
+            />
+          </div>
+          <div>
+            <label class="font-semibold">Size</label>
+            <div id="newVariantSizeContainer"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label>Buy Price (KES)</label
+              ><input
+                type="number"
+                id="newVariantBuyPrice"
+                class="w-full p-2 border rounded"
+                value="1000"
+              />
+            </div>
+            <div>
+              <label>Sell Price (KES)</label
+              ><input
+                type="number"
+                id="newVariantSellPrice"
+                class="w-full p-2 border rounded"
+                value="2000"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="font-semibold">Initial Stock (Main Store)</label
+            ><input
+              type="number"
+              id="newVariantMainStock"
+              class="w-full p-2 border rounded"
+              value="0"
+              min="0"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Warehouse A and Outlet will be set to 0 by default (stock can be
+              transferred later).
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button
+            id="confirmAddVariantBtn"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Add Variant</button
+          ><button
+            id="closeAddVariantModalBtn"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Variant Modal (global) -->
+    <div
+      id="editVariantModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4"
+    >
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6">
+        <h3 class="text-xl font-bold mb-4">
+          <i class="fas fa-edit text-emerald-600"></i> Edit Variant
+        </h3>
+        <input type="hidden" id="editVariantProductId" /><input
+          type="hidden"
+          id="editVariantId"
+        />
+        <div class="space-y-3">
+          <div>
+            <label>SKU</label
+            ><input
+              type="text"
+              id="editSku"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label>Color</label
+            ><input
+              type="text"
+              id="editColor"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label>Size</label>
+            <div id="editSizeContainer"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label>Buy Price (KES)</label
+              ><input
+                type="number"
+                id="editBuyPrice"
+                class="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label>Sell Price (KES)</label
+              ><input
+                type="number"
+                id="editSellPrice"
+                class="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+          <div>
+            <label>Reorder Point</label
+            ><input
+              type="number"
+              id="editReorderPoint"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label class="font-semibold">Stock per Location</label>
+            <div id="editLocationsContainer" class="space-y-2 mt-2"></div>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button
+            id="saveVariantChangesBtn"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Save Changes</button
+          ><button
+            id="closeEditVariantModal"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modals -->
+    <div
+      id="deleteVariantModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold">Delete Variant</h3>
+        <p class="my-4">This action cannot be undone.</p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteVariantBtn"
+            class="flex-1 bg-red-600 text-white py-2 rounded-xl"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteVariantBtn"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold">Delete Product</h3>
+        <p class="my-4">This will delete product and all its variants.</p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteBtn"
+            class="flex-1 bg-red-600 text-white py-2 rounded-xl"
+          >
+            Delete</button
+          ><button id="cancelDeleteBtn" class="flex-1 border py-2 rounded-xl">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data models
+      let products = [];
+      let ordersData = [],
+        customersData = [],
+        successTransactions = [],
+        expensesList = [],
+        paymentPlansData = [];
+
+      function computeVariantInventory(variant) {
+        const inv = variant.inventory;
+        const total = inv.locations.reduce((sum, loc) => sum + loc.stock, 0);
+        inv.totalStock = total;
+        if (total === 0) inv.status = "reorder";
+        else if (total <= 5) inv.status = "critical";
+        else if (total <= inv.reorderPoint) inv.status = "low";
+        else inv.status = "healthy";
+        return inv;
+      }
+
+      function generateProductId() {
+        return products.length ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+      }
+      function generateVariantId() {
+        return "var_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+      }
+      function autoGenerateSku(productName, color, size) {
+        let prefix = productName
+          .substring(0, 3)
+          .toUpperCase()
+          .replace(/[^A-Z]/g, "");
+        if (prefix.length < 2) prefix = "PRD";
+        const col = (color || "DEF").substring(0, 3).toUpperCase();
+        const sz = String(size || "").toUpperCase();
+        return `${prefix}-${col}-${sz}`;
+      }
+
+      function loadInitialData() {
+        const stored = localStorage.getItem("boyalone_variant_products_v3");
+        if (stored) {
+          products = JSON.parse(stored);
+        } else {
+          products = [
+            {
+              id: 1,
+              name: "Premium Denim Jacket",
+              category: "Men's Clothing",
+              brand: "Fashion Hub",
+              description: "Classic denim jacket",
+              imageUrl:
+                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=200&h=200&fit=crop",
+              variants: [
+                {
+                  id: "var_001",
+                  sku: "DNM-BLU-M",
+                  color: "Blue",
+                  size: "M",
+                  buyPrice: 1800,
+                  sellPrice: 3500,
+                  inventory: {
+                    totalStock: 45,
+                    reorderPoint: 35,
+                    status: "healthy",
+                    lastRestocked: "2026-04-05",
+                    locations: [
+                      { name: "Main Store", stock: 45, reorderPoint: 10 },
+                      { name: "Warehouse A", stock: 0, reorderPoint: 20 },
+                      { name: "Outlet", stock: 0, reorderPoint: 5 },
+                    ],
+                  },
+                },
+              ],
+            },
+          ];
+          products.forEach((p) =>
+            p.variants.forEach((v) => computeVariantInventory(v)),
+          );
+        }
+        if (!localStorage.getItem("boyalone_variant_orders")) ordersData = [];
+        customersData = [{ id: "CUST-001", name: "Demo Customer" }];
+        persistData();
+      }
+      function persistData() {
+        localStorage.setItem(
+          "boyalone_variant_products_v3",
+          JSON.stringify(products),
+        );
+      }
+
+      function getAllVariants() {
+        let list = [];
+        products.forEach((p) => {
+          p.variants.forEach((v) => {
+            list.push({
+              ...v,
+              productName: p.name,
+              productId: p.id,
+              productCategory: p.category,
+            });
+          });
+        });
+        return list;
+      }
+
+      // Product modal with step handling
+      let currentEditingProductId = null;
+      let tempVariants = []; // used when editing existing product or creating new
+
+      function openProductModal(productId) {
+        currentEditingProductId = productId || null;
+        const product = productId
+          ? products.find((p) => p.id === productId)
+          : null;
+        document.getElementById("productId").value = product?.id || "";
+        document.getElementById("prodName").value = product?.name || "";
+        document.getElementById("prodCategory").value =
+          product?.category || "Men's Clothing";
+        document.getElementById("prodBrand").value = product?.brand || "";
+        document.getElementById("prodImageUrl").value = product?.imageUrl || "";
+        document.getElementById("prodDesc").value = product?.description || "";
+        // load variants into temp array
+        tempVariants = product
+          ? JSON.parse(JSON.stringify(product.variants))
+          : [];
+        renderVariantsList();
+        // show step 1
+        document.getElementById("step1Content").classList.remove("hidden");
+        document.getElementById("step2Content").classList.add("hidden");
+        document.getElementById("step1Indicator").classList.add("active");
+        document.getElementById("step2Indicator").classList.remove("active");
+        document.getElementById("step1Indicator").classList.remove("completed");
+        document.getElementById("step2Indicator").classList.remove("completed");
+        document.getElementById("productModal").classList.remove("hidden");
+      }
+
+      function renderVariantsList() {
+        const container = document.getElementById("variantsListContainer");
+        if (!container) return;
+        if (tempVariants.length === 0) {
+          container.innerHTML =
+            '<div class="text-center text-gray-400 py-8"><i class="fas fa-cubes text-3xl mb-2"></i><p>No variants yet. Click "Add Variant" to create one.</p></div>';
+          return;
+        }
+        container.innerHTML = tempVariants
+          .map(
+            (v, idx) => `
+        <div class="variant-item bg-white border rounded-xl p-4 flex flex-wrap justify-between items-center">
+          <div><span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">${v.sku}</span><div class="mt-1"><span class="font-medium">${v.color} / ${v.size}</span> | Buy: KES ${v.buyPrice} Sell: KES ${v.sellPrice}</div><div class="text-xs text-gray-500">Main stock: ${v.inventory.locations.find((l) => l.name === "Main Store")?.stock || 0} | Total stock: ${v.inventory.totalStock}</div></div>
+          <div class="flex gap-2"><button class="editTempVariantBtn text-blue-600 px-2 py-1 rounded" data-idx="${idx}"><i class="fas fa-edit"></i> Edit</button><button class="deleteTempVariantBtn text-red-600 px-2 py-1 rounded" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button></div>
+        </div>
+      `,
+          )
+          .join("");
+        document.querySelectorAll(".editTempVariantBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const idx = parseInt(btn.dataset.idx);
+            openEditVariantModalFromTemp(idx);
+          }),
+        );
+        document.querySelectorAll(".deleteTempVariantBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const idx = parseInt(btn.dataset.idx);
+            tempVariants.splice(idx, 1);
+            renderVariantsList();
+          }),
+        );
+      }
+
+      function openEditVariantModalFromTemp(idx) {
+        const variant = tempVariants[idx];
+        if (!variant) return;
+        document.getElementById("editVariantProductId").value = "temp";
+        document.getElementById("editVariantId").value = idx;
+        document.getElementById("editSku").value = variant.sku;
+        document.getElementById("editColor").value = variant.color;
+        const category = document.getElementById("prodCategory").value;
+        const sizeContainer = document.getElementById("editSizeContainer");
+        if (category === "Footwear") {
+          let select = `<select id="editSizeSelect" class="w-full p-2 border rounded">`;
+          for (let i = 10; i <= 50; i++)
+            select += `<option value="${i}" ${variant.size == i ? "selected" : ""}>${i}</option>`;
+          select += `</select>`;
+          sizeContainer.innerHTML = select;
+        } else {
+          const sizes = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
+          let select = `<select id="editSizeSelect" class="w-full p-2 border rounded">`;
+          sizes.forEach(
+            (sz) =>
+              (select += `<option value="${sz}" ${variant.size === sz ? "selected" : ""}>${sz}</option>`),
+          );
+          select += `</select>`;
+          sizeContainer.innerHTML = select;
+        }
+        document.getElementById("editBuyPrice").value = variant.buyPrice;
+        document.getElementById("editSellPrice").value = variant.sellPrice;
+        document.getElementById("editReorderPoint").value =
+          variant.inventory.reorderPoint;
+        const locsDiv = document.getElementById("editLocationsContainer");
+        locsDiv.innerHTML = variant.inventory.locations
+          .map(
+            (loc) =>
+              `<div class="flex items-center gap-2"><span class="w-28 text-sm">${loc.name}:</span><input type="number" class="editLocationStock w-24 p-1 border rounded" data-loc="${loc.name}" value="${loc.stock}"></div>`,
+          )
+          .join("");
+        document.getElementById("editVariantModal").classList.remove("hidden");
+      }
+
+      function saveTempVariantFromEdit() {
+        const productIdField = document.getElementById(
+          "editVariantProductId",
+        ).value;
+        if (productIdField !== "temp") return;
+        const idx = parseInt(document.getElementById("editVariantId").value);
+        const variant = tempVariants[idx];
+        if (!variant) return;
+        variant.sku = document.getElementById("editSku").value;
+        variant.color = document.getElementById("editColor").value;
+        variant.size = document.getElementById("editSizeSelect").value;
+        variant.buyPrice = parseFloat(
+          document.getElementById("editBuyPrice").value,
+        );
+        variant.sellPrice = parseFloat(
+          document.getElementById("editSellPrice").value,
+        );
+        variant.inventory.reorderPoint = parseInt(
+          document.getElementById("editReorderPoint").value,
+        );
+        document.querySelectorAll(".editLocationStock").forEach((inp) => {
+          const locName = inp.dataset.loc;
+          const newStock = parseInt(inp.value) || 0;
+          const loc = variant.inventory.locations.find(
+            (l) => l.name === locName,
+          );
+          if (loc) loc.stock = newStock;
+        });
+        computeVariantInventory(variant);
+        renderVariantsList();
+        document.getElementById("editVariantModal").classList.add("hidden");
+      }
+
+      function addNewVariantFromModal() {
+        const productName = document.getElementById("prodName").value.trim();
+        if (!productName) {
+          alert("Please fill product name first");
+          return;
+        }
+        const category = document.getElementById("prodCategory").value;
+        const color = document.getElementById("newVariantColor").value.trim();
+        const size = document.getElementById("newVariantSizeSelect")?.value;
+        const sku =
+          document.getElementById("newVariantSku").value.trim() ||
+          autoGenerateSku(productName, color, size);
+        const buyPrice = parseFloat(
+          document.getElementById("newVariantBuyPrice").value,
+        );
+        const sellPrice = parseFloat(
+          document.getElementById("newVariantSellPrice").value,
+        );
+        const mainStock =
+          parseInt(document.getElementById("newVariantMainStock").value) || 0;
+        if (!color || !size) {
+          alert("Color and size are required");
+          return;
+        }
+        // Create variant with Main Store stock = mainStock, others 0
+        const newVariant = {
+          id: generateVariantId(),
+          sku: sku,
+          color: color,
+          size: size,
+          buyPrice: buyPrice,
+          sellPrice: sellPrice,
+          inventory: {
+            totalStock: mainStock,
+            reorderPoint: 10,
+            status: mainStock === 0 ? "reorder" : "healthy",
+            lastRestocked: new Date().toISOString().slice(0, 10),
+            locations: [
+              { name: "Main Store", stock: mainStock, reorderPoint: 5 },
+              { name: "Warehouse A", stock: 0, reorderPoint: 5 },
+              { name: "Outlet", stock: 0, reorderPoint: 5 },
+            ],
+          },
+        };
+        computeVariantInventory(newVariant);
+        tempVariants.push(newVariant);
+        renderVariantsList();
+        document.getElementById("addVariantModal").classList.add("hidden");
+        document.getElementById("newVariantColor").value = "";
+        document.getElementById("newVariantMainStock").value = 0;
+        document.getElementById("newVariantSku").value = "";
+      }
+
+      function saveProductFromForm() {
+        const id = document.getElementById("productId").value;
+        const name = document.getElementById("prodName").value.trim();
+        if (!name) return alert("Product name required");
+        if (tempVariants.length === 0)
+          return alert("Please add at least one variant");
+        const category = document.getElementById("prodCategory").value;
+        const productData = {
+          id: id ? parseInt(id) : generateProductId(),
+          name: name,
+          category: category,
+          brand: document.getElementById("prodBrand").value,
+          description: document.getElementById("prodDesc").value,
+          imageUrl: document.getElementById("prodImageUrl").value,
+          variants: tempVariants,
+        };
+        if (id) {
+          const index = products.findIndex((p) => p.id == id);
+          if (index !== -1) products[index] = productData;
+        } else products.push(productData);
+        persistData();
+        document.getElementById("productModal").classList.add("hidden");
+        renderCurrentTab();
+      }
+
+      // Dynamic size selector for add variant modal based on category
+      function updateNewVariantSizeOptions() {
+        const category = document.getElementById("prodCategory").value;
+        const container = document.getElementById("newVariantSizeContainer");
+        if (category === "Footwear") {
+          let select = `<select id="newVariantSizeSelect" class="w-full p-2 border rounded">`;
+          for (let i = 10; i <= 50; i++)
+            select += `<option value="${i}">${i}</option>`;
+          select += `</select>`;
+          container.innerHTML = select;
+        } else {
+          const sizes = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
+          let select = `<select id="newVariantSizeSelect" class="w-full p-2 border rounded">`;
+          sizes.forEach(
+            (sz) => (select += `<option value="${sz}">${sz}</option>`),
+          );
+          select += `</select>`;
+          container.innerHTML = select;
+        }
+      }
+
+      // Navigation
+      function showStep1() {
+        document.getElementById("step1Content").classList.remove("hidden");
+        document.getElementById("step2Content").classList.add("hidden");
+        document.getElementById("step1Indicator").classList.add("active");
+        document.getElementById("step2Indicator").classList.remove("active");
+        document.getElementById("step1Indicator").classList.remove("completed");
+        document.getElementById("step2Indicator").classList.remove("completed");
+      }
+      function showStep2() {
+        if (!document.getElementById("prodName").value.trim()) {
+          alert("Please enter product name first");
+          return;
+        }
+        document.getElementById("step1Content").classList.add("hidden");
+        document.getElementById("step2Content").classList.remove("hidden");
+        document.getElementById("step1Indicator").classList.remove("active");
+        document.getElementById("step2Indicator").classList.add("active");
+        document.getElementById("step1Indicator").classList.add("completed");
+        renderVariantsList();
+      }
+
+      // RENDER TABS (Dashboard, Catalog, Variants, etc.)
+      function renderCatalog() {
+        return `<div class="space-y-6"><div class="flex justify-between"><h1 class="text-3xl font-bold"><i class="fas fa-tags text-emerald-600"></i> Product Catalog</h1><button id="addProductBtn" class="bg-emerald-600 text-white px-5 py-2 rounded-xl"><i class="fas fa-plus"></i> Add Product</button></div><div id="productsGrid"></div></div>`;
+      }
+      function renderProductsGrid() {
+        const container = document.getElementById("productsGrid");
+        if (!container) return;
+        container.innerHTML = products
+          .map(
+            (p) =>
+              `<div class="bg-white rounded-xl border p-5 mb-5"><div class="flex gap-4"><img src="${p.imageUrl || "https://via.placeholder.com/80"}" class="w-20 h-20 object-cover rounded"><div><h2 class="text-xl font-bold">${escapeHtml(p.name)}</h2><p class="text-gray-500">${p.category} | ${p.brand}</p><p class="text-sm">${p.description || ""}</p></div><div class="ml-auto"><button class="editProductBtn text-blue-600 mr-2" data-id="${p.id}">Edit</button><button class="deleteProductBtn text-red-600" data-id="${p.id}">Delete</button></div></div><div class="mt-3 text-sm text-gray-500">Variants: ${p.variants.length}</div></div>`,
+          )
+          .join("");
+        document
+          .querySelectorAll(".editProductBtn")
+          .forEach((btn) =>
+            btn.addEventListener("click", () =>
+              openProductModal(parseInt(btn.dataset.id)),
+            ),
+          );
+        document.querySelectorAll(".deleteProductBtn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            window.deleteTargetProductId = parseInt(btn.dataset.id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+          }),
+        );
+      }
+      function renderVariantsTab() {
+        const variants = getAllVariants();
+        return `<div class="space-y-6"><h1 class="text-3xl font-bold"><i class="fas fa-cubes text-emerald-600"></i> All Variants</h1><div class="bg-white rounded-xl overflow-hidden"><table class="w-full"><thead class="bg-gray-50"><tr><th class="p-3">Product</th><th>SKU</th><th>Color</th><th>Size</th><th>Price</th><th>Main Stock</th><th>Total Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>${variants.map((v) => `<tr class="border-t"><td class="p-2">${v.productName}</td><td class="font-mono text-sm">${v.sku}</td><td>${v.color}</td><td>${v.size}</td><td>KES ${v.sellPrice}</td><td>${v.inventory.locations.find((l) => l.name === "Main Store")?.stock || 0}</td><td>${v.inventory.totalStock}</td><td><span class="status-badge status-${v.inventory.status}">${v.inventory.status}</span></td><td><button class="editGlobalVariantBtn text-blue-600" data-pid="${v.productId}" data-vid="${v.id}">Edit</button></td></tr>`).join("")}</tbody></table></div></div>`;
+      }
+      function renderDashboard() {
+        return `<div class="bg-white p-6 rounded-xl"><h2 class="text-2xl font-bold">Dashboard</h2><p>Total Variants: ${getAllVariants().length}</p></div>`;
+      }
+      function renderOrders() {
+        return `<div class="bg-white p-6 rounded-xl">Orders Pipeline</div>`;
+      }
+      function renderCustomers() {
+        return `<div class="bg-white p-6 rounded-xl">Customer Hub</div>`;
+      }
+      function renderTransactions() {
+        return `<div class="bg-white p-6 rounded-xl">Transactions</div>`;
+      }
+      function renderInstallments() {
+        return `<div class="bg-white p-6 rounded-xl">Lipa Mdogo</div>`;
+      }
+      function renderAnalytics() {
+        return `<div class="bg-white p-6 rounded-xl">Analytics</div>`;
+      }
+      let currentTab = "dashboard";
+      function renderCurrentTab() {
+        const container = document.getElementById("pageRenderer");
+        if (!container) return;
+        if (currentTab === "dashboard") container.innerHTML = renderDashboard();
+        else if (currentTab === "catalog") {
+          container.innerHTML = renderCatalog();
+          renderProductsGrid();
+          document
+            .getElementById("addProductBtn")
+            ?.addEventListener("click", () => openProductModal(null));
+        } else if (currentTab === "variants") {
+          container.innerHTML = renderVariantsTab();
+          attachGlobalVariantEvents();
+        } else if (currentTab === "orders")
+          container.innerHTML = renderOrders();
+        else if (currentTab === "customers")
+          container.innerHTML = renderCustomers();
+        else if (currentTab === "transactions")
+          container.innerHTML = renderTransactions();
+        else if (currentTab === "installments")
+          container.innerHTML = renderInstallments();
+        else if (currentTab === "analytics")
+          container.innerHTML = renderAnalytics();
+      }
+      function attachGlobalVariantEvents() {
+        document.querySelectorAll(".editGlobalVariantBtn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const pid = parseInt(btn.dataset.pid);
+            const vid = btn.dataset.vid;
+            openGlobalEditVariant(pid, vid);
+          }),
+        );
+      }
+      function openGlobalEditVariant(productId, variantId) {
+        const product = products.find((p) => p.id === productId);
+        const variant = product.variants.find((v) => v.id === variantId);
+        if (!variant) return;
+        document.getElementById("editVariantProductId").value = productId;
+        document.getElementById("editVariantId").value = variantId;
+        document.getElementById("editSku").value = variant.sku;
+        document.getElementById("editColor").value = variant.color;
+        const category = product.category;
+        const sizeContainer = document.getElementById("editSizeContainer");
+        if (category === "Footwear") {
+          let sel = `<select id="editSizeSelect">`;
+          for (let i = 10; i <= 50; i++)
+            sel += `<option ${variant.size == i ? "selected" : ""}>${i}</option>`;
+          sel += `</select>`;
+          sizeContainer.innerHTML = sel;
+        } else {
+          const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+          let sel = `<select id="editSizeSelect">`;
+          sizes.forEach(
+            (s) =>
+              (sel += `<option ${variant.size === s ? "selected" : ""}>${s}</option>`),
+          );
+          sel += `</select>`;
+          sizeContainer.innerHTML = sel;
+        }
+        document.getElementById("editBuyPrice").value = variant.buyPrice;
+        document.getElementById("editSellPrice").value = variant.sellPrice;
+        document.getElementById("editReorderPoint").value =
+          variant.inventory.reorderPoint;
+        const locsDiv = document.getElementById("editLocationsContainer");
+        locsDiv.innerHTML = variant.inventory.locations
+          .map(
+            (loc) =>
+              `<div><span>${loc.name}:</span><input type="number" class="editLocationStock" data-loc="${loc.name}" value="${loc.stock}"></div>`,
+          )
+          .join("");
+        document.getElementById("editVariantModal").classList.remove("hidden");
+        document.getElementById("saveVariantChangesBtn").onclick = () => {
+          saveGlobalVariant(productId, variantId);
+        };
+      }
+      function saveGlobalVariant(productId, variantId) {
+        const product = products.find((p) => p.id === productId);
+        const variant = product.variants.find((v) => v.id === variantId);
+        if (variant) {
+          variant.sku = document.getElementById("editSku").value;
+          variant.color = document.getElementById("editColor").value;
+          variant.size = document.getElementById("editSizeSelect").value;
+          variant.buyPrice = parseFloat(
+            document.getElementById("editBuyPrice").value,
+          );
+          variant.sellPrice = parseFloat(
+            document.getElementById("editSellPrice").value,
+          );
+          variant.inventory.reorderPoint = parseInt(
+            document.getElementById("editReorderPoint").value,
+          );
+          document.querySelectorAll(".editLocationStock").forEach((inp) => {
+            const loc = variant.inventory.locations.find(
+              (l) => l.name === inp.dataset.loc,
+            );
+            if (loc) loc.stock = parseInt(inp.value) || 0;
+          });
+          computeVariantInventory(variant);
+          persistData();
+          renderCurrentTab();
+        }
+        document.getElementById("editVariantModal").classList.add("hidden");
+      }
+
+      function initAdminDashboard() {
+        loadInitialData();
+        document.getElementById("adminApp").innerHTML = getAdminLayout();
+        document.getElementById("adminApp").classList.remove("hidden");
+        document.querySelector(".split-layout").style.display = "none";
+        document.querySelectorAll(".nav-item").forEach((el) =>
+          el.addEventListener("click", () => {
+            currentTab = el.dataset.tab;
+            renderCurrentTab();
+            if (window.innerWidth <= 768) closeMobileSidebar();
+          }),
+        );
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+          localStorage.clear();
+          sessionStorage.clear();
+          location.reload();
+        });
+        renderCurrentTab();
+        initMobile();
+        document
+          .getElementById("productForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveProductFromForm();
+          });
+        document
+          .getElementById("nextToVariantsBtn")
+          ?.addEventListener("click", showStep2);
+        document
+          .getElementById("backToInfoBtn")
+          ?.addEventListener("click", showStep1);
+        document
+          .getElementById("closeProductModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelProductBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("productModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("openAddVariantModalBtn")
+          ?.addEventListener("click", () => {
+            updateNewVariantSizeOptions();
+            document
+              .getElementById("addVariantModal")
+              .classList.remove("hidden");
+          });
+        document
+          .getElementById("confirmAddVariantBtn")
+          ?.addEventListener("click", addNewVariantFromModal);
+        document
+          .getElementById("closeAddVariantModalBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("addVariantModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("closeEditVariantModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("editVariantModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("saveVariantChangesBtn")
+          ?.addEventListener("click", saveTempVariantFromEdit);
+        document
+          .getElementById("confirmDeleteBtn")
+          ?.addEventListener("click", () => {
+            if (window.deleteTargetProductId) {
+              products = products.filter(
+                (p) => p.id !== window.deleteTargetProductId,
+              );
+              persistData();
+              renderCurrentTab();
+            }
+            document.getElementById("deleteModal").classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteBtn")
+          ?.addEventListener("click", () =>
+            document.getElementById("deleteModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("confirmDeleteVariantBtn")
+          ?.addEventListener("click", () => {
+            if (window.deleteVariantTarget) {
+              const prod = products.find(
+                (p) => p.id === window.deleteVariantTarget.productId,
+              );
+              if (prod) {
+                prod.variants = prod.variants.filter(
+                  (v) => v.id !== window.deleteVariantTarget.variantId,
+                );
+                persistData();
+                renderCurrentTab();
+              }
+            }
+            document
+              .getElementById("deleteVariantModal")
+              .classList.add("hidden");
+          });
+        document
+          .getElementById("cancelDeleteVariantBtn")
+          ?.addEventListener("click", () =>
+            document
+              .getElementById("deleteVariantModal")
+              .classList.add("hidden"),
+          );
+      }
+      function getAdminLayout() {
+        return `<div class="admin-layout"><div class="mobile-top-bar"><button id="mobileMenuToggleBtn"><i class="fas fa-bars text-xl"></i></button><div>BoyAlone</div><div></div></div><div class="sidebar-fixed" id="fixedSidebar"><div class="p-6 border-b"><h1 class="text-2xl font-bold">Boy<span class="text-emerald-600">Alone</span></h1></div><nav class="p-4 space-y-2">${["dashboard", "catalog", "variants", "orders", "customers", "transactions", "installments", "analytics"].map((tab) => `<div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-2 rounded-xl" data-tab="${tab}"><i class="fas fa-${tab === "dashboard" ? "chart-line" : tab === "catalog" ? "tags" : tab === "variants" ? "cubes" : "box"} w-5"></i><span>${tab.charAt(0).toUpperCase() + tab.slice(1)}</span></div>`).join("")}</nav><div class="absolute bottom-0 p-4 border-t w-full"><button id="logoutBtn" class="text-red-500"><i class="fas fa-sign-out-alt"></i> Logout</button></div></div><div class="overlay-backdrop" id="mobileOverlay"></div><div class="main-content-scroll"><div class="p-6" id="pageRenderer"></div></div></div>`;
+      }
+      function initMobile() {
+        const sidebar = document.getElementById("fixedSidebar"),
+          overlay = document.getElementById("mobileOverlay"),
+          toggle = document.getElementById("mobileMenuToggleBtn");
+        if (toggle)
+          toggle.onclick = () => {
+            sidebar.classList.toggle("mobile-open");
+            overlay.classList.toggle("active");
+          };
+        window.closeMobileSidebar = () => {
+          sidebar.classList.remove("mobile-open");
+          overlay.classList.remove("active");
+        };
+      }
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function (m) {
+          return m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;";
+        });
+      }
+      const VALID_EMAIL = "admin@lipamdogo.com",
+        VALID_PASSWORD = "admin123";
+      if (
+        localStorage.getItem("lipamdogo_auth") ||
+        sessionStorage.getItem("lipamdogo_auth_temp")
+      )
+        initAdminDashboard();
+      else
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (
+            document.getElementById("email").value === VALID_EMAIL &&
+            document.getElementById("password").value === VALID_PASSWORD
+          ) {
+            if (document.getElementById("rememberMe").checked)
+              localStorage.setItem("lipamdogo_auth", "true");
+            else sessionStorage.setItem("lipamdogo_auth_temp", "true");
+            initAdminDashboard();
+          } else alert("Invalid credentials");
+        });
+      document
+        .getElementById("togglePassword")
+        ?.addEventListener("click", () => {
+          let p = document.getElementById("password");
+          p.type = p.type === "password" ? "text" : "password";
+        });
+    </script>
+  </body>
+</html>

@@ -1799,10 +1799,6 @@
 
     <script>
       // ---------- DATA MODELS ----------
-      // new
-      let inventoryProducts = [];
-
-      //old
       let products = [];
       let deleteTargetId = null;
       let currentImageDataURL = null;
@@ -1841,239 +1837,86 @@
         New: { color: "bg-gray-100 text-gray-700", icon: "fa-user-plus" },
       };
 
-      function computeVariantInventory(variant) {
-        const inv = variant.inventory;
-        const total = inv.locations.reduce((sum, loc) => sum + loc.stock, 0);
-        inv.totalStock = total;
-        if (total === 0) inv.status = "reorder";
-        else if (total <= 5) inv.status = "critical";
-        else if (total <= inv.reorderPoint) inv.status = "low";
-        else inv.status = "healthy";
-        return inv;
-      }
-
       function loadInitialData() {
-        //inventoryProducts
-        const storedInventoryProducts = localStorage.getItem(
-          "qwetulinks_products",
-        );
-        if (storedInventoryProducts) {
-          inventoryProducts = JSON.parse(storedInventoryProducts);
+        //Product Data
+        const stored = localStorage.getItem("boyalone_products_catalog");
+        if (stored) {
+          products = JSON.parse(stored);
         } else {
-          inventoryProducts = [
+          products = [
             {
-              id: "PRD-0001",
+              id: 1,
               name: "Premium Denim Jacket",
               category: "Men's Clothing",
-              brand: "Fashion Hub Ltd",
-              description: "Classic blue denim jacket with premium stitching.",
+              buyPrice: 1800,
+              sellPrice: 3500,
+              stock: 45,
+              size: "L",
+              supplier: "Fashion Hub Ltd",
+              imageData: null,
               imageUrl:
                 "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
-              variants: [
-                {
-                  id: "var_001",
-                  sku: "DJ-BLU-M",
-                  color: "Blue",
-                  size: "M",
-                  buyPrice: 1800,
-                  sellPrice: 3500,
-                  inventory: {
-                    totalStock: 45,
-                    reorderPoint: 35,
-                    status: "healthy",
-                    lastRestocked: "2026-04-05",
-                    locations: [
-                      { name: "Main Store", stock: 25, reorderPoint: 10 },
-                      { name: "Warehouse A", stock: 15, reorderPoint: 20 },
-                      { name: "Outlet", stock: 5, reorderPoint: 5 },
-                    ],
-                  },
-                },
-                {
-                  id: "var_002",
-                  sku: "DJ-BLU-L",
-                  color: "Blue",
-                  size: "L",
-                  buyPrice: 1800,
-                  sellPrice: 3500,
-                  inventory: {
-                    totalStock: 30,
-                    reorderPoint: 25,
-                    status: "healthy",
-                    lastRestocked: "2026-04-06",
-                    locations: [
-                      { name: "Main Store", stock: 15, reorderPoint: 8 },
-                      { name: "Warehouse A", stock: 10, reorderPoint: 12 },
-                      { name: "Outlet", stock: 5, reorderPoint: 5 },
-                    ],
-                  },
-                },
-              ],
+              description:
+                "Classic blue denim jacket with premium stitching. Perfect for casual wear.",
             },
             {
-              id: "PRD-0002",
+              id: 2,
               name: "Floral Summer Dress",
               category: "Women's Clothing",
-              brand: "Style Africa",
-              description: "Lightweight floral dress, perfect for summer days.",
+              buyPrice: 1200,
+              sellPrice: 2900,
+              stock: 28,
+              size: "M",
+              supplier: "Style Africa",
+              imageData: null,
               imageUrl:
                 "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
-              variants: [
-                {
-                  id: "var_003",
-                  sku: "SD-FLR-S",
-                  color: "Floral",
-                  size: "S",
-                  buyPrice: 1200,
-                  sellPrice: 2900,
-                  inventory: {
-                    totalStock: 5,
-                    reorderPoint: 30,
-                    status: "critical",
-                    lastRestocked: "2026-03-28",
-                    locations: [
-                      { name: "Main Store", stock: 3, reorderPoint: 10 },
-                      { name: "Warehouse A", stock: 2, reorderPoint: 15 },
-                      { name: "Outlet", stock: 0, reorderPoint: 5 },
-                    ],
-                  },
-                },
-                {
-                  id: "var_004",
-                  sku: "SD-FLR-M",
-                  color: "Floral",
-                  size: "M",
-                  buyPrice: 1200,
-                  sellPrice: 2900,
-                  inventory: {
-                    totalStock: 18,
-                    reorderPoint: 25,
-                    status: "healthy",
-                    lastRestocked: "2026-04-04",
-                    locations: [
-                      { name: "Main Store", stock: 10, reorderPoint: 8 },
-                      { name: "Warehouse A", stock: 5, reorderPoint: 10 },
-                      { name: "Outlet", stock: 3, reorderPoint: 5 },
-                    ],
-                  },
-                },
-              ],
+              description: "Lightweight floral dress, perfect for summer days.",
             },
             {
-              id: "PRD-0003",
+              id: 3,
               name: "Leather Sneakers",
               category: "Footwear",
-              brand: "Urban Kicks",
-              description: "Genuine leather sneakers with comfortable sole.",
+              buyPrice: 2200,
+              sellPrice: 4500,
+              stock: 32,
+              size: "42",
+              supplier: "Urban Kicks",
+              imageData: null,
               imageUrl:
                 "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop",
-              variants: [
-                {
-                  id: "var_005",
-                  sku: "SN-WHT-42",
-                  color: "White",
-                  size: "42",
-                  buyPrice: 2200,
-                  sellPrice: 4500,
-                  inventory: {
-                    totalStock: 32,
-                    reorderPoint: 20,
-                    status: "healthy",
-                    lastRestocked: "2026-04-07",
-                    locations: [
-                      { name: "Main Store", stock: 15, reorderPoint: 10 },
-                      { name: "Warehouse A", stock: 10, reorderPoint: 8 },
-                      { name: "Outlet", stock: 7, reorderPoint: 5 },
-                    ],
-                  },
-                },
-              ],
+              description: "Genuine leather sneakers with comfortable sole.",
+            },
+            {
+              id: 4,
+              name: "Cashmere Scarf",
+              category: "Accessories",
+              buyPrice: 800,
+              sellPrice: 1890,
+              stock: 67,
+              size: "One Size",
+              supplier: "Luxury Essentials",
+              imageData: null,
+              imageUrl:
+                "https://images.unsplash.com/photo-1570427968961-0a6c3b6a2d6a?w=100&h=100&fit=crop",
+              description: "Soft cashmere scarf, available in multiple colors.",
+            },
+            {
+              id: 5,
+              name: "Wool Sweater",
+              category: "Men's Clothing",
+              buyPrice: 2500,
+              sellPrice: 5200,
+              stock: 18,
+              size: "L",
+              supplier: "Winter Collection",
+              imageData: null,
+              imageUrl:
+                "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=100&h=100&fit=crop",
+              description: "Warm wool sweater for cold seasons.",
             },
           ];
-          inventoryProducts.forEach((p) =>
-            p.variants.forEach((v) => computeVariantInventory(v)),
-          );
         }
-
-        //Product Data
-        // const stored = localStorage.getItem("boyalone_products_catalog");
-        // if (stored) {
-        //   products = JSON.parse(stored);
-        // } else {
-        //   products = [
-        //     {
-        //       id: 1,
-        //       name: "Premium Denim Jacket",
-        //       category: "Men's Clothing",
-        //       buyPrice: 1800,
-        //       sellPrice: 3500,
-        //       stock: 45,
-        //       size: "L",
-        //       supplier: "Fashion Hub Ltd",
-        //       imageData: null,
-        //       imageUrl:
-        //         "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=100&h=100&fit=crop",
-        //       description:
-        //         "Classic blue denim jacket with premium stitching. Perfect for casual wear.",
-        //     },
-        //     {
-        //       id: 2,
-        //       name: "Floral Summer Dress",
-        //       category: "Women's Clothing",
-        //       buyPrice: 1200,
-        //       sellPrice: 2900,
-        //       stock: 28,
-        //       size: "M",
-        //       supplier: "Style Africa",
-        //       imageData: null,
-        //       imageUrl:
-        //         "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=100&h=100&fit=crop",
-        //       description: "Lightweight floral dress, perfect for summer days.",
-        //     },
-        //     {
-        //       id: 3,
-        //       name: "Leather Sneakers",
-        //       category: "Footwear",
-        //       buyPrice: 2200,
-        //       sellPrice: 4500,
-        //       stock: 32,
-        //       size: "42",
-        //       supplier: "Urban Kicks",
-        //       imageData: null,
-        //       imageUrl:
-        //         "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop",
-        //       description: "Genuine leather sneakers with comfortable sole.",
-        //     },
-        //     {
-        //       id: 4,
-        //       name: "Cashmere Scarf",
-        //       category: "Accessories",
-        //       buyPrice: 800,
-        //       sellPrice: 1890,
-        //       stock: 67,
-        //       size: "One Size",
-        //       supplier: "Luxury Essentials",
-        //       imageData: null,
-        //       imageUrl:
-        //         "https://images.unsplash.com/photo-1570427968961-0a6c3b6a2d6a?w=100&h=100&fit=crop",
-        //       description: "Soft cashmere scarf, available in multiple colors.",
-        //     },
-        //     {
-        //       id: 5,
-        //       name: "Wool Sweater",
-        //       category: "Men's Clothing",
-        //       buyPrice: 2500,
-        //       sellPrice: 5200,
-        //       stock: 18,
-        //       size: "L",
-        //       supplier: "Winter Collection",
-        //       imageData: null,
-        //       imageUrl:
-        //         "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=100&h=100&fit=crop",
-        //       description: "Warm wool sweater for cold seasons.",
-        //     },
-        //   ];
-        // }
 
         //Inventory data with multiple locations and reorder points
         const storedInventory = localStorage.getItem("boyalone_inventory");
@@ -2661,18 +2504,10 @@
         persistData();
       }
       function persistData() {
-        //new data structure save
         localStorage.setItem(
-          "qwetulinks_products",
-          JSON.stringify(inventoryProducts),
+          "boyalone_products_catalog",
+          JSON.stringify(products),
         );
-
-        //old data structure cleanup - remove if exists
-
-        // localStorage.setItem(
-        //   "boyalone_products_catalog",
-        //   JSON.stringify(products),
-        // );
         localStorage.setItem(
           "boyalone_inventory",
           JSON.stringify(inventoryItems),
@@ -2715,41 +2550,11 @@
           JSON.stringify(ordersData),
         );
       }
-      // product and inventory id generators
+      // generate product id
       function generateProductId() {
-        return inventoryProducts.length > 0
-          ? Math.max(...inventoryProducts.map((p) => p.id)) + 1
+        return products.length > 0
+          ? Math.max(...products.map((p) => p.id)) + 1
           : 1;
-      }
-
-      function generateVariantId(productId) {
-        return `var_${productId}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      }
-
-      function autoGenerateSku(productName, color, size) {
-        let prefix = productName
-          .substring(0, 3)
-          .toUpperCase()
-          .replace(/[^A-Z]/g, "");
-        if (prefix.length < 2) prefix = "PRD";
-        const col = (color || "DEF").substring(0, 3).toUpperCase();
-        const sz = String(size || "").toUpperCase();
-        return `${prefix}-${col}-${sz}`;
-      }
-
-      function getAllVariants() {
-        let variants = [];
-        inventoryProducts.forEach((product) => {
-          product.variants.forEach((v) =>
-            variants.push({
-              ...v,
-              productName: product.name,
-              productId: product.id,
-              productImage: product.imageUrl,
-            }),
-          );
-        });
-        return variants;
       }
 
       //generate customer id
@@ -2830,7 +2635,6 @@
       let activeTransferItem = null;
       let activeAdjustItem = null;
 
-      // Inventory filtering and stats computation
       function getFilteredItems() {
         let filtered = [...inventoryItems];
         if (currentSearchTerm.trim()) {
@@ -2859,8 +2663,6 @@
           m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
         );
       }
-
-      //product image source resolver
       function getProductImageSrc(product) {
         if (product.imageData && product.imageData.startsWith("data:image"))
           return product.imageData;
@@ -2884,7 +2686,7 @@
           imageData: productData.imageData || null,
           imageUrl: productData.imageUrl || null,
         };
-        inventoryProducts.unshift(newProduct);
+        products.unshift(newProduct);
         persistData();
         return newProduct;
       }
@@ -3652,39 +3454,15 @@
           .join("")}</div>`;
       }
       function renderCatalog() {
-        // const totalProducts = inventoryProducts.length;
-        // const totalValue = inventoryProducts.reduce(
-        //   (sum, p) => sum + p.sellPrice * p.stock,
-        //   0,
-        // );
-        // const avgPrice = inventoryProducts.length
-        //   ? inventoryProducts.reduce((sum, p) => sum + p.sellPrice, 0) / inventoryProducts.length
-        //   : 0;
-        // const lowStockCount = inventoryProducts.filter((p) => p.stock <= 10).length;
-
-        const products = inventoryProducts;
-
-        // Flatten all variants
-        const variants = products.flatMap((p) => p.variants);
-
-        // 1. Total variants (not products)
         const totalProducts = products.length;
-
-        // 2. Total inventory value (sellPrice * totalStock)
-        const totalValue = variants.reduce(
-          (sum, v) => sum + v.sellPrice * v.inventory.totalStock,
+        const totalValue = products.reduce(
+          (sum, p) => sum + p.sellPrice * p.stock,
           0,
         );
-
-        // 3. Average sell price (per variant)
-        const avgPrice = variants.length
-          ? variants.reduce((sum, v) => sum + v.sellPrice, 0) / variants.length
+        const avgPrice = products.length
+          ? products.reduce((sum, p) => sum + p.sellPrice, 0) / products.length
           : 0;
-
-        // 4. Low stock count (totalStock <= 10)
-        const lowStockCount = variants.filter(
-          (v) => v.inventory.totalStock <= 10,
-        ).length;
+        const lowStockCount = products.filter((p) => p.stock <= 10).length;
 
         return `
           <div class="space-y-6 fade-in">
@@ -4188,41 +3966,26 @@
         }
 
         container.innerHTML = filteredProducts
-          .map((product) => {
-            // Total stock across all variants
-            const totalStock = product.variants.reduce(
-              (sum, v) => sum + v.inventory.totalStock,
-              0,
-            );
-
-            //  unique variant  sizes (remove duplicates)
-            const uniqueSizes = [
-              ...new Set(product.variants.map((v) => v.size)),
-            ];
-            return `
+          .map(
+            (product) => `
           <div class="product-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
             <div class="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
               <img src="${getProductImageSrc(product)}" alt="${escapeHtml(product.name)}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/200?text=Product'">
-              ${totalStock <= 10 ? `<div class="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded-full"><i class="fas fa-exclamation-triangle mr-1"></i>Low Stock</div>` : ""}
+              ${product.stock <= 10 ? `<div class="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded-full"><i class="fas fa-exclamation-triangle mr-1"></i>Low Stock</div>` : ""}
             </div>
             <div class="p-4">
               <div class="flex justify-between items-start mb-2">
                 <h3 class="font-bold text-gray-800 text-lg leading-tight">${escapeHtml(product.name)}</h3>
-                <div class="flex -space-x-2">
-                ${uniqueSizes
-                  .map(
-                    (size, index) => `
-                      <span class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600 border border-white z-[${10 - index}]">
-                        ${size}
-                      </span>
-                    `,
-                  )
-                  .join("")}
+                <span class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">${product.size}</span>
               </div>
+              <p class="text-sm text-gray-500 mb-2">${product.category} • ${product.supplier || "No supplier"}</p>
+              <div class="flex items-center justify-between mb-3">
+                <div><span class="text-2xl font-bold text-emerald-600">${formatCurrency(product.sellPrice)}</span><span class="text-xs text-gray-400 ml-1">sell</span></div>
+                <div><span class="text-sm text-gray-500">Buy: ${formatCurrency(product.buyPrice)}</span></div>
               </div>
-              <p class="text-sm text-gray-500 mb-2">${product.category}  ${product.brand ? "• " + product.brand : ""}</p>
               <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-1"><i class="fas fa-boxes text-gray-400 text-sm"></i><span class="text-sm font-medium ${totalStock <= 10 ? "text-amber-600" : "text-gray-700"}">Stock: ${totalStock} units</span></div>
+                <div class="flex items-center gap-1"><i class="fas fa-boxes text-gray-400 text-sm"></i><span class="text-sm font-medium ${product.stock <= 10 ? "text-amber-600" : "text-gray-700"}">Stock: ${product.stock} units</span></div>
+                <div class="text-xs text-gray-400">Profit: ${formatCurrency(product.sellPrice - product.buyPrice)}</div>
               </div>
               <div class="flex gap-2">
                 <button class="editProductBtn flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-emerald-50 transition font-medium" data-id="${product.id}"><i class="fas fa-edit mr-1"></i> Edit</button>
@@ -4230,8 +3993,8 @@
               </div>
             </div>
           </div>
-        `;
-          })
+        `,
+          )
           .join("");
 
         // Attach event listeners to buttons
@@ -4251,14 +4014,13 @@
         });
       }
 
-      //Product Filtering Logic
       function filterProducts() {
         const searchTerm =
           document.getElementById("searchProductInput")?.value.toLowerCase() ||
           "";
         const categoryFilter =
           document.getElementById("categoryFilterSelect")?.value || "all";
-        let filtered = [...inventoryProducts];
+        let filtered = [...products];
         if (searchTerm) {
           filtered = filtered.filter(
             (p) =>
@@ -4396,68 +4158,46 @@
 
       function exportToCSV() {
         const headers = [
-          "Product ID",
-          "Product Name",
+          "ID",
+          "Name",
           "Category",
-          "Brand",
-          "Variant ID",
-          "SKU",
-          "Color",
-          "Size",
           "Buy Price (KES)",
           "Sell Price (KES)",
-          "Total Stock",
-          "Status",
-          "Reorder Point",
-          "Last Restocked",
+          "Stock",
+          "Size",
+          "Supplier",
           "Description",
         ];
-
-        const rows = products.flatMap((product) =>
-          product.variants.map((v) => [
-            product.id,
-            product.name,
-            product.category,
-            product.brand,
-            v.id,
-            v.sku,
-            v.color,
-            v.size,
-            v.buyPrice,
-            v.sellPrice,
-            v.inventory.totalStock,
-            v.inventory.status,
-            v.inventory.reorderPoint,
-            v.inventory.lastRestocked,
-            product.description || "",
-          ]),
-        );
-
+        const rows = products.map((p) => [
+          p.id,
+          p.name,
+          p.category,
+          p.buyPrice,
+          p.sellPrice,
+          p.stock,
+          p.size,
+          p.supplier || "",
+          p.description || "",
+        ]);
         const csvContent = [headers, ...rows]
           .map((row) =>
             row
-              .map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`)
+              .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
               .join(","),
           )
           .join("\n");
-
         const blob = new Blob(["\uFEFF" + csvContent], {
           type: "text/csv;charset=utf-8;",
         });
-
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
-
         link.href = url;
-        link.setAttribute("download", "qwetulinks_inventory_export.csv");
-
+        link.setAttribute("download", "product_catalog_export.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         URL.revokeObjectURL(url);
-
-        alert("📄 Inventory exported successfully!");
+        alert("📄 Product catalog exported successfully!");
       }
 
       function attachCatalogEvents() {
