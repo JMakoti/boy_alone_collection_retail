@@ -1,0 +1,579 @@
+{
+  "variants": [
+    {
+      "productId": "PRD-0001",
+      "productName": "Heritage Blue Denim Jacket",
+      "category": "Men's Clothing",
+      "brand": "Fashion Hub Ltd",
+      "variantId": "var_001",
+      "sku": "DJ-BLU-M",
+      "color": "Blue",
+      "size": "M",
+      "buyPrice": 1600,
+      "sellPrice": 3500,
+      "inventory": {
+        "totalStock": 45,
+        "reorderPoint": 35,
+        "status": "healthy",
+        "lastRestocked": "2026-04-05",
+        "locations": [
+          { "name": "Main Store", "stock": 25, "reorderPoint": 10 },
+          { "name": "Warehouse A", "stock": 15, "reorderPoint": 20 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0001",
+      "productName": "Heritage Blue Denim Jacket",
+      "category": "Men's Clothing",
+      "brand": "Fashion Hub Ltd",
+      "variantId": "var_002",
+      "sku": "DJ-BLU-L",
+      "color": "Blue",
+      "size": "L",
+      "buyPrice": 1800,
+      "sellPrice": 3500,
+      "inventory": {
+        "totalStock": 30,
+        "reorderPoint": 25,
+        "status": "healthy",
+        "lastRestocked": "2026-04-06",
+        "locations": [
+          { "name": "Main Store", "stock": 15, "reorderPoint": 8 },
+          { "name": "Warehouse A", "stock": 10, "reorderPoint": 12 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0002",
+      "productName": "Tropical Breeze Floral Dress",
+      "category": "Women's Clothing",
+      "brand": "Style Africa",
+      "variantId": "var_003",
+      "sku": "SD-FLR-S",
+      "color": "Floral",
+      "size": "S",
+      "buyPrice": 1200,
+      "sellPrice": 2900,
+      "inventory": {
+        "totalStock": 5,
+        "reorderPoint": 30,
+        "status": "critical",
+        "lastRestocked": "2026-03-28",
+        "locations": [
+          { "name": "Main Store", "stock": 3, "reorderPoint": 10 },
+          { "name": "Warehouse A", "stock": 2, "reorderPoint": 15 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0002",
+      "productName": "Tropical Breeze Floral Dress",
+      "category": "Women's Clothing",
+      "brand": "Style Africa",
+      "variantId": "var_004",
+      "sku": "SD-FLR-M",
+      "color": "Floral",
+      "size": "M",
+      "buyPrice": 1200,
+      "sellPrice": 2900,
+      "inventory": {
+        "totalStock": 18,
+        "reorderPoint": 25,
+        "status": "healthy",
+        "lastRestocked": "2026-04-04",
+        "locations": [
+          { "name": "Main Store", "stock": 10, "reorderPoint": 8 },
+          { "name": "Warehouse A", "stock": 5, "reorderPoint": 10 },
+          { "name": "Outlet", "stock": 3, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0003",
+      "productName": "Urban Edge Leather Sneakers",
+      "category": "Footwear",
+      "brand": "Urban Kicks",
+      "variantId": "var_005",
+      "sku": "SN-WHT-42",
+      "color": "White",
+      "size": "42",
+      "buyPrice": 2200,
+      "sellPrice": 4500,
+      "inventory": {
+        "totalStock": 32,
+        "reorderPoint": 20,
+        "status": "healthy",
+        "lastRestocked": "2026-04-07",
+        "locations": [
+          { "name": "Main Store", "stock": 15, "reorderPoint": 10 },
+          { "name": "Warehouse A", "stock": 10, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 7, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0004",
+      "productName": "Midnight Wool Overcoat",
+      "category": "Outerwear",
+      "brand": "LuxeCraft",
+      "variantId": "var_006",
+      "sku": "OW-BLK-M",
+      "color": "Black",
+      "size": "M",
+      "buyPrice": 4500,
+      "sellPrice": 8900,
+      "inventory": {
+        "totalStock": 12,
+        "reorderPoint": 15,
+        "status": "low",
+        "lastRestocked": "2026-03-20",
+        "locations": [
+          { "name": "Main Store", "stock": 8, "reorderPoint": 5 },
+          { "name": "Warehouse A", "stock": 4, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 3 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0005",
+      "productName": "Vintage Leather Belt",
+      "category": "Accessories",
+      "brand": "LeatherCraft",
+      "variantId": "var_007",
+      "sku": "BLT-BRN-32",
+      "color": "Brown",
+      "size": "32",
+      "buyPrice": 500,
+      "sellPrice": 1200,
+      "inventory": {
+        "totalStock": 78,
+        "reorderPoint": 40,
+        "status": "healthy",
+        "lastRestocked": "2026-04-10",
+        "locations": [
+          { "name": "Main Store", "stock": 40, "reorderPoint": 15 },
+          { "name": "Warehouse A", "stock": 30, "reorderPoint": 20 },
+          { "name": "Outlet", "stock": 8, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0005",
+      "productName": "Vintage Leather Belt",
+      "category": "Accessories",
+      "brand": "LeatherCraft",
+      "variantId": "var_008",
+      "sku": "BLT-BLK-34",
+      "color": "Black",
+      "size": "34",
+      "buyPrice": 500,
+      "sellPrice": 1200,
+      "inventory": {
+        "totalStock": 62,
+        "reorderPoint": 40,
+        "status": "healthy",
+        "lastRestocked": "2026-04-10",
+        "locations": [
+          { "name": "Main Store", "stock": 35, "reorderPoint": 15 },
+          { "name": "Warehouse A", "stock": 20, "reorderPoint": 20 },
+          { "name": "Outlet", "stock": 7, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0006",
+      "productName": "Cotton Linen Summer Shirt",
+      "category": "Men's Clothing",
+      "brand": "Coastal Threads",
+      "variantId": "var_009",
+      "sku": "CLS-WHT-M",
+      "color": "White",
+      "size": "M",
+      "buyPrice": 800,
+      "sellPrice": 2200,
+      "inventory": {
+        "totalStock": 55,
+        "reorderPoint": 30,
+        "status": "healthy",
+        "lastRestocked": "2026-04-08",
+        "locations": [
+          { "name": "Main Store", "stock": 30, "reorderPoint": 12 },
+          { "name": "Warehouse A", "stock": 20, "reorderPoint": 15 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0007",
+      "productName": "Suede Chelsea Boots",
+      "category": "Footwear",
+      "brand": "Urban Kicks",
+      "variantId": "var_010",
+      "sku": "CHL-TAN-41",
+      "color": "Tan",
+      "size": "41",
+      "buyPrice": 2800,
+      "sellPrice": 6200,
+      "inventory": {
+        "totalStock": 18,
+        "reorderPoint": 20,
+        "status": "low",
+        "lastRestocked": "2026-03-25",
+        "locations": [
+          { "name": "Main Store", "stock": 10, "reorderPoint": 6 },
+          { "name": "Warehouse A", "stock": 5, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 3, "reorderPoint": 4 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0008",
+      "productName": "Cashmere Blend Scarf",
+      "category": "Accessories",
+      "brand": "LuxeCraft",
+      "variantId": "var_011",
+      "sku": "SCR-BGE-OS",
+      "color": "Beige",
+      "size": "One Size",
+      "buyPrice": 800,
+      "sellPrice": 1890,
+      "inventory": {
+        "totalStock": 3,
+        "reorderPoint": 18,
+        "status": "critical",
+        "lastRestocked": "2026-04-01",
+        "locations": [
+          { "name": "Main Store", "stock": 2, "reorderPoint": 6 },
+          { "name": "Warehouse A", "stock": 1, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 4 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0009",
+      "productName": "Ripped Skinny Jeans",
+      "category": "Men's Clothing",
+      "brand": "DenimCo",
+      "variantId": "var_012",
+      "sku": "RJN-BLK-30",
+      "color": "Black",
+      "size": "30",
+      "buyPrice": 1100,
+      "sellPrice": 2800,
+      "inventory": {
+        "totalStock": 0,
+        "reorderPoint": 40,
+        "status": "reorder",
+        "lastRestocked": "2026-03-15",
+        "locations": [
+          { "name": "Main Store", "stock": 0, "reorderPoint": 12 },
+          { "name": "Warehouse A", "stock": 0, "reorderPoint": 20 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 8 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0010",
+      "productName": "Polar Fleece Hoodie",
+      "category": "Outerwear",
+      "brand": "Coastal Threads",
+      "variantId": "var_013",
+      "sku": "HOD-GRY-L",
+      "color": "Grey",
+      "size": "L",
+      "buyPrice": 1300,
+      "sellPrice": 3200,
+      "inventory": {
+        "totalStock": 42,
+        "reorderPoint": 25,
+        "status": "healthy",
+        "lastRestocked": "2026-04-09",
+        "locations": [
+          { "name": "Main Store", "stock": 22, "reorderPoint": 10 },
+          { "name": "Warehouse A", "stock": 15, "reorderPoint": 12 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0011",
+      "productName": "Silk Evening Gown",
+      "category": "Women's Clothing",
+      "brand": "Style Africa",
+      "variantId": "var_014",
+      "sku": "GWN-RED-S",
+      "color": "Red",
+      "size": "S",
+      "buyPrice": 3500,
+      "sellPrice": 8500,
+      "inventory": {
+        "totalStock": 7,
+        "reorderPoint": 10,
+        "status": "low",
+        "lastRestocked": "2026-03-30",
+        "locations": [
+          { "name": "Main Store", "stock": 4, "reorderPoint": 4 },
+          { "name": "Warehouse A", "stock": 3, "reorderPoint": 5 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 2 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0012",
+      "productName": "Leather Biker Jacket",
+      "category": "Men's Clothing",
+      "brand": "Urban Kicks",
+      "variantId": "var_015",
+      "sku": "BKJ-BLK-XL",
+      "color": "Black",
+      "size": "XL",
+      "buyPrice": 5500,
+      "sellPrice": 12500,
+      "inventory": {
+        "totalStock": 8,
+        "reorderPoint": 15,
+        "status": "low",
+        "lastRestocked": "2026-04-02",
+        "locations": [
+          { "name": "Main Store", "stock": 5, "reorderPoint": 5 },
+          { "name": "Warehouse A", "stock": 3, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 3 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0013",
+      "productName": "Canvas Tote Bag",
+      "category": "Accessories",
+      "brand": "LeatherCraft",
+      "variantId": "var_016",
+      "sku": "TBG-NAT-OS",
+      "color": "Natural",
+      "size": "One Size",
+      "buyPrice": 350,
+      "sellPrice": 950,
+      "inventory": {
+        "totalStock": 120,
+        "reorderPoint": 50,
+        "status": "healthy",
+        "lastRestocked": "2026-04-11",
+        "locations": [
+          { "name": "Main Store", "stock": 70, "reorderPoint": 25 },
+          { "name": "Warehouse A", "stock": 40, "reorderPoint": 20 },
+          { "name": "Outlet", "stock": 10, "reorderPoint": 10 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0014",
+      "productName": "Kids Cartoon T-Shirt",
+      "category": "Kids Wear",
+      "brand": "TinyTrends",
+      "variantId": "var_017",
+      "sku": "KTS-BLU-4",
+      "color": "Blue",
+      "size": "4Y",
+      "buyPrice": 300,
+      "sellPrice": 800,
+      "inventory": {
+        "totalStock": 45,
+        "reorderPoint": 20,
+        "status": "healthy",
+        "lastRestocked": "2026-04-06",
+        "locations": [
+          { "name": "Main Store", "stock": 25, "reorderPoint": 8 },
+          { "name": "Warehouse A", "stock": 15, "reorderPoint": 10 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0015",
+      "productName": "Wool Fedora Hat",
+      "category": "Accessories",
+      "brand": "LuxeCraft",
+      "variantId": "var_018",
+      "sku": "HAT-GRY-OS",
+      "color": "Grey",
+      "size": "One Size",
+      "buyPrice": 600,
+      "sellPrice": 1500,
+      "inventory": {
+        "totalStock": 22,
+        "reorderPoint": 15,
+        "status": "healthy",
+        "lastRestocked": "2026-04-03",
+        "locations": [
+          { "name": "Main Store", "stock": 12, "reorderPoint": 5 },
+          { "name": "Warehouse A", "stock": 8, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 2, "reorderPoint": 3 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0016",
+      "productName": "Running Shoes",
+      "category": "Footwear",
+      "brand": "Urban Kicks",
+      "variantId": "var_019",
+      "sku": "RUN-BLU-43",
+      "color": "Blue",
+      "size": "43",
+      "buyPrice": 1800,
+      "sellPrice": 4200,
+      "inventory": {
+        "totalStock": 28,
+        "reorderPoint": 25,
+        "status": "healthy",
+        "lastRestocked": "2026-04-08",
+        "locations": [
+          { "name": "Main Store", "stock": 15, "reorderPoint": 8 },
+          { "name": "Warehouse A", "stock": 10, "reorderPoint": 12 },
+          { "name": "Outlet", "stock": 3, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0017",
+      "productName": "Plaid Button-Up Shirt",
+      "category": "Men's Clothing",
+      "brand": "Coastal Threads",
+      "variantId": "var_020",
+      "sku": "PLS-RED-L",
+      "color": "Red/Black",
+      "size": "L",
+      "buyPrice": 900,
+      "sellPrice": 2400,
+      "inventory": {
+        "totalStock": 34,
+        "reorderPoint": 20,
+        "status": "healthy",
+        "lastRestocked": "2026-04-07",
+        "locations": [
+          { "name": "Main Store", "stock": 18, "reorderPoint": 8 },
+          { "name": "Warehouse A", "stock": 12, "reorderPoint": 10 },
+          { "name": "Outlet", "stock": 4, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0018",
+      "productName": "Kids Denim Overalls",
+      "category": "Kids Wear",
+      "brand": "TinyTrends",
+      "variantId": "var_021",
+      "sku": "KDO-BLU-2",
+      "color": "Blue",
+      "size": "2T",
+      "buyPrice": 700,
+      "sellPrice": 1800,
+      "inventory": {
+        "totalStock": 15,
+        "reorderPoint": 12,
+        "status": "low",
+        "lastRestocked": "2026-03-28",
+        "locations": [
+          { "name": "Main Store", "stock": 8, "reorderPoint": 5 },
+          { "name": "Warehouse A", "stock": 5, "reorderPoint": 6 },
+          { "name": "Outlet", "stock": 2, "reorderPoint": 3 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0019",
+      "productName": "Cashmere Knit Sweater",
+      "category": "Women's Clothing",
+      "brand": "LuxeCraft",
+      "variantId": "var_022",
+      "sku": "SWT-CRM-M",
+      "color": "Cream",
+      "size": "M",
+      "buyPrice": 2800,
+      "sellPrice": 6500,
+      "inventory": {
+        "totalStock": 9,
+        "reorderPoint": 15,
+        "status": "critical",
+        "lastRestocked": "2026-03-22",
+        "locations": [
+          { "name": "Main Store", "stock": 5, "reorderPoint": 5 },
+          { "name": "Warehouse A", "stock": 4, "reorderPoint": 8 },
+          { "name": "Outlet", "stock": 0, "reorderPoint": 3 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0020",
+      "productName": "Aviator Sunglasses",
+      "category": "Accessories",
+      "brand": "Style Africa",
+      "variantId": "var_023",
+      "sku": "SUN-GLD-OS",
+      "color": "Gold",
+      "size": "One Size",
+      "buyPrice": 400,
+      "sellPrice": 1200,
+      "inventory": {
+        "totalStock": 65,
+        "reorderPoint": 30,
+        "status": "healthy",
+        "lastRestocked": "2026-04-09",
+        "locations": [
+          { "name": "Main Store", "stock": 35, "reorderPoint": 12 },
+          { "name": "Warehouse A", "stock": 25, "reorderPoint": 15 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0021",
+      "productName": "Cargo Jogger Pants",
+      "category": "Men's Clothing",
+      "brand": "Coastal Threads",
+      "variantId": "var_024",
+      "sku": "CJP-OLV-M",
+      "color": "Olive",
+      "size": "M",
+      "buyPrice": 900,
+      "sellPrice": 2200,
+      "inventory": {
+        "totalStock": 55,
+        "reorderPoint": 30,
+        "status": "healthy",
+        "lastRestocked": "2026-04-10",
+        "locations": [
+          { "name": "Main Store", "stock": 30, "reorderPoint": 10 },
+          { "name": "Warehouse A", "stock": 20, "reorderPoint": 15 },
+          { "name": "Outlet", "stock": 5, "reorderPoint": 5 }
+        ]
+      }
+    },
+    {
+      "productId": "PRD-0022",
+      "productName": "Leather Crossbody Bag",
+      "category": "Accessories",
+      "brand": "LeatherCraft",
+      "variantId": "var_025",
+      "sku": "CBG-BLK-OS",
+      "color": "Black",
+      "size": "One Size",
+      "buyPrice": 1100,
+      "sellPrice": 2800,
+      "inventory": {
+        "totalStock": 24,
+        "reorderPoint": 20,
+        "status": "healthy",
+        "lastRestocked": "2026-04-05",
+        "locations": [
+          { "name": "Main Store", "stock": 14, "reorderPoint": 6 },
+          { "name": "Warehouse A", "stock": 8, "reorderPoint": 10 },
+          { "name": "Outlet", "stock": 2, "reorderPoint": 4 }
+        ]
+      }
+    }
+  ]
+}
