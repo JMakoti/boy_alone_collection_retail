@@ -1887,21 +1887,24 @@
               "qwetulinks_products",
               JSON.stringify(inventoryProducts),
             );
-          }
-        } catch (error) {
-          console.error("Error loading inventory:", error);
-        }
 
-        // Get Inventory Data
-        const storedInventory = localStorage.getItem("qwetulinks_inventory");
+            // Get Inventory Data
+            const storedInventory = localStorage.getItem(
+              "qwetulinks_inventory",
+            );
 
-        if (storedInventory) {
-          inventoryItems = JSON.parse(storedInventory);
-        } else {
-          fetch("./data/variants.json")
-            .then((res) => res.json)
-            .then((data) => {
-              inventoryItems = data.variants;
+            if (storedInventory) {
+              inventoryItems = JSON.parse(storedInventory);
+            } else {
+              const res = await fetch("./data/variants.json");
+
+              if (!res.ok) {
+                throw new Error("Failed to load inventory JSON file");
+              }
+
+              const inventorydata = await res.json();
+
+              inventoryItems = inventorydata.variants;
               console.log("Fetched inventory items:", inventoryItems);
 
               inventoryItems.forEach((item) => recalcTotalStock(item));
@@ -1910,23 +1913,11 @@
                 "qwetulinks_inventory",
                 JSON.stringify(inventoryItems),
               );
-            })
-            .catch((error) => {
-              console.error("Error loading inventory items:", error);
-            });
+            }
+          }
+        } catch (error) {
+          console.error("Error loading inventory:", error);
         }
-
-        //   const inventorydata = await res.json();
-
-        //   inventoryItems = inventorydata.variants;
-        //   console.log("Fetched inventory items:", inventoryItems);
-
-        //   inventoryItems.forEach((item) => recalcTotalStock(item));
-
-        //   localStorage.setItem(
-        //     "qwetulinks_inventory",
-        //     JSON.stringify(inventoryItems),
-        //   );
 
         // order Data
         const storedOrders = localStorage.getItem("boyalone_product_orders");
@@ -2578,22 +2569,27 @@
 
       // Inventory filtering and stats computation
       function getFilteredInventoryItems() {
+        const searchTerm =
+          document.getElementById("searchInventoryInput")?.value.toLowerCase() ||
+          "";
+        const locationSelect = document.getElementById("locationFilterSelect")?.value || "Main Store";
         let filtered = [...inventoryItems];
-        if (currentSearchTerm.trim()) {
-          const term = currentSearchTerm.toLowerCase();
+        if (searchTerm) {
           filtered = filtered.filter(
             (i) =>
-              i.productName.toLowerCase().includes(term) ||
-              i.sku.toLowerCase().includes(term),
+              i.productName.toLowerCase().includes(searchTerm) ||
+              i.sku.toLowerCase().includes(searchTerm),
           );
         }
-        if (currentSelectedLocation !== "all")
+        if (locationSelect !== "all")
           filtered = filtered.filter((item) =>
             item.inventory.locations.some(
-              (loc) => loc.name === currentSelectedLocation,
+              (loc) => loc.name === locationSelect,
             ),
           );
-        return filtered;
+        invFilteredItems = filtered;
+        invCurrentPage = 1;
+        renderInventoryPage();
       }
 
       function computeStats(items) {
@@ -2664,51 +2660,49 @@
       }
 
       // INVENTORY RENDER (Enhanced with full UI)
-      function renderFullInventory() {
-        const stats = computeStats(inventoryItems);
-        return `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-5"><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div></div><div class="bg-white rounded-xl border p-4"><div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div><div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div></div></div>
-        <div id="inventoryDynamicContainer"></div>`;
-      }
-
-      function renderInventoryCards(items) {
-        if (!items.length) {
-          return `<div class="text-center py-12 text-gray-400 bg-white rounded-xl border"><i class="fas fa-box-open text-4xl mb-3"></i><p>No inventory items match your search.</p></div>`;
-        }
-
-        return `
-        <div class="space-y-5" id="inventoryListContainer">
-          ${items
-            .map((item) => {
-              const statusClass = {
-                healthy: "status-healthy",
-                low: "status-low",
-                critical: "status-critical",
-                reorder: "status-reorder",
-              }[item.inventory.status];
-              const statusIcon = {
-                healthy: "fa-check-circle",
-                low: "fa-chart-line",
-                critical: "fa-exclamation-triangle",
-                reorder: "fa-exclamation-circle",
-              }[item.inventory.status];
-              const statusLabel = {
-                healthy: "Healthy",
-                low: "Low Stock",
-                critical: "Critical",
-                reorder: "Reorder Now",
-              }[item.inventory.status];
-
-              return `<div class="bg-white rounded-2xl border p-6 inventory-card shadow-sm"><div class="flex flex-col xl:flex-row gap-5"><div class="flex-1"><div class="flex flex-wrap items-start justify-between gap-4 mb-4"><div><h3 class="font-bold text-xl">${escapeHtml(item.productName)} ${escapeHtml(`- ${item.color}`)} ${escapeHtml(`(${item.size})`)}</h3><p class="text-sm text-gray-500 font-mono">SKU: ${item.sku}</p></div><span class="status-badge ${statusClass}"><i class="fas ${statusIcon} text-xs"></i> ${statusLabel}</span></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4">${item.inventory.locations.map((loc) => `<div class="p-3 rounded-xl border ${loc.stock <= loc.reorderPoint ? "bg-amber-50 border-amber-200" : "bg-gray-50"}"><div class="flex items-center gap-2 mb-1"><i class="fas fa-map-marker-alt text-gray-500 text-sm"></i><p class="text-sm font-semibold">${loc.name}</p></div><div class="flex items-baseline justify-between"><span class="text-2xl font-bold ${loc.stock <= loc.reorderPoint ? "text-amber-700" : "text-gray-800"}">${loc.stock}</span><span class="text-xs text-gray-500">min: ${loc.reorderPoint}</span></div>${loc.stock <= loc.reorderPoint ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-circle"></i> Below reorder point</div>` : ""}</div>`).join("")}</div></div><div class="xl:w-56 space-y-3"><div class="bg-emerald-50 rounded-xl p-4 text-center border"><p class="text-sm text-gray-600 font-medium">📦 Total Stock</p><p class="text-3xl font-extrabold text-emerald-800">${item.inventory.totalStock}</p><p class="text-xs text-gray-500">Reorder threshold: ${item.inventory.reorderPoint}</p></div><div class="text-xs text-gray-400 text-center bg-gray-50 py-1 rounded-lg">Last restocked: ${new Date(item.inventory.lastRestocked).toLocaleDateString()}</div><div class="flex gap-2"><button class="adjustStockBtn flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 font-medium" data-sku="${item.sku}"><i class="fas fa-pen-alt mr-1"></i> Adjust</button><button class="transferStockBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700" data-sku="${item.sku}"><i class="fas fa-exchange-alt mr-1"></i> Transfer</button></div></div></div></div>`;
-            })
-            .join("")}
+      function renderFullInventory(inventory) {
+        console.log("renderFullInvetory", inventory)
+        // const filtered = getFilteredInventoryItems();
+        const stats = computeStats(inventory);
+       if (inventory.length === 0) {
+  return `
+    <div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-xl border">
+      <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
+      <p>No products found. Click "Add Product" to get started.</p>
+    </div>
+  `;
+}
+        return `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1><p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-5"><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div><div class="bg-white rounded-2xl border p-5"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div></div><div class="bg-white rounded-xl border p-4"><div class="flex flex-col lg:flex-row gap-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div><div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div></div></div><div class="space-y-5" id="inventoryListContainer">${inventory
+          .map((item) => {
+            const statusClass = {
+              healthy: "status-healthy",
+              low: "status-low",
+              critical: "status-critical",
+              reorder: "status-reorder",
+            }[item.inventory.status];
+            const statusIcon = {
+              healthy: "fa-check-circle",
+              low: "fa-chart-line",
+              critical: "fa-exclamation-triangle",
+              reorder: "fa-exclamation-circle",
+            }[item.inventory.status];
+            const statusLabel = {
+              healthy: "Healthy",
+              low: "Low Stock",
+              critical: "Critical",
+              reorder: "Reorder Now",
+            }[item.inventory.status];
+            return `<div class="bg-white rounded-2xl border p-6 inventory-card shadow-sm"><div class="flex flex-col xl:flex-row gap-5"><div class="flex-1"><div class="flex flex-wrap items-start justify-between gap-4 mb-4"><div><h3 class="font-bold text-xl">${escapeHtml(item.productName)} ${escapeHtml(`- ${item.color}`)} ${escapeHtml(`(${item.size})`)}</h3><p class="text-sm text-gray-500 font-mono">SKU: ${item.sku}</p></div><span class="status-badge ${statusClass}"><i class="fas ${statusIcon} text-xs"></i> ${statusLabel}</span></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4">${item.inventory.locations.map((loc) => `<div class="p-3 rounded-xl border ${loc.stock <= loc.reorderPoint ? "bg-amber-50 border-amber-200" : "bg-gray-50"}"><div class="flex items-center gap-2 mb-1"><i class="fas fa-map-marker-alt text-gray-500 text-sm"></i><p class="text-sm font-semibold">${loc.name}</p></div><div class="flex items-baseline justify-between"><span class="text-2xl font-bold ${loc.stock <= loc.reorderPoint ? "text-amber-700" : "text-gray-800"}">${loc.stock}</span><span class="text-xs text-gray-500">min: ${loc.reorderPoint}</span></div>${loc.stock <= loc.reorderPoint ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-circle"></i> Below reorder point</div>` : ""}</div>`).join("")}</div></div><div class="xl:w-56 space-y-3"><div class="bg-emerald-50 rounded-xl p-4 text-center border"><p class="text-sm text-gray-600 font-medium">📦 Total Stock</p><p class="text-3xl font-extrabold text-emerald-800">${item.inventory.totalStock}</p><p class="text-xs text-gray-500">Reorder threshold: ${item.inventory.reorderPoint}</p></div><div class="text-xs text-gray-400 text-center bg-gray-50 py-1 rounded-lg">Last restocked: ${new Date(item.inventory.lastRestocked).toLocaleDateString()}</div><div class="flex gap-2"><button class="adjustStockBtn flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 font-medium" data-sku="${item.sku}"><i class="fas fa-pen-alt mr-1"></i> Adjust</button><button class="transferStockBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700" data-sku="${item.sku}"><i class="fas fa-exchange-alt mr-1"></i> Transfer</button></div></div></div></div>`;
+          })
+          .join("")}
           ${
-            items.length > 0
+            inventory.length > 0
               ? `
 <div class="bg-white rounded-xl p-4 flex flex-wrap justify-between items-center text-sm border mt-4">
   
   <!-- Left: Info -->
   <div id="invPaginationInfo" class="text-gray-500">
-    1–10 of ${items.length} items
+    1–10 of ${inventory.length} items
   </div>
 
   <!-- Center: Controls -->
@@ -2735,38 +2729,18 @@
 </div>
 `
               : ""
-          }
+          }</div>`;
 
-          </div>
-      
-      `;
       }
 
-      // inventory events
+
       function attachInventoryEvents() {
-        let searchDebounceTimer;
         var searchInput = document.getElementById("searchInventoryInput");
         var locationSelect = document.getElementById("locationFilterSelect");
-        if (searchInput) {
-          searchInput.value = currentSearchTerm;
-          searchInput.oninput = function (e) {
-            // Clear previous timer
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => {
-              currentSearchTerm = e.target.value;
-              invCurrentPage = 1;
-              updateInventoryCardArea();
-            }, 300);
-          };
-        }
-        if (locationSelect) {
-          locationSelect.value = currentSelectedLocation;
-          locationSelect.onchange = function (e) {
-            currentSelectedLocation = e.target.value;
-            invCurrentPage = 1;
-            updateInventoryCardArea();
-          };
-        }
+        if (searchInput) searchInput.addEventListener("input", getFilteredInventoryItems);
+        if (locationSelect)
+          locationSelect.addEventListener("change", getFilteredInventoryItems);
+
 
         document.addEventListener("click", (e) => {
           // Adjust Stock Button
@@ -3990,7 +3964,9 @@
           filterProducts();
           attachCatalogEvents();
         } else if (currentTab === "inventory") {
-          renderInventoryPage();
+          getFilteredInventoryItems();
+          attachInventoryEvents();
+          // renderInventoryPage();
         } else if (currentTab === "orders") {
           container.innerHTML = renderOrders();
           attachOrderEvents();
@@ -4018,6 +3994,7 @@
 
       // Product Catalog Modal Logic and Functions
       function renderProductsGrid(filteredProducts) {
+      
         const container = document.getElementById("productsGridContainer");
         if (!container) return;
         if (filteredProducts.length === 0) {
@@ -4516,12 +4493,12 @@
               persistData();
 
               //  CLEAR FORM
-              document.getElementById("transferQty").value = "";
-              document.getElementById("fromLocation").selectedIndex = 0;
-              document.getElementById("toLocation").selectedIndex = 0;
+      document.getElementById("transferQty").value = "";
+      document.getElementById("fromLocation").selectedIndex = 0;
+      document.getElementById("toLocation").selectedIndex = 0;
 
-              // Optional: clear active item
-              activeTransferItem = null;
+      // Optional: clear active item
+      activeTransferItem = null;
 
               renderInventoryPage();
               closeTransfer();
@@ -4534,26 +4511,17 @@
 
       // Inventory Functions
       function renderInventoryPage() {
-        const container = document.getElementById("pageRenderer");
-        if (!container) return;
-        container.innerHTML = renderFullInventory();
-        updateInventoryCardArea();
-        attachInventoryEvents();
-      }
+        var start = (invCurrentPage - 1) * invPerPage;
+        var paginatedItems = invFilteredItems.slice(start, start + invPerPage);
 
-      function updateInventoryCardArea() {
-        invFilteredItems = getFilteredInventoryItems();
-        const start = (invCurrentPage - 1) * invPerPage;
-        const paginatedItems = invFilteredItems.slice(
-          start,
-          start + invPerPage,
-        );
-        const cardsHtml = renderInventoryCards(paginatedItems);
-        const dynamicContainer = document.getElementById(
-          "inventoryDynamicContainer",
-        );
-        if (dynamicContainer) dynamicContainer.innerHTML = cardsHtml;
+        // const container = document.getElementById("pageRenderer");
+        // if (container && currentTab === "inventory") {
+        // container.innerHTML = renderFullInventory(paginatedItems);
+        const html = renderFullInventory(paginatedItems);
+  const container = document.getElementById("pageRenderer");
+  if (container) container.innerHTML = html;
         updateInvPaginationUI();
+        // }
       }
 
       function updateInvPaginationUI() {
