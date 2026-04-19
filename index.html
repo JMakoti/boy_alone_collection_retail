@@ -948,8 +948,9 @@
       class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4"
     >
       <div class="bg-white rounded-2xl max-w-3xl w-full p-6">
-        <h3 class="text-xl font-bold mb-4">
-          <i class="fas fa-edit text-emerald-600"></i> Edit Variant
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <i class="fas fa-edit text-emerald-600"></i> Edit
+          <p><span id="editVariantSku">Product Sku</span></p>
         </h3>
         <input type="hidden" id="editVariantProductId" /><input
           type="hidden"
@@ -1028,10 +1029,12 @@
         >
           <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
         </div>
-        <h3 class="text-xl font-bold text-gray-800 mb-2" >Delete Product Variant </h3>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">
+          Delete Product Variant
+        </h3>
         <p class="text-gray-500 mb-6" id="deleteVariantName">
-          Are you sure you want to delete this product variant? This action cannot be
-          undone.
+          Are you sure you want to delete this product variant? This action
+          cannot be undone.
         </p>
         <div class="flex gap-3">
           <button
@@ -1048,9 +1051,6 @@
         </div>
       </div>
     </div>
-
-
-
 
     <!-- Delete Confirmation Modal -->
     <div
@@ -4288,7 +4288,8 @@
             name = btn.dataset.name;
             document.getElementById("deleteModal").classList.remove("hidden");
             document.getElementById("deleteModal").classList.add("flex");
-            document.getElementById("deleteName").innerText =`Are you sure you want to delete product (${name})?`;
+            document.getElementById("deleteName").innerText =
+              `Are you sure you want to delete product (${name})?`;
           });
         });
       }
@@ -4860,16 +4861,6 @@
           .getElementById("closeAddVariantModalBtn")
           ?.addEventListener("click", () =>
             document.getElementById("addVariantModal").classList.add("hidden"),
-          );
-
-        document
-          .getElementById("saveVariantChangesBtn")
-          ?.addEventListener("click", saveTempVariantFromEdit);
-
-        document
-          .getElementById("closeEditVariantModal")
-          ?.addEventListener("click", () =>
-            document.getElementById("editVariantModal").classList.add("hidden"),
           );
 
         // Form submit
@@ -5492,13 +5483,18 @@
           }
 
           document.querySelectorAll(".delGlobalVariantBtn").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            sku = btn.dataset.sku;
-            document.getElementById("deleteVariantModal").classList.remove("hidden");
-            document.getElementById("deleteVariantModal").classList.add("flex");
-            document.getElementById("deleteVariantName").innerText =`Are you sure you want to delete variant (${sku})?`;
+            btn.addEventListener("click", (e) => {
+              sku = btn.dataset.sku;
+              document
+                .getElementById("deleteVariantModal")
+                .classList.remove("hidden");
+              document
+                .getElementById("deleteVariantModal")
+                .classList.add("flex");
+              document.getElementById("deleteVariantName").innerText =
+                `Are you sure you want to delete variant (${sku})?`;
+            });
           });
-        });
           // Transfer Stock Button
           // if (e.target.closest(".transferStockBtn")) {
           //   const btn = e.target.closest(".transferStockBtn");
@@ -5515,9 +5511,21 @@
           // }
         });
 
+        //Edit modal buttons
+
+        document
+          .getElementById("closeEditVariantModal")
+          ?.addEventListener("click", () =>
+            document.getElementById("editVariantModal").classList.add("hidden"),
+          );
+
         // Delete modal buttons
-        const confirmDeleteBtn = document.getElementById("confirmDeleteVariantBtn");
-        const cancelDeleteBtn = document.getElementById("cancelDeleteVariantBtn");
+        const confirmDeleteBtn = document.getElementById(
+          "confirmDeleteVariantBtn",
+        );
+        const cancelDeleteBtn = document.getElementById(
+          "cancelDeleteVariantBtn",
+        );
         if (confirmDeleteBtn)
           confirmDeleteBtn.addEventListener("click", confirmVariantDelete);
         if (cancelDeleteBtn)
@@ -5563,15 +5571,22 @@
           )
           .join("");
         document.getElementById("editVariantModal").classList.remove("hidden");
+        document.getElementById("editVariantModal").classList.add("flex");
+        document.getElementById("editVariantSku").innerText =
+          `${product.name} - (${variant.sku})`;
         document.getElementById("saveVariantChangesBtn").onclick = () => {
-          saveGlobalVariant(productId, variantId);
+          saveGlobalVariant(productId, variantSku);
         };
       }
-      function saveGlobalVariant(productId, variantId) {
+      function saveGlobalVariant(productId, variantSku) {
         const product = inventoryProducts.find((p) => p.id === productId);
+        if (!product) {
+          alert("Product not found");
+          return;
+        }
         const variant = product.variants.find((v) => v.sku === variantSku);
         if (variant) {
-          variant.sku = document.getElementById("editSku").value;
+          // variant.sku = document.getElementById("editSku").value;
           variant.color = document.getElementById("editColor").value;
           variant.size = document.getElementById("editSizeSelect").value;
           variant.buyPrice = parseFloat(
@@ -5591,9 +5606,24 @@
           });
           computeVariantInventory(variant);
           persistData();
+          alert(`✅ Variant "${variantSku}" updated successfully.`);
           renderCurrentTab();
         }
+        resetEditVariantForm();
         document.getElementById("editVariantModal").classList.add("hidden");
+      }
+      function resetEditVariantForm() {
+        document.getElementById("editVariantProductId").value = "";
+        document.getElementById("editVariantId").value = "";
+
+        document.getElementById("editColor").value = "";
+        document.getElementById("editBuyPrice").value = "";
+        document.getElementById("editSellPrice").value = "";
+        document.getElementById("editReorderPoint").value = "";
+
+        // Clear dynamic containers
+        document.getElementById("editSizeContainer").innerHTML = "";
+        document.getElementById("editLocationsContainer").innerHTML = "";
       }
 
       function renderVariantsPage() {
@@ -5610,11 +5640,9 @@
         persistData();
       }
 
-       function confirmVariantDelete() {
+      function confirmVariantDelete() {
         if (sku) {
-          const product = inventoryItems.find(
-            (p) => p.sku === sku,
-          );
+          const product = inventoryItems.find((p) => p.sku === sku);
 
           deleteVariantProduct(sku);
           alert(`Product "${product?.name ?? sku}" deleted.`);
@@ -5628,7 +5656,6 @@
         sku = null;
         document.getElementById("deleteVariantModal").classList.add("hidden");
       }
-
 
       // Customer Hub
       function renderCustomersGrid(filteredCustomers) {
