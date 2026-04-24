@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Lipa Mdogo | Invoices & Receipts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --ink: #1a1f2e;
+      --ink-2: #3d4459;
+      --ink-3: #6b7280;
+      --paper: #f9f7f4;
+      --paper-2: #f0ede8;
+      --emerald: #059669;
+      --emerald-light: #d1fae5;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --purple: #7c3aed;
+      --purple-light: #ede9fe;
+      --border: #e5e0d8;
+    }
+    * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+    body { background: var(--paper); color: var(--ink); min-height: 100vh; }
+    .mono { font-family: 'DM Mono', monospace; }
+    .display { font-family: 'Playfair Display', serif; }
+    .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--paper-2); }
+    ::-webkit-scrollbar-thumb { background: #c5bfb5; border-radius: 99px; }
+
+    /* Animations */
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+    @keyframes shimmer { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .slide-up { animation: slideUp 0.35s ease both; }
+    .fade-in  { animation: fadeIn 0.3s ease both; }
+
+    /* Stagger */
+    .stagger > * { animation: slideUp 0.4s ease both; }
+    .stagger > *:nth-child(1) { animation-delay: 0.04s; }
+    .stagger > *:nth-child(2) { animation-delay: 0.08s; }
+    .stagger > *:nth-child(3) { animation-delay: 0.12s; }
+    .stagger > *:nth-child(4) { animation-delay: 0.16s; }
+    .stagger > *:nth-child(5) { animation-delay: 0.20s; }
+    .stagger > *:nth-child(6) { animation-delay: 0.24s; }
+
+    /* Cards */
+    .card { background:#fff; border:1px solid var(--border); border-radius:16px; transition: box-shadow 0.2s, transform 0.2s; }
+    .card:hover { box-shadow: 0 8px 32px -8px rgba(26,31,46,0.12); transform: translateY(-1px); }
+
+    /* Tabs */
+    .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 500; font-size: 14px; transition: all 0.18s; cursor:pointer; color: var(--ink-3); }
+    .tab-btn:hover { background: var(--paper-2); color: var(--ink); }
+    .tab-btn.active { background: var(--ink); color: #fff; }
+
+    /* Badges */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:600; letter-spacing:0.02em; }
+    .badge-active   { background:var(--emerald-light); color:#065f46; }
+    .badge-overdue  { background:var(--red-light); color:#991b1b; }
+    .badge-completed{ background:var(--blue-light); color:#1e40af; }
+    .badge-pending  { background:var(--amber-light); color:#92400e; }
+    .badge-partial  { background:var(--purple-light); color:#5b21b6; }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition: all 0.18s; border:none; outline:none; }
+    .btn-primary { background: var(--ink); color:#fff; }
+    .btn-primary:hover { background:#2d3347; box-shadow:0 4px 14px rgba(26,31,46,0.25); }
+    .btn-emerald { background: var(--emerald); color:#fff; }
+    .btn-emerald:hover { background:#047857; box-shadow:0 4px 14px rgba(5,150,105,0.3); }
+    .btn-outline { background:#fff; color:var(--ink); border:1.5px solid var(--border); }
+    .btn-outline:hover { border-color:#9ca3af; background: var(--paper-2); }
+    .btn-amber { background: var(--amber); color:#fff; }
+    .btn-amber:hover { background:#b45309; }
+    .btn-red { background: var(--red); color:#fff; }
+    .btn-red:hover { background:#b91c1c; }
+    .btn-blue { background: var(--blue); color:#fff; }
+    .btn-blue:hover { background:#1d4ed8; }
+    .btn-ghost { background:transparent; color:var(--ink-3); }
+    .btn-ghost:hover { background:var(--paper-2); color:var(--ink); }
+    .btn-sm { padding:6px 12px; font-size:12px; border-radius:8px; }
+    .btn-icon { padding:8px; border-radius:8px; min-width:36px; justify-content:center; }
+
+    /* Table */
+    .tbl th { font-size:11px; font-weight:600; letter-spacing:0.05em; color:var(--ink-3); text-transform:uppercase; padding:10px 14px; background:var(--paper-2); border-bottom:1px solid var(--border); }
+    .tbl td { padding:14px 14px; font-size:13px; border-bottom:1px solid #f3f0eb; vertical-align:middle; }
+    .tbl tr:last-child td { border-bottom:none; }
+    .tbl tr:hover td { background: #fafaf8; }
+
+    /* Modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(26,31,46,0.55); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; overflow-y:auto; }
+    .modal-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+    .modal-box { background:#fff; border-radius:20px; width:100%; box-shadow:0 24px 64px -12px rgba(26,31,46,0.3); animation: slideUp 0.3s ease; }
+
+    /* Invoice/Receipt print document */
+    .doc-page { background:#fff; max-width:680px; margin:0 auto; font-family:'DM Sans',sans-serif; }
+    .doc-header { background:var(--ink); color:#fff; padding:36px 40px 28px; border-radius:16px 16px 0 0; }
+    .doc-body { padding:32px 40px; }
+    .doc-table th { font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3); padding:8px 0; border-bottom:2px solid var(--border); }
+    .doc-table td { padding:12px 0; border-bottom:1px solid #f3f0eb; font-size:13px; }
+    .doc-total { background:var(--ink); color:#fff; padding:20px 40px; border-radius:0 0 16px 16px; }
+
+    /* Progress bar */
+    .progress-track { height:6px; background:var(--paper-2); border-radius:99px; overflow:hidden; }
+    .progress-fill  { height:100%; border-radius:99px; background: linear-gradient(90deg, var(--emerald), #34d399); transition: width 0.6s ease; }
+
+    /* Search */
+    .search-box { background:#fff; border:1.5px solid var(--border); border-radius:10px; display:flex; align-items:center; gap:8px; padding:0 12px; transition:border-color 0.15s; }
+    .search-box:focus-within { border-color:var(--emerald); }
+    .search-box input { border:none; outline:none; padding:9px 0; font-size:13px; width:100%; background:transparent; }
+
+    /* Select */
+    select.styled { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; color:var(--ink); cursor:pointer; outline:none; transition: border-color 0.15s; }
+    select.styled:focus { border-color:var(--emerald); }
+
+    /* Input */
+    input.field, textarea.field { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:9px 14px; font-size:13px; width:100%; outline:none; transition:border-color 0.15s; }
+    input.field:focus, textarea.field:focus { border-color:var(--emerald); }
+
+    label.lbl { font-size:12px; font-weight:600; color:var(--ink-2); display:block; margin-bottom:5px; letter-spacing:0.02em; }
+
+    /* Toast */
+    #toast { position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:12px 20px; border-radius:12px; font-size:13px; font-weight:500; z-index:9999; transform:translateY(80px); opacity:0; transition: all 0.3s ease; box-shadow:0 8px 24px rgba(26,31,46,0.25); }
+    #toast.show { transform:translateY(0); opacity:1; }
+
+    /* Watermark stripe */
+    .stripe-bg { background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(5,150,105,0.03) 8px, rgba(5,150,105,0.03) 16px); }
+
+    @media print {
+      body > *:not(#printArea) { display:none !important; }
+      #printArea { display:block !important; }
+    }
+    #printArea { display:none; }
+  </style>
+</head>
+<body>
+
+<div id="app" class="max-w-7xl mx-auto p-4 md:p-6 space-y-6"></div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Invoice Viewer Modal -->
+<div id="invoiceModal" class="modal-overlay">
+  <div class="modal-box max-w-2xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+      <h3 class="font-bold text-lg text-gray-800 display">Invoice</h3>
+      <div class="flex gap-2">
+        <button onclick="downloadCurrentDoc('invoice')" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Download PDF</button>
+        <button onclick="printCurrentDoc()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+        <button onclick="closeModal('invoiceModal')" class="btn btn-ghost btn-icon"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[80vh]" id="invoiceContent"></div>
+  </div>
+</div>
+
+<!-- Receipt Viewer Modal -->
+<div id="receiptModal" class="modal-overlay">
+  <div class="modal-box max-w-2xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+      <h3 class="font-bold text-lg text-gray-800 display">Payment Receipt</h3>
+      <div class="flex gap-2">
+        <button onclick="downloadCurrentDoc('receipt')" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Download PDF</button>
+        <button onclick="printCurrentDoc()" class="btn btn-ghost btn-icon"><i class="fas fa-print"></i></button>
+        <button onclick="closeModal('receiptModal')" class="btn btn-ghost btn-icon"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[80vh]" id="receiptContent"></div>
+  </div>
+</div>
+
+<!-- Reminder Modal -->
+<div id="reminderModal" class="modal-overlay">
+  <div class="modal-box max-w-md">
+    <div class="flex justify-between items-center px-6 py-4 border-b">
+      <h3 class="font-bold text-lg display"><i class="fas fa-bell text-amber-500 mr-2"></i>Send Reminder</h3>
+      <button onclick="closeModal('reminderModal')" class="btn btn-ghost btn-icon"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="p-6 space-y-4" id="reminderContent"></div>
+  </div>
+</div>
+
+<!-- Record Payment Modal -->
+<div id="recordPaymentModal" class="modal-overlay">
+  <div class="modal-box max-w-md">
+    <div class="flex justify-between items-center px-6 py-4 border-b">
+      <h3 class="font-bold text-lg display"><i class="fas fa-money-bill-wave text-emerald-600 mr-2"></i>Record Payment</h3>
+      <button onclick="closeModal('recordPaymentModal')" class="btn btn-ghost btn-icon"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="p-6 space-y-4" id="recordPaymentContent"></div>
+  </div>
+</div>
+
+<!-- Create Plan Modal -->
+<div id="createPlanModal" class="modal-overlay">
+  <div class="modal-box max-w-xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b">
+      <h3 class="font-bold text-lg display"><i class="fas fa-plus-circle text-emerald-600 mr-2"></i>Create Payment Plan</h3>
+      <button onclick="closeModal('createPlanModal')" class="btn btn-ghost btn-icon"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="p-6" id="createPlanContent"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Hidden print area -->
+<div id="printArea"></div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+let paymentPlans = [
+  { id:"PAY-001", invoiceNo:"INV-2026-001", customer:"Sarah Mwangi",   orderId:"ORD-12847", phone:"+254 712 345 678", email:"sarah@example.com", product:"Samsung Galaxy A55 (6GB/128GB)", totalAmount:12450, installments:6,  installmentAmount:2075, startDate:"2026-01-09", paymentMethod:"M-Pesa" },
+  { id:"PAY-002", invoiceNo:"INV-2026-002", customer:"John Kamau",     orderId:"ORD-12823", phone:"+254 723 456 789", email:"john@example.com",  product:"HP Laptop 15-dw3xxx",           totalAmount:8900,  installments:9,  installmentAmount:989,  startDate:"2025-12-07", paymentMethod:"M-Pesa" },
+  { id:"PAY-003", invoiceNo:"INV-2026-003", customer:"Grace Njeri",    orderId:"ORD-12845", phone:"+254 734 567 890", email:"grace@example.com", product:"LG Smart TV 43\" UHD",          totalAmount:18900, installments:12, installmentAmount:1575, startDate:"2026-03-08", paymentMethod:"Airtel Money" },
+  { id:"PAY-004", invoiceNo:"INV-2026-004", customer:"Mary Wanjiku",   orderId:"ORD-12843", phone:"+254 756 789 012", email:"mary@example.com",  product:"Apple iPhone 14 Pro",           totalAmount:15200, installments:9,  installmentAmount:1689, startDate:"2026-01-07", paymentMethod:"M-Pesa" },
+  { id:"PAY-005", invoiceNo:"INV-2026-005", customer:"Peter Omondi",   orderId:"ORD-12789", phone:"+254 745 678 901", email:"peter@example.com", product:"Bruhm Chest Freezer 300L",      totalAmount:6500,  installments:6,  installmentAmount:1083, startDate:"2025-11-20", paymentMethod:"M-Pesa" },
+  { id:"PAY-006", invoiceNo:"INV-2026-006", customer:"James Otieno",   orderId:"ORD-12890", phone:"+254 712 345 000", email:"james@example.com", product:"Sony 65\" OLED TV",             totalAmount:22500, installments:12, installmentAmount:1875, startDate:"2026-04-15", paymentMethod:"Bank Transfer" },
+];
+
+let payments = [
+  { id:"RCP-001", planId:"PAY-001", amount:2075, date:"2026-01-09", method:"M-Pesa",      ref:"QAX123KL", note:"1st installment" },
+  { id:"RCP-002", planId:"PAY-001", amount:2075, date:"2026-02-09", method:"M-Pesa",      ref:"QBY456MN", note:"2nd installment" },
+  { id:"RCP-003", planId:"PAY-001", amount:2075, date:"2026-03-09", method:"M-Pesa",      ref:"QCZ789OP", note:"3rd installment" },
+  { id:"RCP-004", planId:"PAY-002", amount:989,  date:"2025-12-07", method:"M-Pesa",      ref:"RDA001AB", note:"1st installment" },
+  { id:"RCP-005", planId:"PAY-002", amount:989,  date:"2026-01-07", method:"M-Pesa",      ref:"RDB002CD", note:"2nd installment" },
+  { id:"RCP-006", planId:"PAY-002", amount:989,  date:"2026-02-07", method:"M-Pesa",      ref:"RDC003EF", note:"3rd installment" },
+  { id:"RCP-007", planId:"PAY-003", amount:1575, date:"2026-03-08", method:"Airtel Money",ref:"AMA100GH", note:"1st installment" },
+  { id:"RCP-008", planId:"PAY-003", amount:1575, date:"2026-04-08", method:"Airtel Money",ref:"AMB200IJ", note:"2nd installment" },
+  { id:"RCP-009", planId:"PAY-004", amount:1689, date:"2026-01-07", method:"M-Pesa",      ref:"MWA300KL", note:"1st installment" },
+  { id:"RCP-010", planId:"PAY-004", amount:1689, date:"2026-02-07", method:"M-Pesa",      ref:"MWB400MN", note:"2nd installment" },
+  { id:"RCP-011", planId:"PAY-004", amount:1689, date:"2026-03-07", method:"M-Pesa",      ref:"MWC500OP", note:"3rd installment" },
+  { id:"RCP-012", planId:"PAY-005", amount:1083, date:"2025-11-20", method:"M-Pesa",      ref:"POA600QR", note:"1st installment" },
+];
+
+// Computed helpers
+function getPlanPayments(planId) { return payments.filter(p => p.planId === planId); }
+function getPlanPaid(planId) { return getPlanPayments(planId).reduce((s,p)=>s+p.amount,0); }
+function getPlanRemaining(planId, plan) { return plan.totalAmount - getPlanPaid(planId); }
+function getPlanStatus(plan) {
+  const paid = getPlanPaid(plan.id);
+  if (paid >= plan.totalAmount) return "completed";
+  const nextDue = getNextDueDate(plan);
+  if (nextDue && new Date(nextDue) < new Date()) return "overdue";
+  return "active";
+}
+function getDaysOverdue(plan) {
+  const nextDue = getNextDueDate(plan);
+  if (!nextDue) return 0;
+  const diff = Math.floor((new Date() - new Date(nextDue)) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+function getNextDueDate(plan) {
+  const paid = getPlanPaid(plan.id);
+  if (paid >= plan.totalAmount) return null;
+  const paymentsMade = getPlanPayments(plan.id).length;
+  const d = new Date(plan.startDate);
+  d.setMonth(d.getMonth() + paymentsMade + 1);
+  return d.toISOString().slice(0,10);
+}
+
+// ============================================================
+//  FORMATTERS
+// ============================================================
+function fmtCur(n) { return new Intl.NumberFormat('en-KE',{style:'currency',currency:'KES',minimumFractionDigits:0}).format(n); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function escH(s) { return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function toast(msg, color='#059669') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+// ============================================================
+//  MODAL UTILS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+
+// ============================================================
+//  CURRENT DOC TRACKER (for download/print)
+// ============================================================
+let currentDocHTML = '';
+
+function printCurrentDoc() {
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>Lipa Mdogo</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:32px;font-family:'DM Sans',sans-serif}*{box-sizing:border-box}.doc-page{max-width:700px;margin:0 auto}.doc-header{background:#1a1f2e;color:#fff;padding:36px 40px 28px;border-radius:16px 16px 0 0}.doc-body{background:#fff;padding:32px 40px}.doc-total{background:#1a1f2e;color:#fff;padding:20px 40px;border-radius:0 0 16px 16px}.doc-table th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8}.doc-table td{padding:12px 0;border-bottom:1px solid #f3f0eb;font-size:13px}table{width:100%;border-collapse:collapse}.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600}.badge-active{background:#d1fae5;color:#065f46}.badge-overdue{background:#fee2e2;color:#991b1b}.badge-completed{background:#dbeafe;color:#1e40af}</style></head><body>${currentDocHTML}</body></html>`);
+  w.document.close();
+  w.focus(); w.print();
+}
+
+async function downloadCurrentDoc(type) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'px', format:'a4', hotfixes:['px_scaling'] });
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:-9999px;top:0;width:680px;background:#fff;padding:20px;';
+    container.innerHTML = currentDocHTML;
+    document.body.appendChild(container);
+    await new Promise(r=>setTimeout(r,200));
+    doc.html(container, {
+      callback: d => {
+        d.save(`lipa-mdogo-${type}-${Date.now()}.pdf`);
+        document.body.removeChild(container);
+        toast('PDF downloaded ✓');
+      },
+      x:10, y:10, width:560, windowWidth:680
+    });
+  } catch(e) {
+    // fallback: print-to-PDF
+    printCurrentDoc();
+    toast('Use "Save as PDF" in print dialog');
+  }
+}
+
+// ============================================================
+//  INVOICE BUILDER
+// ============================================================
+function buildInvoiceHTML(plan, multipleReceipts=false) {
+  const paid = getPlanPaid(plan.id);
+  const remaining = getPlanRemaining(plan.id, plan);
+  const planPayments = getPlanPayments(plan.id);
+  const status = getPlanStatus(plan);
+  const statusBadge = { active:'badge-active', overdue:'badge-overdue', completed:'badge-completed', pending:'badge-pending' }[status] || 'badge-active';
+
+  const scheduleRows = Array.from({length:plan.installments}).map((_,i) => {
+    const dueDate = new Date(plan.startDate);
+    dueDate.setMonth(dueDate.getMonth() + i + 1);
+    const pmt = planPayments[i];
+    const paid_icon = pmt ? '✓' : (new Date(dueDate) < new Date() ? '✗' : '—');
+    const row_style = pmt ? 'color:#065f46' : (new Date(dueDate) < new Date() ? 'color:#991b1b' : 'color:#6b7280');
+    return `<tr>
+      <td style="padding:8px 0;font-size:12px;border-bottom:1px solid #f3f0eb;">#${i+1}</td>
+      <td style="padding:8px 0;font-size:12px;border-bottom:1px solid #f3f0eb;">${fmtDate(dueDate.toISOString().slice(0,10))}</td>
+      <td style="padding:8px 0;font-size:12px;border-bottom:1px solid #f3f0eb;">${fmtCur(plan.installmentAmount)}</td>
+      <td style="padding:8px 0;font-size:12px;border-bottom:1px solid #f3f0eb;${row_style};font-weight:600;">${paid_icon} ${pmt ? 'Paid' : (new Date(dueDate)<new Date() ? 'Overdue' : 'Pending')}</td>
+      <td style="padding:8px 0;font-size:12px;border-bottom:1px solid #f3f0eb;font-family:'DM Mono',monospace;font-size:11px;">${pmt?.ref || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="doc-page" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(26,31,46,0.1);">
+    <div class="doc-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">Lipa Mdogo</div>
+          <div style="font-size:28px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-0.5px;">INVOICE</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;margin-top:4px;opacity:0.8;">${escH(plan.invoiceNo)}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="badge ${statusBadge}" style="font-size:12px;padding:6px 14px;">${status.toUpperCase()}</span>
+          <div style="font-size:12px;opacity:0.7;margin-top:8px;">Issue Date: ${fmtDate(plan.startDate)}</div>
+          <div style="font-size:12px;opacity:0.7;">Order: ${escH(plan.orderId)}</div>
+        </div>
+      </div>
+      <div style="margin-top:24px;display:flex;gap:32px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;opacity:0.55;margin-bottom:4px;">Bill To</div>
+          <div style="font-size:15px;font-weight:600;">${escH(plan.customer)}</div>
+          <div style="font-size:12px;opacity:0.75;margin-top:2px;">${escH(plan.phone)}</div>
+          <div style="font-size:12px;opacity:0.75;">${escH(plan.email)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;opacity:0.55;margin-bottom:4px;">Payment Method</div>
+          <div style="font-size:15px;font-weight:600;">${escH(plan.paymentMethod)}</div>
+          <div style="font-size:12px;opacity:0.75;margin-top:2px;">${plan.installments} installments</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-body" style="background:#fff;padding:28px 40px;">
+      <!-- Product -->
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead><tr>
+          <th style="text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Description</th>
+          <th style="text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Amount</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="padding:14px 0 8px;font-size:14px;font-weight:600;border-bottom:1px solid #f3f0eb;">${escH(plan.product)}</td>
+            <td style="padding:14px 0 8px;text-align:right;font-size:14px;font-weight:600;border-bottom:1px solid #f3f0eb;">${fmtCur(plan.totalAmount)}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 0;font-size:12px;color:#6b7280;">Installment plan • ${plan.installments} months × ${fmtCur(plan.installmentAmount)}</td>
+            <td style="padding:8px 0;text-align:right;font-size:12px;color:#6b7280;">Monthly</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Installment Schedule -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#1a1f2e;margin-bottom:12px;">Payment Schedule</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr>
+            <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:7px 0;border-bottom:1.5px solid #e5e0d8;">#</th>
+            <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:7px 0;border-bottom:1.5px solid #e5e0d8;">Due Date</th>
+            <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:7px 0;border-bottom:1.5px solid #e5e0d8;">Amount</th>
+            <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:7px 0;border-bottom:1.5px solid #e5e0d8;">Status</th>
+            <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:7px 0;border-bottom:1.5px solid #e5e0d8;">Ref</th>
+          </tr></thead>
+          <tbody>${scheduleRows}</tbody>
+        </table>
+      </div>
+
+      <!-- Summary -->
+      <div style="background:#f9f7f4;border-radius:12px;padding:16px 20px;display:flex;gap:24px;flex-wrap:wrap;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Total</div><div style="font-size:18px;font-weight:700;">${fmtCur(plan.totalAmount)}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Paid</div><div style="font-size:18px;font-weight:700;color:#059669;">${fmtCur(paid)}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Remaining</div><div style="font-size:18px;font-weight:700;color:${remaining>0?'#dc2626':'#059669'};">${fmtCur(remaining)}</div></div>
+      </div>
+    </div>
+
+    <div class="doc-total" style="background:#1a1f2e;color:#fff;padding:18px 40px;border-radius:0 0 16px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="font-size:12px;opacity:0.6;">Lipa Mdogo Installment Services • Mombasa, Kenya</div>
+      <div style="font-size:11px;opacity:0.5;font-family:'DM Mono',monospace;">${escH(plan.invoiceNo)}</div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+//  RECEIPT BUILDER — single receipt
+// ============================================================
+function buildReceiptHTML(receipt, plan) {
+  return `
+  <div class="doc-page" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(26,31,46,0.1);">
+    <div class="doc-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">Lipa Mdogo</div>
+          <div style="font-size:28px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-0.5px;">RECEIPT</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;margin-top:4px;opacity:0.8;">${escH(receipt.id)}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="badge badge-completed" style="font-size:12px;padding:6px 14px;background:#d1fae5;color:#065f46;">PAYMENT CONFIRMED</span>
+          <div style="font-size:12px;opacity:0.7;margin-top:8px;">${fmtDate(receipt.date)}</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:28px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:3px;">Customer</div>
+          <div style="font-size:15px;font-weight:600;">${escH(plan.customer)}</div>
+          <div style="font-size:12px;opacity:0.75;">${escH(plan.phone)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:3px;">Invoice</div>
+          <div style="font-size:13px;font-family:'DM Mono',monospace;">${escH(plan.invoiceNo)}</div>
+          <div style="font-size:12px;opacity:0.75;">${escH(plan.orderId)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;padding:28px 40px;">
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead><tr>
+          <th style="text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Description</th>
+          <th style="text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Amount</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="padding:14px 0 4px;font-size:14px;font-weight:600;">${escH(plan.product)}</td>
+            <td style="padding:14px 0 4px;text-align:right;font-size:20px;font-weight:700;color:#059669;">${fmtCur(receipt.amount)}</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 0 14px;font-size:12px;color:#6b7280;border-bottom:1px solid #f3f0eb;">${escH(receipt.note || 'Installment payment')}</td>
+            <td style="padding:4px 0 14px;text-align:right;font-size:12px;color:#6b7280;border-bottom:1px solid #f3f0eb;">${escH(receipt.method)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="background:#f9f7f4;border-radius:10px;padding:14px 16px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:4px;">Payment Method</div>
+          <div style="font-weight:600;">${escH(receipt.method)}</div>
+        </div>
+        <div style="background:#f9f7f4;border-radius:10px;padding:14px 16px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:4px;">Reference</div>
+          <div style="font-weight:600;font-family:'DM Mono',monospace;font-size:13px;">${escH(receipt.ref || '—')}</div>
+        </div>
+        <div style="background:#d1fae5;border-radius:10px;padding:14px 16px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#065f46;margin-bottom:4px;">Total Paid</div>
+          <div style="font-weight:700;color:#059669;">${fmtCur(getPlanPaid(plan.id))}</div>
+        </div>
+        <div style="background:${getPlanRemaining(plan.id,plan)>0?'#fee2e2':'#d1fae5'};border-radius:10px;padding:14px 16px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:${getPlanRemaining(plan.id,plan)>0?'#991b1b':'#065f46'};margin-bottom:4px;">Remaining</div>
+          <div style="font-weight:700;color:${getPlanRemaining(plan.id,plan)>0?'#dc2626':'#059669'};">${fmtCur(getPlanRemaining(plan.id,plan))}</div>
+        </div>
+      </div>
+
+      <div style="border:1.5px dashed #e5e0d8;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b7280;text-align:center;">
+        This receipt is computer-generated and valid without a signature. • Lipa Mdogo Installment Services
+      </div>
+    </div>
+    <div style="background:#1a1f2e;color:#fff;padding:16px 40px;border-radius:0 0 16px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:12px;opacity:0.6;">Thank you for your payment!</div>
+      <div style="font-size:11px;opacity:0.5;font-family:'DM Mono',monospace;">${escH(receipt.id)}</div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+//  MULTI-RECEIPT BUILDER (all receipts for one invoice)
+// ============================================================
+function buildAllReceiptsHTML(plan) {
+  const recs = getPlanPayments(plan.id);
+  if (!recs.length) return `<div style="text-align:center;padding:40px;color:#6b7280;">No payments recorded yet for this plan.</div>`;
+
+  const rows = recs.map(r=>`<tr>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;font-family:'DM Mono',monospace;">${escH(r.id)}</td>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;">${fmtDate(r.date)}</td>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;font-weight:600;color:#059669;">${fmtCur(r.amount)}</td>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;">${escH(r.method)}</td>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;font-family:'DM Mono',monospace;font-size:11px;">${escH(r.ref||'—')}</td>
+    <td style="padding:10px 0;font-size:12px;border-bottom:1px solid #f3f0eb;color:#065f46;font-weight:600;">✓ Confirmed</td>
+  </tr>`).join('');
+
+  const totalPaid = getPlanPaid(plan.id);
+
+  return `
+  <div class="doc-page" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(26,31,46,0.1);">
+    <div class="doc-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">Lipa Mdogo</div>
+          <div style="font-size:28px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-0.5px;">PAYMENT SUMMARY</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;margin-top:4px;opacity:0.8;">${escH(plan.invoiceNo)}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;opacity:0.7;">Generated: ${fmtDate(new Date().toISOString())}</div>
+          <div style="font-size:12px;opacity:0.7;margin-top:2px;">${recs.length} payment(s) recorded</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:28px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:3px;">Customer</div>
+          <div style="font-size:15px;font-weight:600;">${escH(plan.customer)}</div>
+          <div style="font-size:12px;opacity:0.75;">${escH(plan.phone)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:3px;">Product</div>
+          <div style="font-size:13px;font-weight:600;">${escH(plan.product)}</div>
+          <div style="font-size:12px;opacity:0.75;">${escH(plan.orderId)}</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;padding:28px 40px;">
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead><tr>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Receipt ID</th>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Date</th>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Amount</th>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Method</th>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Ref</th>
+          <th style="text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:8px 0;border-bottom:2px solid #e5e0d8;">Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="background:#f9f7f4;border-radius:12px;padding:16px 20px;display:flex;gap:24px;flex-wrap:wrap;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Total Value</div><div style="font-size:18px;font-weight:700;">${fmtCur(plan.totalAmount)}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Total Paid</div><div style="font-size:18px;font-weight:700;color:#059669;">${fmtCur(totalPaid)}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:3px;">Balance</div><div style="font-size:18px;font-weight:700;color:${plan.totalAmount-totalPaid>0?'#dc2626':'#059669'};">${fmtCur(plan.totalAmount-totalPaid)}</div></div>
+      </div>
+    </div>
+    <div style="background:#1a1f2e;color:#fff;padding:16px 40px;border-radius:0 0 16px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:12px;opacity:0.6;">Lipa Mdogo Installment Services • Mombasa, Kenya</div>
+      <div style="font-size:11px;opacity:0.5;font-family:'DM Mono',monospace;">${escH(plan.invoiceNo)}</div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+//  VIEW INVOICE
+// ============================================================
+function viewInvoice(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  if(!plan) return;
+  currentDocHTML = buildInvoiceHTML(plan);
+  document.getElementById('invoiceContent').innerHTML = currentDocHTML;
+  openModal('invoiceModal');
+}
+
+// ============================================================
+//  VIEW RECEIPT (single or all)
+// ============================================================
+function viewReceipt(receiptId) {
+  const receipt = payments.find(r=>r.id===receiptId);
+  const plan = receipt ? paymentPlans.find(p=>p.id===receipt.planId) : null;
+  if(!receipt||!plan) return;
+  currentDocHTML = buildReceiptHTML(receipt, plan);
+  document.getElementById('receiptContent').innerHTML = currentDocHTML;
+  openModal('receiptModal');
+}
+
+function viewAllReceipts(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  if(!plan) return;
+  currentDocHTML = buildAllReceiptsHTML(plan);
+  document.getElementById('receiptContent').innerHTML = currentDocHTML;
+  openModal('receiptModal');
+}
+
+// ============================================================
+//  REMINDER MODAL
+// ============================================================
+function sendReminder(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  if(!plan) return;
+  const remaining = getPlanRemaining(plan.id, plan);
+  const nextDue = getNextDueDate(plan);
+  const defaultMsg = `Dear ${plan.customer}, your installment payment of ${fmtCur(plan.installmentAmount)} is due on ${fmtDate(nextDue)}. Outstanding balance: ${fmtCur(remaining)}. Ref: ${plan.invoiceNo}. Thank you — Lipa Mdogo.`;
+
+  document.getElementById('reminderContent').innerHTML = `
+    <div style="background:#f9f7f4;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-weight:600;margin-bottom:2px;">${escH(plan.customer)}</div>
+      <div style="font-size:13px;color:#6b7280;">${escH(plan.phone)} • ${escH(plan.invoiceNo)}</div>
+      <div style="font-size:13px;color:#dc2626;font-weight:600;margin-top:6px;">Outstanding: ${fmtCur(remaining)}</div>
+    </div>
+    <div>
+      <label class="lbl">Channel</label>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button onclick="setReminderChannel(this,'whatsapp')" class="btn btn-outline btn-sm channel-btn active-channel" data-channel="whatsapp" style="flex:1;justify-content:center;"><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp</button>
+        <button onclick="setReminderChannel(this,'sms')" class="btn btn-outline btn-sm channel-btn" data-channel="sms" style="flex:1;justify-content:center;"><i class="fas fa-sms" style="color:#2563eb;"></i> SMS</button>
+        <button onclick="setReminderChannel(this,'email')" class="btn btn-outline btn-sm channel-btn" data-channel="email" style="flex:1;justify-content:center;"><i class="fas fa-envelope" style="color:#7c3aed;"></i> Email</button>
+      </div>
+      <label class="lbl">Message</label>
+      <textarea id="reminderMsg" class="field" rows="5" style="resize:vertical;">${escH(defaultMsg)}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+      <button onclick="closeModal('reminderModal')" class="btn btn-outline">Cancel</button>
+      <button onclick="doSendReminder('${planId}')" class="btn btn-amber"><i class="fas fa-paper-plane"></i> Send Reminder</button>
+    </div>
+  `;
+  openModal('reminderModal');
+}
+
+function setReminderChannel(el, channel) {
+  document.querySelectorAll('.channel-btn').forEach(b=>b.classList.remove('active-channel','btn-primary'));
+  el.classList.add('btn-primary');
+}
+
+function doSendReminder(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  closeModal('reminderModal');
+  toast(`✉️ Reminder sent to ${plan.customer}`);
+}
+
+// ============================================================
+//  RECORD PAYMENT MODAL
+// ============================================================
+function openRecordPayment(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  if(!plan) return;
+  const remaining = getPlanRemaining(plan.id, plan);
+  document.getElementById('recordPaymentContent').innerHTML = `
+    <div style="background:#d1fae5;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-weight:600;">${escH(plan.customer)}</div>
+      <div style="font-size:13px;color:#065f46;">${escH(plan.invoiceNo)} • Remaining: <strong>${fmtCur(remaining)}</strong></div>
+    </div>
+    <div style="display:grid;gap:14px;">
+      <div>
+        <label class="lbl">Amount (KES) <span style="color:#dc2626;">*</span></label>
+        <input type="number" id="rp_amount" class="field" value="${plan.installmentAmount}" placeholder="Enter amount" />
+      </div>
+      <div>
+        <label class="lbl">Payment Method</label>
+        <select id="rp_method" class="field styled">
+          <option>M-Pesa</option><option>Airtel Money</option><option>Bank Transfer</option><option>Cash</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Reference / Transaction ID</label>
+        <input type="text" id="rp_ref" class="field" placeholder="e.g., M-Pesa code" />
+      </div>
+      <div>
+        <label class="lbl">Note (Optional)</label>
+        <input type="text" id="rp_note" class="field" placeholder="e.g., 4th installment" />
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+      <button onclick="closeModal('recordPaymentModal')" class="btn btn-outline">Cancel</button>
+      <button onclick="doRecordPayment('${planId}')" class="btn btn-emerald"><i class="fas fa-save"></i> Record Payment</button>
+    </div>
+  `;
+  openModal('recordPaymentModal');
+}
+
+function doRecordPayment(planId) {
+  const plan = paymentPlans.find(p=>p.id===planId);
+  const amount = parseFloat(document.getElementById('rp_amount').value);
+  const method = document.getElementById('rp_method').value;
+  const ref    = document.getElementById('rp_ref').value.trim() || ('REF'+Date.now().toString().slice(-6));
+  const note   = document.getElementById('rp_note').value.trim();
+  const remaining = getPlanRemaining(planId, plan);
+
+  if(isNaN(amount)||amount<=0) { toast('Enter a valid amount','#dc2626'); return; }
+  if(amount > remaining) { toast(`Amount exceeds remaining balance of ${fmtCur(remaining)}`,'#dc2626'); return; }
+
+  const newId = 'RCP-' + String(payments.length+1).padStart(3,'0');
+  payments.push({ id:newId, planId, amount, date:new Date().toISOString().slice(0,10), method, ref, note });
+  closeModal('recordPaymentModal');
+  toast(`✅ Payment of ${fmtCur(amount)} recorded for ${plan.customer}`);
+  renderApp();
+}
+
+// ============================================================
+//  CREATE PLAN MODAL
+// ============================================================
+function openCreatePlan() {
+  document.getElementById('createPlanContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <label class="lbl">Customer Name *</label>
+        <input type="text" id="cp_name" class="field" placeholder="Full name" />
+      </div>
+      <div>
+        <label class="lbl">Phone</label>
+        <input type="text" id="cp_phone" class="field" placeholder="+254 7XX XXX XXX" />
+      </div>
+      <div>
+        <label class="lbl">Product / Item *</label>
+        <input type="text" id="cp_product" class="field" placeholder="e.g., Samsung Galaxy A55" />
+      </div>
+      <div>
+        <label class="lbl">Order ID *</label>
+        <input type="text" id="cp_order" class="field" placeholder="ORD-XXXXX" />
+      </div>
+      <div>
+        <label class="lbl">Total Amount (KES) *</label>
+        <input type="number" id="cp_amount" class="field" placeholder="e.g., 15000" />
+      </div>
+      <div>
+        <label class="lbl">Installments</label>
+        <select id="cp_inst" class="field styled">
+          <option value="3">3 months</option>
+          <option value="6">6 months</option>
+          <option value="9" selected>9 months</option>
+          <option value="12">12 months</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Payment Method</label>
+        <select id="cp_method" class="field styled">
+          <option>M-Pesa</option><option>Airtel Money</option><option>Bank Transfer</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Start Date</label>
+        <input type="date" id="cp_start" class="field" value="${new Date().toISOString().slice(0,10)}" />
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;border-top:1px solid #f3f0eb;padding-top:16px;">
+      <button onclick="closeModal('createPlanModal')" class="btn btn-outline">Cancel</button>
+      <button onclick="doCreatePlan()" class="btn btn-emerald"><i class="fas fa-plus"></i> Create Plan</button>
+    </div>
+  `;
+  openModal('createPlanModal');
+}
+
+function doCreatePlan() {
+  const name    = document.getElementById('cp_name').value.trim();
+  const phone   = document.getElementById('cp_phone').value.trim();
+  const product = document.getElementById('cp_product').value.trim();
+  const orderId = document.getElementById('cp_order').value.trim();
+  const amount  = parseFloat(document.getElementById('cp_amount').value);
+  const inst    = parseInt(document.getElementById('cp_inst').value);
+  const method  = document.getElementById('cp_method').value;
+  const start   = document.getElementById('cp_start').value;
+
+  if(!name||!product||!orderId||isNaN(amount)||amount<=0) { toast('Fill in required fields','#dc2626'); return; }
+
+  const newIdx  = paymentPlans.length + 1;
+  const newId   = `PAY-${String(newIdx).padStart(3,'0')}`;
+  const invNo   = `INV-2026-${String(newIdx).padStart(3,'0')}`;
+  paymentPlans.push({ id:newId, invoiceNo:invNo, customer:name, orderId, phone, email:'', product, totalAmount:amount, installments:inst, installmentAmount:Math.round(amount/inst), startDate:start, paymentMethod:method });
+  closeModal('createPlanModal');
+  toast(`✅ Plan created for ${name}`);
+  renderApp();
+}
+
+// ============================================================
+//  TABS STATE
+// ============================================================
+let activeTab = 'invoices';
+let searchQuery = '';
+let filterStatus = 'all';
+
+// ============================================================
+//  RENDER
+// ============================================================
+function renderApp() {
+  document.getElementById('app').innerHTML = buildAppHTML();
+  attachEvents();
+}
+
+function buildAppHTML() {
+  // Compute stats
+  const totalPlans = paymentPlans.length;
+  const totalOutstanding = paymentPlans.reduce((s,p)=>s+getPlanRemaining(p.id,p),0);
+  const totalCollected   = payments.reduce((s,r)=>s+r.amount,0);
+  const overdueCount     = paymentPlans.filter(p=>getPlanStatus(p)==='overdue').length;
+
+  return `
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;" class="slide-up">
+    <div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;margin-bottom:4px;">Mombasa, Kenya</div>
+      <h1 style="font-size:28px;font-weight:800;color:#1a1f2e;letter-spacing:-0.5px;" class="display">Lipa Mdogo <span style="color:#059669;">·</span> Invoices</h1>
+      <p style="color:#6b7280;font-size:13px;margin-top:2px;">Manage invoices, receipts, reminders & payment plans</p>
+    </div>
+    <button onclick="openCreatePlan()" class="btn btn-primary" style="margin-top:4px;"><i class="fas fa-plus"></i> New Payment Plan</button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;" class="stagger">
+    ${kpiCard('Total Plans', totalPlans, 'fas fa-file-invoice', '#2563eb', '#dbeafe')}
+    ${kpiCard('Overdue', overdueCount, 'fas fa-exclamation-triangle', '#dc2626', '#fee2e2')}
+    ${kpiCard('Collected', fmtCur(totalCollected), 'fas fa-check-circle', '#059669', '#d1fae5')}
+    ${kpiCard('Outstanding', fmtCur(totalOutstanding), 'fas fa-clock', '#d97706', '#fef3c7')}
+    ${kpiCard('Receipts', payments.length, 'fas fa-receipt', '#7c3aed', '#ede9fe')}
+  </div>
+
+  <!-- Tabs + Filters -->
+  <div class="card" style="overflow:visible;padding:16px 20px;">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;">
+      <div style="display:flex;gap:4px;background:#f9f7f4;border-radius:12px;padding:4px;">
+        ${tabBtn('invoices','📋 Invoices')}
+        ${tabBtn('receipts','🧾 Receipts')}
+        ${tabBtn('schedules','📅 Schedules')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <div class="search-box" style="min-width:200px;">
+          <i class="fas fa-search" style="color:#9ca3af;font-size:12px;"></i>
+          <input type="text" id="searchInput" placeholder="Search customer, order…" value="${escH(searchQuery)}" oninput="searchQuery=this.value;renderTabContent()" />
+        </div>
+        <select class="styled" id="statusFilter" onchange="filterStatus=this.value;renderTabContent()">
+          <option value="all">All Status</option>
+          <option value="active" ${filterStatus==='active'?'selected':''}>Active</option>
+          <option value="overdue" ${filterStatus==='overdue'?'selected':''}>Overdue</option>
+          <option value="completed" ${filterStatus==='completed'?'selected':''}>Completed</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <div id="tabContent"></div>
+  `;
+}
+
+function kpiCard(label, value, icon, color, bg) {
+  return `<div class="card" style="padding:18px 20px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:34px;height:34px;border-radius:9px;background:${bg};display:flex;align-items:center;justify-content:center;">
+        <i class="${icon}" style="color:${color};font-size:14px;"></i>
+      </div>
+      <span style="font-size:12px;font-weight:600;color:#6b7280;letter-spacing:0.02em;">${label}</span>
+    </div>
+    <div style="font-size:22px;font-weight:700;color:#1a1f2e;">${value}</div>
+  </div>`;
+}
+
+function tabBtn(id, label) {
+  const active = activeTab===id;
+  return `<button class="tab-btn ${active?'active':''}" onclick="switchTab('${id}')">${label}</button>`;
+}
+
+function switchTab(id) {
+  activeTab = id;
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.includes(id==='invoices'?'Invoice':id==='receipts'?'Receipt':'Schedule'));
+  });
+  renderTabContent();
+}
+
+function renderTabContent() {
+  const el = document.getElementById('tabContent');
+  if(!el) return;
+  if(activeTab==='invoices')  el.innerHTML = buildInvoicesTab();
+  if(activeTab==='receipts')  el.innerHTML = buildReceiptsTab();
+  if(activeTab==='schedules') el.innerHTML = buildSchedulesTab();
+}
+
+// ============================================================
+//  INVOICES TAB
+// ============================================================
+function buildInvoicesTab() {
+  let plans = paymentPlans;
+  if(searchQuery) {
+    const q = searchQuery.toLowerCase();
+    plans = plans.filter(p=>p.customer.toLowerCase().includes(q)||p.orderId.toLowerCase().includes(q)||p.invoiceNo.toLowerCase().includes(q));
+  }
+  if(filterStatus!=='all') plans = plans.filter(p=>getPlanStatus(p)===filterStatus);
+
+  const rows = plans.map(plan => {
+    const status = getPlanStatus(plan);
+    const paid = getPlanPaid(plan.id);
+    const remaining = getPlanRemaining(plan.id, plan);
+    const progress = Math.min(100, (paid/plan.totalAmount)*100);
+    const overdue = getDaysOverdue(plan);
+    const badgeClass = {active:'badge-active',overdue:'badge-overdue',completed:'badge-completed'}[status];
+    const recs = getPlanPayments(plan.id);
+
+    return `<tr data-plan="${plan.id}">
+      <td>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:#6b7280;">${escH(plan.invoiceNo)}</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:1px;">${escH(plan.orderId)}</div>
+      </td>
+      <td>
+        <div style="font-weight:600;font-size:13px;">${escH(plan.customer)}</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:1px;">${escH(plan.phone)}</div>
+      </td>
+      <td style="max-width:160px;">
+        <div style="font-size:12px;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escH(plan.product)}</div>
+      </td>
+      <td>
+        <div style="font-weight:700;">${fmtCur(plan.totalAmount)}</div>
+        <div style="font-size:11px;color:#6b7280;">${plan.installments}× ${fmtCur(plan.installmentAmount)}</div>
+      </td>
+      <td>
+        <div style="margin-bottom:4px;display:flex;justify-content:space-between;font-size:11px;color:#6b7280;">
+          <span>${fmtCur(paid)}</span><span>${progress.toFixed(0)}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
+        <div style="font-size:11px;color:#dc2626;margin-top:3px;">bal: ${fmtCur(remaining)}</div>
+      </td>
+      <td>
+        <span class="badge ${badgeClass}">${status.charAt(0).toUpperCase()+status.slice(1)}${overdue>0?` · ${overdue}d`:''}</span>
+      </td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button onclick="viewInvoice('${plan.id}')" class="btn btn-outline btn-sm btn-icon" title="View Invoice"><i class="fas fa-file-invoice" style="color:#2563eb;"></i></button>
+          <button onclick="viewAllReceipts('${plan.id}')" class="btn btn-outline btn-sm btn-icon" title="View All Receipts (${recs.length})"><i class="fas fa-receipt" style="color:#7c3aed;"></i>${recs.length>0?`<span style="background:#7c3aed;color:#fff;font-size:9px;border-radius:99px;padding:1px 5px;">${recs.length}</span>`:''}</button>
+          <button onclick="sendReminder('${plan.id}')" class="btn btn-outline btn-sm btn-icon" title="Send Reminder"><i class="fas fa-bell" style="color:#d97706;"></i></button>
+          <button onclick="openRecordPayment('${plan.id}')" class="btn btn-emerald btn-sm" title="Record Payment"><i class="fas fa-plus"></i> Pay</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="card" style="overflow:hidden;">
+    <div style="overflow-x:auto;">
+      <table class="tbl" style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th>Invoice</th><th>Customer</th><th>Product</th><th>Amount</th><th style="min-width:160px;">Progress</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody class="stagger">${rows || '<tr><td colspan="7" style="text-align:center;padding:40px;color:#9ca3af;">No invoices found.</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+//  RECEIPTS TAB
+// ============================================================
+function buildReceiptsTab() {
+  let recs = [...payments].reverse();
+  if(searchQuery) {
+    const q = searchQuery.toLowerCase();
+    recs = recs.filter(r=>{
+      const plan = paymentPlans.find(p=>p.id===r.planId);
+      return plan && (plan.customer.toLowerCase().includes(q)||plan.invoiceNo.toLowerCase().includes(q)||r.id.toLowerCase().includes(q)||r.ref.toLowerCase().includes(q));
+    });
+  }
+
+  const rows = recs.map(r => {
+    const plan = paymentPlans.find(p=>p.id===r.planId);
+    if(!plan) return '';
+    return `<tr>
+      <td><div style="font-family:'DM Mono',monospace;font-size:11px;color:#6b7280;">${escH(r.id)}</div></td>
+      <td style="font-size:13px;">${fmtDate(r.date)}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px;">${escH(plan.customer)}</div>
+        <div style="font-size:11px;color:#6b7280;">${escH(plan.invoiceNo)}</div>
+      </td>
+      <td><div style="font-size:14px;font-weight:700;color:#059669;">${fmtCur(r.amount)}</div></td>
+      <td><span style="font-size:12px;font-weight:500;">${escH(r.method)}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:11px;color:#6b7280;">${escH(r.ref||'—')}</span></td>
+      <td><span class="badge badge-completed">Confirmed</span></td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button onclick="viewReceipt('${r.id}')" class="btn btn-outline btn-sm btn-icon" title="View Receipt"><i class="fas fa-eye" style="color:#059669;"></i></button>
+          <button onclick="(function(){currentDocHTML=buildReceiptHTML(payments.find(x=>x.id==='${r.id}'),paymentPlans.find(p=>p.id==='${r.planId}'));downloadCurrentDoc('receipt')})()" class="btn btn-outline btn-sm btn-icon" title="Download Receipt"><i class="fas fa-download" style="color:#2563eb;"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="card" style="overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid #f3f0eb;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-weight:700;font-size:15px;">Payment Receipts</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:1px;">${payments.length} total receipts</div>
+      </div>
+      <div style="font-size:13px;color:#059669;font-weight:600;">Total Collected: ${fmtCur(payments.reduce((s,r)=>s+r.amount,0))}</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl" style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th>Receipt ID</th><th>Date</th><th>Customer</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody class="stagger">${rows||'<tr><td colspan="8" style="text-align:center;padding:40px;color:#9ca3af;">No receipts found.</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+//  SCHEDULES TAB
+// ============================================================
+function buildSchedulesTab() {
+  let plans = paymentPlans;
+  if(searchQuery) {
+    const q = searchQuery.toLowerCase();
+    plans = plans.filter(p=>p.customer.toLowerCase().includes(q)||p.orderId.toLowerCase().includes(q));
+  }
+
+  return `<div style="display:grid;gap:14px;" class="stagger">
+    ${plans.map(plan => {
+      const status = getPlanStatus(plan);
+      const paid = getPlanPaid(plan.id);
+      const planPayments = getPlanPayments(plan.id);
+      const progress = Math.min(100,(paid/plan.totalAmount)*100);
+
+      const installmentRows = Array.from({length:plan.installments}).map((_,i)=>{
+        const dueDate = new Date(plan.startDate);
+        dueDate.setMonth(dueDate.getMonth() + i + 1);
+        const pmt = planPayments[i];
+        const isPast = new Date(dueDate) < new Date();
+        const bg = pmt ? '#d1fae5' : (isPast ? '#fee2e2' : '#f9f7f4');
+        const textColor = pmt ? '#065f46' : (isPast ? '#991b1b' : '#6b7280');
+        const icon = pmt ? '✓' : (isPast ? '✗' : '○');
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border-radius:8px;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:${textColor};font-weight:700;font-size:13px;">${icon}</span>
+            <span style="font-size:12px;font-weight:500;">#${i+1} · ${fmtDate(dueDate.toISOString().slice(0,10))}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:13px;font-weight:600;color:${textColor};">${fmtCur(plan.installmentAmount)}</span>
+            ${pmt ? `<span style="font-size:10px;font-family:'DM Mono',monospace;color:#6b7280;">${escH(pmt.ref||'')}</span><button onclick="viewReceipt('${pmt.id}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:#7c3aed;font-weight:600;">View ↗</button>` : `<span style="font-size:11px;color:${textColor};">${isPast?'Overdue':'Upcoming'}</span>`}
+          </div>
+        </div>`;
+      }).join('');
+
+      return `<div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div>
+            <div style="font-weight:700;font-size:15px;">${escH(plan.customer)}</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:1px;">${escH(plan.invoiceNo)} · ${escH(plan.product)}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span class="badge ${{active:'badge-active',overdue:'badge-overdue',completed:'badge-completed'}[status]||'badge-active'}">${status}</span>
+            <button onclick="openRecordPayment('${plan.id}')" class="btn btn-emerald btn-sm"><i class="fas fa-plus"></i> Record</button>
+            <button onclick="sendReminder('${plan.id}')" class="btn btn-amber btn-sm"><i class="fas fa-bell"></i> Remind</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-bottom:6px;">
+          <span>${planPayments.length}/${plan.installments} paid · ${fmtCur(paid)} collected</span>
+          <span>${progress.toFixed(0)}%</span>
+        </div>
+        <div class="progress-track" style="margin-bottom:14px;"><div class="progress-fill" style="width:${progress}%"></div></div>
+        <div style="max-height:220px;overflow-y:auto;padding-right:4px;" class="scrollbar-custom">${installmentRows}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ============================================================
+//  EVENTS
+// ============================================================
+function attachEvents() {
+  renderTabContent();
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+renderApp();
+</script>
+</body>
+</html>

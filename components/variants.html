@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>QwetuLinks | Enterprise Admin Suite | Product Variants</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .inventory-card:hover {
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12);
+        border-color: #cbd5e1;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN INVENTORY MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="variantModuleRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- Edit Variant Modal (global) -->
+    <div
+      id="editVariantModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4"
+    >
+      <div class="bg-white rounded-2xl max-w-3xl w-full p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <i class="fas fa-edit text-emerald-600"></i> Edit
+          <p><span id="editVariantSku">Product Sku</span></p>
+        </h3>
+        <input type="hidden" id="editVariantProductId" /><input
+          type="hidden"
+          id="editVariantId"
+        />
+        <div class="space-y-3">
+          <div>
+            <label>Color</label
+            ><input
+              type="text"
+              id="editColor"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label>Size</label>
+            <div id="editSizeContainer"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label>Buy Price (KES)</label
+              ><input
+                type="number"
+                id="editBuyPrice"
+                class="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label>Sell Price (KES)</label
+              ><input
+                type="number"
+                id="editSellPrice"
+                class="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+          <div>
+            <label>Reorder Point</label
+            ><input
+              type="number"
+              id="editReorderPoint"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <!-- <div>
+            <label class="font-semibold">Stock per Location</label>
+            <div id="editLocationsContainer" class="space-y-2 mt-2"></div>
+          </div> -->
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button
+            id="saveVariantChangesBtn"
+            class="flex-1 bg-emerald-600 text-white py-2 rounded-xl"
+          >
+            Save Changes</button
+          ><button
+            id="closeEditVariantModal"
+            class="flex-1 border py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Variant Modal -->
+    <div
+      id="deleteVariantModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">
+          Delete Product Variant
+        </h3>
+        <p class="text-gray-500 mb-6" id="deleteVariantName">
+          Are you sure you want to delete this product variant? This action
+          cannot be undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteVariantBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium hover:bg-red-700 transition"
+          >
+            Delete</button
+          ><button
+            id="cancelDeleteVariantBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==================== STANDALONE INVENTORY INTELLIGENCE MODULE ====================
+      (function () {
+        // ---------- INVENTORY DATA (Outlet removed) ----------
+
+        let inventoryProducts = [];
+        let inventoryItems = [];
+
+        //Variants Pagination State
+        var variantsCurrentPage = 1;
+        var variantsPerPage = 10;
+        var variantsFilteredItems = [];
+
+        //search
+        let currentSearchTerm = "";
+
+        // Calculate Total Stock and Status based on Locations
+        function recalcTotalStock(item) {
+          // console.log("Recalculating stock for:", item);
+          item.inventory.totalStock = item.inventory.locations.reduce(
+            (sum, loc) => sum + loc.stock,
+            0,
+          );
+          if (item.inventory.totalStock === 0)
+            item.inventory.status = "reorder";
+          else if (item.inventory.totalStock <= 5)
+            item.inventory.status = "critical";
+          else if (
+            item.inventory.totalStock <=
+            item.inventory.reorderPoint * 0.5
+          )
+            item.inventory.status = "low";
+          else if (item.inventory.totalStock < item.inventory.reorderPoint)
+            item.inventory.status = "low";
+          else item.inventory.status = "healthy";
+          return item;
+        }
+
+        async function loadInitialData() {
+          //inventoryProducts
+          try {
+            // 1. Load from localStorage first (fast)
+            let allProducts = localStorage.getItem("qwetulinks_products");
+
+            if (allProducts) {
+              inventoryProducts = JSON.parse(allProducts);
+            } else {
+              // 2. Fetch fresh data from JSON file
+              const res = await fetch("../data/qwetulinks_inventory.json");
+
+              if (!res.ok) {
+                throw new Error("Failed to load Product JSON file");
+              }
+              const proddata = await res.json();
+
+              inventoryProducts = proddata.products;
+              console.log("Fetched inventory data:", inventoryProducts);
+              // 3. Update cache
+              localStorage.setItem(
+                "qwetulinks_products",
+                JSON.stringify(inventoryProducts),
+              );
+            }
+          } catch (error) {
+            console.error("Error loading inventory:", error);
+          }
+
+          // Get Inventory Data
+          const storedInventory = localStorage.getItem("qwetulinks_inventory");
+
+          if (storedInventory) {
+            inventoryItems = JSON.parse(storedInventory);
+          } else {
+            fetch("../data/variants.json")
+              .then((res) => res.json())
+              .then((data) => {
+                inventoryItems = data.variants;
+                console.log("Fetched inventory items:", inventoryItems);
+
+                inventoryItems.forEach((item) => recalcTotalStock(item));
+
+                localStorage.setItem(
+                  "qwetulinks_inventory",
+                  JSON.stringify(inventoryItems),
+                );
+              })
+              .catch((error) => {
+                console.error("Error loading inventory items:", error);
+              });
+          }
+        }
+
+        function computeVariantInventory(variant) {
+          const inv = variant.inventory;
+          const total = inv.locations.reduce((sum, loc) => sum + loc.stock, 0);
+          inv.totalStock = total;
+          if (total === 0) inv.status = "reorder";
+          else if (total <= 5) inv.status = "critical";
+          else if (total <= inv.reorderPoint) inv.status = "low";
+          else inv.status = "healthy";
+          return inv;
+        }
+
+        function escapeHtml(str = "") {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function computeVariantsStats(items) {
+          let totalVariants = items.length;
+
+          let activeVariants = 0;
+          let deadVariants = 0;
+
+          let totalRevenue = 0;
+          let totalCost = 0;
+
+          items.forEach((item) => {
+            const stock = item.inventory.totalStock;
+
+            // Active vs Dead
+            if (stock > 0) {
+              activeVariants++;
+            } else {
+              deadVariants++;
+            }
+
+            // Financials (based on current stock value)
+            totalRevenue += stock * item.sellPrice;
+            totalCost += stock * item.buyPrice;
+          });
+
+          // Gross Profit Margin (%)
+          const grossProfitMargin =
+            totalRevenue > 0
+              ? ((totalRevenue - totalCost) / totalRevenue) * 100
+              : 0;
+
+          return {
+            totalVariants,
+            activeVariants,
+            deadVariants,
+            grossProfitMargin: Number(grossProfitMargin.toFixed(2)),
+          };
+        }
+        function renderAllVariants() {
+          const stats = computeVariantsStats(inventoryItems);
+          return `<div class="space-y-6">
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">
+      <i class="fas fa-boxes text-emerald-600 mr-2"></i>Product Variants
+    </h1>
+    <p class="text-gray-500 mt-1">
+      Created to cater to different customers preferences
+    </p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+
+  <!-- Total Variants -->
+  <div class="bg-white rounded-2xl border p-5">
+    <div class="flex items-center gap-2 text-blue-600 mb-2">
+      <i class="fas fa-layer-group"></i>
+      <p class="text-sm font-semibold">Total Variants</p>
+    </div>
+    <p class="text-3xl font-extrabold text-gray-800">${stats.totalVariants}</p>
+  </div>
+
+  <!-- Active Variants -->
+  <div class="bg-white rounded-2xl border p-5">
+    <div class="flex items-center gap-2 text-emerald-600 mb-2">
+      <i class="fas fa-check-circle"></i>
+      <p class="text-sm font-semibold">Active Variants</p>
+    </div>
+    <p class="text-3xl font-extrabold text-gray-800">${stats.activeVariants}</p>
+  </div>
+
+  <!-- Dead Variants -->
+  <div class="bg-white rounded-2xl border p-5">
+    <div class="flex items-center gap-2 text-red-600 mb-2">
+      <i class="fas fa-times-circle"></i>
+      <p class="text-sm font-semibold">Dead Variants</p>
+    </div>
+    <p class="text-3xl font-extrabold text-gray-800">${stats.deadVariants}</p>
+  </div>
+
+  <!-- Gross Profit Margin -->
+  <div class="bg-white rounded-2xl border p-5">
+    <div class="flex items-center gap-2 text-purple-600 mb-2">
+      <i class="fas fa-percentage"></i>
+      <p class="text-sm font-semibold">Gross Profit Margin</p>
+    </div>
+    <p class="text-3xl font-extrabold text-gray-800">
+      ${stats.grossProfitMargin}%
+    </p>
+  </div>
+
+</div>
+
+<div class="bg-white rounded-xl border p-4">
+  <div class="flex flex-col lg:flex-row gap-4">
+    
+    <div class="flex-1 relative">
+      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      <input 
+        type="text" 
+        id="searchVariantsInput" 
+        placeholder="Search by product name or SKU..." 
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none">
+    </div>
+  </div>
+</div>
+
+<div id="variantsDynamicContainer"></div>
+
+</div>`;
+        }
+
+        function getStatus(stock, reorderPoint) {
+          if (stock === 0) return "critical";
+          if (stock <= reorderPoint * 0.5) return "critical";
+          if (stock <= reorderPoint) return "low";
+          return "healthy";
+        }
+
+        function renderVariantsCards(items) {
+          if (!items.length) {
+            return `<div class="text-center py-12 text-gray-400 bg-white rounded-xl border"><i class="fas fa-box-open text-4xl mb-3"></i><p>No inventory items match your search.</p></div>`;
+          }
+
+          return `
+        <div class="space-y-5" id="variantsListContainer">
+          ${items
+            .map((item) => {
+              const inventory = item.inventory || {};
+
+              const totalStock = inventory.totalStock ?? 0;
+              const reorderPoint = inventory.reorderPoint ?? 0;
+
+              const status = getStatus(totalStock, reorderPoint);
+
+              const statusClass = {
+                healthy: "status-healthy",
+                low: "status-low",
+                critical: "status-critical",
+              }[status];
+
+              const statusIcon = {
+                healthy: "fa-check-circle",
+                low: "fa-chart-line",
+                critical: "fa-exclamation-triangle",
+              }[status];
+
+              const statusLabel = {
+                healthy: "Healthy",
+                low: "Low Stock",
+                critical: "Critical",
+              }[status];
+
+              const lastRestocked = inventory.lastRestocked
+                ? new Date(inventory.lastRestocked).toLocaleDateString()
+                : "N/A";
+              return `
+                  <div class="bg-white rounded-2xl border p-6 inventory-card shadow-sm">
+
+                    <div class="flex flex-col xl:flex-col gap-5">
+
+                      <!-- LEFT -->
+                      <div class="flex-1">
+
+                        <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+                          
+                          <div>
+                            <h3 class="font-bold text-xl">
+                              ${escapeHtml(item.productName)}
+                              ${item.color ? escapeHtml(` - ${item.color}`) : ""}
+                              ${item.size ? escapeHtml(` (${item.size})`) : ""}
+                            </h3>
+                            <p class="text-sm text-gray-500 font-mono">
+                              SKU: ${escapeHtml(item.sku || "N/A")}
+                            </p>
+                          </div>
+
+                          <span class="status-badge ${statusClass}">
+                            <i class="fas ${statusIcon} text-xs"></i>
+                            ${statusLabel}
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <!-- RIGHT -->
+                      <div class="space-y-3">
+
+                        <div class="bg-emerald-50 rounded-xl p-4 text-center border">
+                          <p class="text-sm text-gray-600 font-medium">
+                            📦 Total Stock
+                          </p>
+                          <p class="text-3xl font-extrabold text-emerald-800">
+                            ${totalStock}
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            Reorder threshold: ${reorderPoint}
+                          </p>
+                        </div>
+
+                        <div class="text-xs text-gray-400 text-center bg-gray-50 py-1 rounded-lg">
+                          Last restocked: ${lastRestocked}
+                        </div>
+
+                        <div class="flex gap-2">
+                          <button 
+                            class="editGlobalVariantBtn flex-1 px-3 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-100 font-medium"
+                            data-sku="${escapeHtml(item.sku)}" data-prd="${escapeHtml(item.productId)}">
+                            <i class="fas fa-pen-alt mr-1"></i> Edit
+                          </button>
+
+                          <button 
+                            class="delGlobalVariantBtn flex-1 px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            data-sku="${escapeHtml(item.sku)}">
+                            <i class="fas fa-trash-alt mr-1"></i> Delete
+                          </button>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                `;
+            })
+            .join("")}
+          ${
+            items.length > 0
+              ? `
+<div class="bg-white rounded-xl p-4 flex flex-wrap justify-between items-center text-sm border mt-4">
+  
+  <!-- Left: Info -->
+  <div id="variantsPaginationInfo" class="text-gray-500">
+    1–10 of ${items.length} items
+  </div>
+
+  <!-- Center: Controls -->
+  <div id="paginationControls" class="flex items-center gap-1">
+    <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-variants-page="first">« </button>
+    <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-variants-page="prev">‹ </button>
+
+    <div id="variantsPageNumbers" class="flex gap-1"></div>
+
+    <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-variants-page="next"> ›</button>
+    <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-variants-page="last"> »</button>
+  </div>
+
+  <!-- Right -->
+  <div>
+    <select id="variantsItemsPerPage" class="border rounded px-2 py-1">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+    <span class="text-gray-500">Items per page</span>
+  </div>
+</div>
+`
+              : ""
+          }
+
+          </div>
+      
+      `;
+        }
+
+        function getVariantsItems() {
+          let filtered = [...inventoryItems];
+          if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = filtered.filter(
+              (i) =>
+                i.productName.toLowerCase().includes(term) ||
+                i.sku.toLowerCase().includes(term),
+            );
+          }
+          return filtered;
+        }
+
+        function updateVariantsCardArea() {
+          variantsFilteredItems = getVariantsItems();
+          const start = (variantsCurrentPage - 1) * variantsPerPage;
+          const paginatedItems = variantsFilteredItems.slice(
+            start,
+            start + variantsPerPage,
+          );
+          const cardsHtml = renderVariantsCards(paginatedItems);
+          const dynamicContainer = document.getElementById(
+            "variantsDynamicContainer",
+          );
+          if (dynamicContainer) dynamicContainer.innerHTML = cardsHtml;
+          updateVariantsPaginationUI();
+        }
+
+        function updateVariantsPaginationUI() {
+          var total = variantsFilteredItems.length;
+          var totalPages = Math.ceil(total / variantsPerPage) || 1;
+          if (variantsCurrentPage > totalPages)
+            variantsCurrentPage = totalPages;
+          var start = (variantsCurrentPage - 1) * variantsPerPage + 1;
+          var end = Math.min(variantsCurrentPage * variantsPerPage, total);
+
+          var info = document.getElementById("variantsPaginationInfo");
+          if (info)
+            info.textContent =
+              (total === 0 ? "0" : start) +
+              "\u2013" +
+              end +
+              " of " +
+              total +
+              " items";
+
+          var invPageNumbers = document.getElementById("variantsPageNumbers");
+          if (invPageNumbers) {
+            invPageNumbers.innerHTML = "";
+            var maxV = 5;
+            var sp = Math.max(1, variantsCurrentPage - Math.floor(maxV / 2));
+            var ep = Math.min(totalPages, sp + maxV - 1);
+            if (ep - sp < maxV - 1) sp = Math.max(1, ep - maxV + 1);
+            for (var i = sp; i <= ep; i++) {
+              (function (pn) {
+                var btn = document.createElement("button");
+                btn.textContent = pn;
+                btn.className =
+                  "px-2 py-1 rounded text-sm " +
+                  (pn === variantsCurrentPage
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-200 hover:bg-gray-300");
+                btn.onclick = function () {
+                  variantsCurrentPage = pn;
+                  renderVariantsPage();
+                };
+                variantsPageNumbers.appendChild(btn);
+              })(i);
+            }
+          }
+
+          // Arrow buttons
+          document.querySelectorAll("[data-variants-page]").forEach((btn) => {
+            btn.onclick = () => {
+              const totalPages =
+                Math.ceil(variantsFilteredItems.length / variantsPerPage) || 1;
+              const action = btn.getAttribute("data-variants-page");
+              if (action === "first") variantsCurrentPage = 1;
+              if (action === "prev" && variantsCurrentPage > 1)
+                variantsCurrentPage--;
+              if (action === "next" && variantsCurrentPage < totalPages)
+                variantsCurrentPage++;
+              if (action === "last") variantsCurrentPage = totalPages;
+              renderVariantsPage();
+            };
+          });
+
+          var pps = document.getElementById("variantsItemsPerPage");
+          if (pps && !pps._patchedChange) {
+            pps._patchedChange = true;
+            pps.value = String(variantsPerPage);
+            pps.onchange = function (e) {
+              variantsPerPage = Number(e.target.value);
+              variantsCurrentPage = 1;
+              renderVariantsPage();
+            };
+          }
+        }
+
+        function attachVariantEvents() {
+          let searchDebounceTimer;
+          var searchInput = document.getElementById("searchVariantsInput");
+          if (searchInput) {
+            searchInput.value = currentSearchTerm;
+            searchInput.oninput = function (e) {
+              // Clear previous timer
+              clearTimeout(searchDebounceTimer);
+              searchDebounceTimer = setTimeout(() => {
+                currentSearchTerm = e.target.value;
+                invCurrentPage = 1;
+                updateVariantsCardArea();
+              }, 300);
+            };
+          }
+
+          document.addEventListener("click", (e) => {
+            // Edit Global variant Button]
+            if (e.target.closest(".editGlobalVariantBtn")) {
+              const btn = e.target.closest(".editGlobalVariantBtn");
+              const variantSku = btn.dataset.sku;
+              const productId = btn.dataset.prd;
+
+              // if (activeEditItem) {
+              //   document.getElementById("adjustProductName").innerText =
+              //     `${activeEditItem.productName} - (${activeEditItem.sku})`;
+              //   document.getElementById("adjustModal").classList.remove("hidden");
+              //   document.getElementById("adjustModal").classList.add("flex");
+              //   document.getElementById("adjustQuantity").value = "";
+              // }
+              openGlobalEditVariant(variantSku, productId);
+            }
+
+            document.querySelectorAll(".delGlobalVariantBtn").forEach((btn) => {
+              btn.addEventListener("click", (e) => {
+                sku = btn.dataset.sku;
+                document
+                  .getElementById("deleteVariantModal")
+                  .classList.remove("hidden");
+                document
+                  .getElementById("deleteVariantModal")
+                  .classList.add("flex");
+                document.getElementById("deleteVariantName").innerText =
+                  `Are you sure you want to delete variant (${sku})?`;
+              });
+            });
+            // Transfer Stock Button
+            // if (e.target.closest(".transferStockBtn")) {
+            //   const btn = e.target.closest(".transferStockBtn");
+            //   const sku = btn.dataset.sku;
+            //   activeTransferItem = inventoryItems.find((i) => i.sku === sku);
+            //   if (activeTransferItem) {
+            //     document.getElementById("transferProductName").innerText =
+            //       `${activeTransferItem.productName} - (${activeTransferItem.sku})`;
+            //     document
+            //       .getElementById("transferModal")
+            //       .classList.remove("hidden");
+            //     document.getElementById("transferModal").classList.add("flex");
+            //   }
+            // }
+          });
+
+          //Edit modal buttons
+
+          document
+            .getElementById("closeEditVariantModal")
+            ?.addEventListener("click", () =>
+              document
+                .getElementById("editVariantModal")
+                .classList.add("hidden"),
+            );
+
+          // Delete modal buttons
+          const confirmDeleteBtn = document.getElementById(
+            "confirmDeleteVariantBtn",
+          );
+          const cancelDeleteBtn = document.getElementById(
+            "cancelDeleteVariantBtn",
+          );
+          if (confirmDeleteBtn)
+            confirmDeleteBtn.addEventListener("click", confirmVariantDelete);
+          if (cancelDeleteBtn)
+            cancelDeleteBtn.addEventListener("click", cancelVariantDelete);
+        }
+
+        function openGlobalEditVariant(variantSku, productId) {
+          const product = inventoryProducts.find((p) => p.id === productId);
+          const variant = product.variants.find((v) => v.sku === variantSku);
+
+          if (!variant) return;
+          document.getElementById("editVariantProductId").value = productId;
+          // document.getElementById("editVariantId").value = idx;;
+          // document.getElementById("editSku").value = variant.sku;
+          document.getElementById("editColor").value = variant.color;
+          const category = product.category;
+          const sizeContainer = document.getElementById("editSizeContainer");
+          if (category === "Footwear") {
+            let sel = `<select id="editSizeSelect" class="w-full px-4 py-2.5 border border-gray-300">`;
+            for (let i = 10; i <= 50; i++)
+              sel += `<option ${variant.size == i ? "selected" : ""}>${i}</option>`;
+            sel += `</select>`;
+            sizeContainer.innerHTML = sel;
+          } else {
+            const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+            let sel = `<select id="editSizeSelect" class="w-full px-4 py-2.5 border border-gray-300">`;
+            sizes.forEach(
+              (s) =>
+                (sel += `<option ${variant.size === s ? "selected" : ""}>${s}</option>`),
+            );
+            sel += `</select>`;
+            sizeContainer.innerHTML = sel;
+          }
+          document.getElementById("editBuyPrice").value = variant.buyPrice;
+          document.getElementById("editSellPrice").value = variant.sellPrice;
+          document.getElementById("editReorderPoint").value =
+            variant.inventory.reorderPoint;
+          // const locsDiv = document.getElementById("editLocationsContainer");
+          // locsDiv.innerHTML = variant.inventory.locations
+          //   .map(
+          //     (loc) =>
+          //       `<div class="grid grid-cols-3 gap-3"><span>${loc.name}:</span><input type="number" class="editLocationStock w-full p-2 border border-gray-300 rounded" data-loc="${loc.name}" value="${loc.stock}"></div>`,
+          //   )
+          //   .join("");
+          document
+            .getElementById("editVariantModal")
+            .classList.remove("hidden");
+          document.getElementById("editVariantModal").classList.add("flex");
+          document.getElementById("editVariantSku").innerText =
+            `${product.name} - (${variant.sku})`;
+          document.getElementById("saveVariantChangesBtn").onclick = () => {
+            saveGlobalVariant(productId, variantSku);
+          };
+        }
+        function saveGlobalVariant(productId, variantSku) {
+          const product = inventoryProducts.find((p) => p.id === productId);
+          if (!product) {
+            alert("Product not found");
+            return;
+          }
+          const variant = product.variants.find((v) => v.sku === variantSku);
+          if (variant) {
+            // variant.sku = document.getElementById("editSku").value;
+            variant.color = document.getElementById("editColor").value;
+            variant.size = document.getElementById("editSizeSelect").value;
+            variant.buyPrice = parseFloat(
+              document.getElementById("editBuyPrice").value,
+            );
+            variant.sellPrice = parseFloat(
+              document.getElementById("editSellPrice").value,
+            );
+            variant.inventory.reorderPoint = parseInt(
+              document.getElementById("editReorderPoint").value,
+            );
+            // document.querySelectorAll(".editLocationStock").forEach((inp) => {
+            //   const loc = variant.inventory.locations.find(
+            //     (l) => l.name === inp.dataset.loc,
+            //   );
+            //   if (loc) loc.stock = parseInt(inp.value) || 0;
+            // });
+            computeVariantInventory(variant);
+            // persistData();
+            alert(`✅ Variant "${variantSku}" updated successfully.`);
+            // renderCurrentTab();
+            renderVariantsPage();
+          }
+          resetEditVariantForm();
+          document.getElementById("editVariantModal").classList.add("hidden");
+        }
+        function resetEditVariantForm() {
+          document.getElementById("editVariantProductId").value = "";
+          document.getElementById("editVariantId").value = "";
+
+          document.getElementById("editColor").value = "";
+          document.getElementById("editBuyPrice").value = "";
+          document.getElementById("editSellPrice").value = "";
+          document.getElementById("editReorderPoint").value = "";
+
+          // Clear dynamic containers
+          document.getElementById("editSizeContainer").innerHTML = "";
+          // document.getElementById("editLocationsContainer").innerHTML = "";
+        }
+
+        function renderVariantsPage() {
+          const container = document.getElementById("variantModuleRoot");
+          if (!container) return;
+          container.innerHTML = renderAllVariants();
+          updateVariantsCardArea();
+          attachVariantEvents();
+        }
+
+        function deleteVariantProduct(sku) {
+          inventoryItems = inventoryItems.filter((p) => p.sku != sku);
+          console.log("Deleted variant with SKU:", sku);
+          // persistData();
+        }
+
+        function confirmVariantDelete() {
+          if (sku) {
+            const product = inventoryItems.find((p) => p.sku === sku);
+
+            deleteVariantProduct(sku);
+            alert(`Product "${product?.name ?? sku}" deleted.`);
+            sku = null;
+            document
+              .getElementById("deleteVariantModal")
+              .classList.add("hidden");
+            // renderCurrentTab();
+            renderVariantsPage();
+          }
+        }
+
+        function cancelVariantDelete() {
+          sku = null;
+          document.getElementById("deleteVariantModal").classList.add("hidden");
+        }
+
+        // ---------- INITIALIZATION ----------
+        function init() {
+          loadInitialData();
+          //   recalcAllItems();
+          renderVariantsPage();
+          //   setupModals();
+        }
+
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

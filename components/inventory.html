@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>QwetuLinks | Enterprise Admin Suite | Inventory Intelligence</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-healthy {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-low {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-critical {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .status-reorder {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .inventory-card {
+        transition: all 0.2s;
+      }
+      .inventory-card:hover {
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.12);
+        border-color: #cbd5e1;
+      }
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <!-- MAIN INVENTORY MODULE WRAPPER (fully independent, ready for Laravel blade include) -->
+    <div id="inventoryModuleRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- ==================== MODALS ==================== -->
+    <!-- Adjust Stock Modal (absolute value update) -->
+    <div
+      id="adjustModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-sliders-h text-emerald-600 mr-2"></i>Adjust Stock
+          </h3>
+          <button
+            id="closeAdjustModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600" id="adjustProductName"></p>
+          <div class="bg-amber-50 p-3 rounded-lg text-sm text-amber-700">
+            <i class="fas fa-info-circle mr-1"></i> Set new ABSOLUTE stock quantity (overwrites current value)
+          </div>
+          <input
+            type="number"
+            id="adjustQuantity"
+            placeholder="New stock quantity (e.g., 24)"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          />
+          <select
+            id="adjustLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl bg-white"
+          >
+            <option value="Main Store">🏬 Main Store</option>
+            <option value="Warehouse A">🏭 Warehouse A</option>
+            <option value="Outlet">🛍️ Outlet</option>
+          </select>
+          <div class="flex gap-3 pt-2">
+            <button
+              id="confirmAdjustBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-check mr-1"></i> Apply
+            </button>
+            <button
+              id="cancelAdjustBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Stock Modal -->
+    <div
+      id="transferModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-exchange-alt text-emerald-600 mr-2"></i>Transfer
+            Stock
+          </h3>
+          <button
+            id="closeTransferModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="font-medium text-gray-800" id="transferProductName"></p>
+          <select
+            id="fromLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl bg-white"
+          >
+            <option value="Main Store">Main Store</option>
+            <option value="Warehouse A">Warehouse A</option>
+            <option value="Outlet">Outlet</option>
+          </select>
+          <select
+            id="toLocation"
+            class="w-full p-3 border border-gray-300 rounded-xl bg-white"
+          >
+            <option value="Warehouse A">Warehouse A</option>
+            <option value="Main Store">Main Store</option>
+            <option value="Outlet">Outlet</option>
+          </select>
+          <input
+            type="number"
+            id="transferQty"
+            placeholder="Quantity to transfer"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+          />
+          <div class="flex gap-3">
+            <button
+              id="confirmTransferBtn"
+              class="flex-1 bg-emerald-600 text-white py-2 rounded-xl hover:bg-emerald-700 transition"
+            >
+              <i class="fas fa-exchange-alt mr-1"></i> Transfer
+            </button>
+            <button
+              id="cancelTransferBtn"
+              class="flex-1 border border-gray-300 py-2 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==================== INVENTORY INTELLIGENCE MODULE (FULLY FIXED) ====================
+      (function () {
+        // ---------- DATA ----------
+        let inventoryItems = [];
+        
+        // UI state
+        let invCurrentPage = 1;
+        let invPerPage = 10;
+        let invFilteredItems = [];
+        let currentSelectedLocation = "all";
+        let currentSearchTerm = "";
+        
+        // Active items for modals
+        let activeAdjustItem = null;
+        let activeTransferItem = null;
+
+        // ---------- HELPER: persist to localStorage ----------
+        function persistInventory() {
+          localStorage.setItem("qwetulinks_inventory", JSON.stringify(inventoryItems));
+        }
+
+        // Recalculate total stock + status based on location stocks
+        function recalcTotalStock(item) {
+          if (!item.inventory || !item.inventory.locations) return item;
+          item.inventory.totalStock = item.inventory.locations.reduce(
+            (sum, loc) => sum + (loc.stock || 0),
+            0
+          );
+          const reorder = item.inventory.reorderPoint || 5;
+          const total = item.inventory.totalStock;
+          if (total === 0) item.inventory.status = "reorder";
+          else if (total <= 3) item.inventory.status = "critical";
+          else if (total <= reorder * 0.6) item.inventory.status = "low";
+          else item.inventory.status = "healthy";
+          return item;
+        }
+
+        function recalcAllItems() {
+          inventoryItems.forEach(item => recalcTotalStock(item));
+        }
+
+        // ---------- DATA LOADING (with fallback mock if fetch fails) ----------
+        function loadInitialData() {
+          const stored = localStorage.getItem("qwetulinks_inventory");
+          if (stored) {
+            inventoryItems = JSON.parse(stored);
+            recalcAllItems();
+            console.log("Loaded from localStorage");
+            return;
+          }
+
+          // Try to fetch from variants.json, if fails use embedded demo dataset
+          fetch("./data/variants.json")
+            .then(res => {
+              if (!res.ok) throw new Error("HTTP error");
+              return res.json();
+            })
+            .then(data => {
+              if (data.variants && Array.isArray(data.variants)) {
+                inventoryItems = data.variants;
+                recalcAllItems();
+                persistInventory();
+                renderInventoryPage();
+              } else {
+                throw new Error("Invalid format");
+              }
+            })
+            .catch(err => {
+              console.warn("Using fallback embedded inventory:", err);
+              // Embedded demo inventory with realistic multi-location data
+              inventoryItems = [
+                {
+                  sku: "WH-ULTRA-X1",
+                  productName: "UltraBoost Running Shoe",
+                  color: "Black/Neon",
+                  size: "US 9",
+                  inventory: {
+                    reorderPoint: 12,
+                    lastRestocked: new Date().toISOString(),
+                    locations: [
+                      { name: "Main Store", stock: 24, reorderPoint: 8 },
+                      { name: "Warehouse A", stock: 42, reorderPoint: 15 },
+                      { name: "Outlet", stock: 7, reorderPoint: 5 }
+                    ]
+                  }
+                },
+                {
+                  sku: "BT-HYBRID-02",
+                  productName: "Noise Cancelling Headphones",
+                  color: "Silver",
+                  size: "One Size",
+                  inventory: {
+                    reorderPoint: 10,
+                    lastRestocked: new Date(Date.now() - 86400000 * 5).toISOString(),
+                    locations: [
+                      { name: "Main Store", stock: 3, reorderPoint: 5 },
+                      { name: "Warehouse A", stock: 18, reorderPoint: 10 },
+                      { name: "Outlet", stock: 2, reorderPoint: 4 }
+                    ]
+                  }
+                },
+                {
+                  sku: "TAB-PRO-11",
+                  productName: "Quantum Tablet",
+                  color: "Space Gray",
+                  size: "128GB",
+                  inventory: {
+                    reorderPoint: 8,
+                    lastRestocked: new Date(Date.now() - 86400000 * 12).toISOString(),
+                    locations: [
+                      { name: "Main Store", stock: 0, reorderPoint: 3 },
+                      { name: "Warehouse A", stock: 2, reorderPoint: 8 },
+                      { name: "Outlet", stock: 1, reorderPoint: 2 }
+                    ]
+                  }
+                },
+                {
+                  sku: "MON-EDGE-27",
+                  productName: "4K Edge Monitor",
+                  color: "Black",
+                  size: "27 inch",
+                  inventory: {
+                    reorderPoint: 6,
+                    lastRestocked: new Date(Date.now() - 86400000 * 2).toISOString(),
+                    locations: [
+                      { name: "Main Store", stock: 9, reorderPoint: 4 },
+                      { name: "Warehouse A", stock: 15, reorderPoint: 6 },
+                      { name: "Outlet", stock: 4, reorderPoint: 3 }
+                    ]
+                  }
+                },
+                {
+                  sku: "KBD-MECH-RGB",
+                  productName: "Mechanical Gaming Keyboard",
+                  color: "White/RGB",
+                  size: "TKL",
+                  inventory: {
+                    reorderPoint: 10,
+                    lastRestocked: new Date().toISOString(),
+                    locations: [
+                      { name: "Main Store", stock: 14, reorderPoint: 6 },
+                      { name: "Warehouse A", stock: 22, reorderPoint: 10 },
+                      { name: "Outlet", stock: 5, reorderPoint: 4 }
+                    ]
+                  }
+                }
+              ];
+              recalcAllItems();
+              persistInventory();
+              renderInventoryPage();
+            });
+        }
+
+        // ---------- FILTERING & PAGINATION ----------
+        function getFilteredInventoryItems() {
+          let filtered = [...inventoryItems];
+          if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = filtered.filter(
+              i => i.productName.toLowerCase().includes(term) || i.sku.toLowerCase().includes(term)
+            );
+          }
+          if (currentSelectedLocation !== "all") {
+            filtered = filtered.filter(item =>
+              item.inventory.locations.some(loc => loc.name === currentSelectedLocation)
+            );
+          }
+          return filtered;
+        }
+
+        function computeStats(items) {
+          const healthy = items.filter(i => i.inventory.status === "healthy").length;
+          const low = items.filter(i => i.inventory.status === "low").length;
+          const critical = items.filter(i => i.inventory.status === "critical").length;
+          const reorder = items.filter(i => i.inventory.status === "reorder").length;
+          return { healthy, low, critical, reorder };
+        }
+
+        function escapeHtml(str) {
+          if (!str) return "";
+          return String(str).replace(/[&<>]/g, function(m) {
+            if (m === "&") return "&amp;";
+            if (m === "<") return "&lt;";
+            if (m === ">") return "&gt;";
+            return m;
+          });
+        }
+
+        // ---------- RENDER UI (full module) ----------
+        function renderFullInventory() {
+          const stats = computeStats(inventoryItems);
+          return `<div class="space-y-6 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-boxes text-emerald-600 mr-2"></i>Inventory Intelligence</h1>
+                <p class="text-gray-500 mt-1">Multi-location visibility · Real-time stock health & AI reorder triggers</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-check-circle"></i><p class="text-sm font-semibold">Healthy SKUs</p></div><p class="text-3xl font-extrabold">${stats.healthy}</p></div>
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Low Stock</p></div><p class="text-3xl font-extrabold">${stats.low}</p></div>
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-orange-600 mb-2"><i class="fas fa-exclamation-triangle"></i><p class="text-sm font-semibold">Critical</p></div><p class="text-3xl font-extrabold">${stats.critical}</p></div>
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-red-600 mb-2"><i class="fas fa-truck"></i><p class="text-sm font-semibold">Reorder Now</p></div><p class="text-3xl font-extrabold">${stats.reorder}</p></div>
+            </div>
+            <div class="bg-white rounded-xl border p-4">
+              <div class="flex flex-col lg:flex-row gap-4">
+                <div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInventoryInput" placeholder="Search by product name or SKU..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></div>
+                <div><select id="locationFilterSelect" class="px-5 py-2.5 border rounded-xl bg-white"><option value="all">📍 All Locations</option><option value="Main Store">🏬 Main Store</option><option value="Warehouse A">🏭 Warehouse A</option><option value="Outlet">🛍️ Outlet</option></select></div>
+              </div>
+            </div>
+            <div id="inventoryDynamicContainer"></div>
+          </div>`;
+        }
+
+        function renderInventoryCards(items) {
+          if (!items.length) {
+            return `<div class="text-center py-12 text-gray-400 bg-white rounded-xl border"><i class="fas fa-box-open text-4xl mb-3"></i><p>No inventory items match your search.</p></div>`;
+          }
+          return `
+            <div class="space-y-5" id="inventoryListContainer">
+              ${items.map(item => {
+                const statusClass = {
+                  healthy: "status-healthy",
+                  low: "status-low",
+                  critical: "status-critical",
+                  reorder: "status-reorder"
+                }[item.inventory.status];
+                const statusIcon = {
+                  healthy: "fa-check-circle",
+                  low: "fa-chart-line",
+                  critical: "fa-exclamation-triangle",
+                  reorder: "fa-exclamation-circle"
+                }[item.inventory.status];
+                const statusLabel = {
+                  healthy: "Healthy",
+                  low: "Low Stock",
+                  critical: "Critical",
+                  reorder: "Reorder Now"
+                }[item.inventory.status];
+
+                return `<div class="bg-white rounded-2xl border p-6 inventory-card shadow-sm">
+                  <div class="flex flex-col xl:flex-row gap-5">
+                    <div class="flex-1">
+                      <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+                        <div><h3 class="font-bold text-xl">${escapeHtml(item.productName)} - ${escapeHtml(item.color)} (${escapeHtml(item.size)})</h3><p class="text-sm text-gray-500 font-mono">SKU: ${item.sku}</p></div>
+                        <span class="status-badge ${statusClass}"><i class="fas ${statusIcon} text-xs"></i> ${statusLabel}</span>
+                      </div>
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        ${item.inventory.locations.map(loc => `
+                          <div class="p-3 rounded-xl border ${loc.stock <= loc.reorderPoint ? "bg-amber-50 border-amber-200" : "bg-gray-50"}">
+                            <div class="flex items-center gap-2 mb-1"><i class="fas fa-map-marker-alt text-gray-500 text-sm"></i><p class="text-sm font-semibold">${loc.name}</p></div>
+                            <div class="flex items-baseline justify-between"><span class="text-2xl font-bold ${loc.stock <= loc.reorderPoint ? "text-amber-700" : "text-gray-800"}">${loc.stock}</span><span class="text-xs text-gray-500">min: ${loc.reorderPoint}</span></div>
+                            ${loc.stock <= loc.reorderPoint ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-circle"></i> Below reorder point</div>` : ""}
+                          </div>
+                        `).join("")}
+                      </div>
+                    </div>
+                    <div class="xl:w-56 space-y-3">
+                      <div class="bg-emerald-50 rounded-xl p-4 text-center border">
+                        <p class="text-sm text-gray-600 font-medium">📦 Total Stock</p>
+                        <p class="text-3xl font-extrabold text-emerald-800">${item.inventory.totalStock}</p>
+                        <p class="text-xs text-gray-500">Reorder threshold: ${item.inventory.reorderPoint}</p>
+                      </div>
+                      <div class="text-xs text-gray-400 text-center bg-gray-50 py-1 rounded-lg">Last restocked: ${new Date(item.inventory.lastRestocked).toLocaleDateString()}</div>
+                      <div class="flex gap-2">
+                        <button class="adjustStockBtn flex-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 font-medium transition" data-sku="${item.sku}"><i class="fas fa-pen-alt mr-1"></i> Adjust</button>
+                        <button class="transferStockBtn flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition" data-sku="${item.sku}"><i class="fas fa-exchange-alt mr-1"></i> Transfer</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+              }).join("")}
+              ${items.length > 0 ? `
+                <div class="bg-white rounded-xl p-4 flex flex-wrap justify-between items-center text-sm border mt-4">
+                  <div id="invPaginationInfo" class="text-gray-500"></div>
+                  <div id="paginationControls" class="flex items-center gap-1">
+                    <button class="px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700" data-inv-page="first">«</button>
+                    <button class="px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700" data-inv-page="prev">‹</button>
+                    <div id="invPageNumbers" class="flex gap-1"></div>
+                    <button class="px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700" data-inv-page="next">›</button>
+                    <button class="px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700" data-inv-page="last">»</button>
+                  </div>
+                  <div><select id="invItemsPerPage" class="border rounded px-2 py-1 bg-white"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select><span class="text-gray-500 ml-2">Items per page</span></div>
+                </div>
+              ` : ""}
+            </div>`;
+        }
+
+        function updateInventoryCardArea() {
+          invFilteredItems = getFilteredInventoryItems();
+          const start = (invCurrentPage - 1) * invPerPage;
+          const paginatedItems = invFilteredItems.slice(start, start + invPerPage);
+          const container = document.getElementById("inventoryDynamicContainer");
+          if (container) container.innerHTML = renderInventoryCards(paginatedItems);
+          updatePaginationUI();
+        }
+
+        function updatePaginationUI() {
+          const total = invFilteredItems.length;
+          const totalPages = Math.ceil(total / invPerPage) || 1;
+          if (invCurrentPage > totalPages) invCurrentPage = totalPages;
+          const startIdx = (invCurrentPage - 1) * invPerPage + 1;
+          const endIdx = Math.min(invCurrentPage * invPerPage, total);
+          const infoSpan = document.getElementById("invPaginationInfo");
+          if (infoSpan) infoSpan.textContent = total === 0 ? "0 items" : `${startIdx}–${endIdx} of ${total} items`;
+
+          const pageNumbersDiv = document.getElementById("invPageNumbers");
+          if (pageNumbersDiv) {
+            pageNumbersDiv.innerHTML = "";
+            let maxVisible = 5;
+            let startPage = Math.max(1, invCurrentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+            for (let p = startPage; p <= endPage; p++) {
+              const btn = document.createElement("button");
+              btn.textContent = p;
+              btn.className = `px-2 py-1 rounded text-sm ${p === invCurrentPage ? "bg-emerald-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`;
+              btn.onclick = () => { invCurrentPage = p; updateInventoryCardArea(); };
+              pageNumbersDiv.appendChild(btn);
+            }
+          }
+
+          document.querySelectorAll("[data-inv-page]").forEach(btn => {
+            btn.onclick = () => {
+              const totalPagesNow = Math.ceil(invFilteredItems.length / invPerPage) || 1;
+              const action = btn.getAttribute("data-inv-page");
+              if (action === "first") invCurrentPage = 1;
+              if (action === "prev" && invCurrentPage > 1) invCurrentPage--;
+              if (action === "next" && invCurrentPage < totalPagesNow) invCurrentPage++;
+              if (action === "last") invCurrentPage = totalPagesNow;
+              updateInventoryCardArea();
+            };
+          });
+
+          const perPageSelect = document.getElementById("invItemsPerPage");
+          if (perPageSelect && !perPageSelect.dataset.listenerAttached) {
+            perPageSelect.dataset.listenerAttached = "true";
+            perPageSelect.value = invPerPage;
+            perPageSelect.onchange = (e) => {
+              invPerPage = Number(e.target.value);
+              invCurrentPage = 1;
+              updateInventoryCardArea();
+            };
+          }
+        }
+
+        // ---------- ATTACH DYNAMIC FILTERS (after each render) ----------
+        function attachDynamicFilters() {
+          const searchInput = document.getElementById("searchInventoryInput");
+          const locationSelect = document.getElementById("locationFilterSelect");
+          if (searchInput) {
+            searchInput.value = currentSearchTerm;
+            searchInput.oninput = (e) => {
+              clearTimeout(window.searchDebounce);
+              window.searchDebounce = setTimeout(() => {
+                currentSearchTerm = e.target.value;
+                invCurrentPage = 1;
+                updateInventoryCardArea();
+              }, 300);
+            };
+          }
+          if (locationSelect) {
+            locationSelect.value = currentSelectedLocation;
+            locationSelect.onchange = (e) => {
+              currentSelectedLocation = e.target.value;
+              invCurrentPage = 1;
+              updateInventoryCardArea();
+            };
+          }
+        }
+
+        // ---------- MODAL LOGIC (FULLY FIXED) ----------
+        function setupModalEventHandlers() {
+          // Adjust Modal confirm: set absolute stock value
+          const confirmAdjust = document.getElementById("confirmAdjustBtn");
+          const cancelAdjust = document.getElementById("cancelAdjustBtn");
+          const closeAdjustX = document.getElementById("closeAdjustModalBtn");
+          const adjustModal = document.getElementById("adjustModal");
+          
+          const confirmTransfer = document.getElementById("confirmTransferBtn");
+          const cancelTransfer = document.getElementById("cancelTransferBtn");
+          const closeTransferX = document.getElementById("closeTransferModalBtn");
+          const transferModal = document.getElementById("transferModal");
+
+          // Adjust logic (absolute)
+          confirmAdjust.onclick = () => {
+            if (!activeAdjustItem) return;
+            const newAbsoluteQty = parseInt(document.getElementById("adjustQuantity").value, 10);
+            const selectedLoc = document.getElementById("adjustLocation").value;
+            const locIndex = activeAdjustItem.inventory.locations.findIndex(l => l.name === selectedLoc);
+            if (!isNaN(newAbsoluteQty) && newAbsoluteQty >= 0 && locIndex !== -1) {
+              activeAdjustItem.inventory.locations[locIndex].stock = newAbsoluteQty;
+              recalcTotalStock(activeAdjustItem);
+              persistInventory();
+              renderInventoryPage();    // full refresh keeps state
+              adjustModal.classList.add("hidden");
+              document.getElementById("adjustQuantity").value = "";
+            } else {
+              alert("Please enter a valid non-negative stock quantity.");
+            }
+          };
+
+          const closeAdjustModal = () => {
+            adjustModal.classList.add("hidden");
+            document.getElementById("adjustQuantity").value = "";
+          };
+          cancelAdjust.onclick = closeAdjustModal;
+          closeAdjustX.onclick = closeAdjustModal;
+
+          // Transfer logic
+          confirmTransfer.onclick = () => {
+            if (!activeTransferItem) return;
+            const fromLoc = document.getElementById("fromLocation").value;
+            const toLoc = document.getElementById("toLocation").value;
+            const qty = parseInt(document.getElementById("transferQty").value, 10);
+            const fromIndex = activeTransferItem.inventory.locations.findIndex(l => l.name === fromLoc);
+            const toIndex = activeTransferItem.inventory.locations.findIndex(l => l.name === toLoc);
+            if (!isNaN(qty) && qty > 0 && fromIndex !== -1 && toIndex !== -1) {
+              if (activeTransferItem.inventory.locations[fromIndex].stock >= qty) {
+                activeTransferItem.inventory.locations[fromIndex].stock -= qty;
+                activeTransferItem.inventory.locations[toIndex].stock += qty;
+                recalcTotalStock(activeTransferItem);
+                persistInventory();
+                renderInventoryPage();
+                transferModal.classList.add("hidden");
+                document.getElementById("transferQty").value = "";
+                // reset selects to default
+                document.getElementById("fromLocation").selectedIndex = 0;
+                document.getElementById("toLocation").selectedIndex = 0;
+              } else {
+                alert(`Insufficient stock at ${fromLoc}. Available: ${activeTransferItem.inventory.locations[fromIndex].stock}`);
+              }
+            } else {
+              alert("Please enter a valid positive quantity.");
+            }
+          };
+          const closeTransferModal = () => {
+            transferModal.classList.add("hidden");
+            document.getElementById("transferQty").value = "";
+          };
+          cancelTransfer.onclick = closeTransferModal;
+          closeTransferX.onclick = closeTransferModal;
+        }
+
+        // Global listeners for opening modals (adjust/transfer buttons)
+        function attachGlobalModalOpeners() {
+          document.body.addEventListener("click", (e) => {
+            const adjustBtn = e.target.closest(".adjustStockBtn");
+            if (adjustBtn) {
+              const sku = adjustBtn.dataset.sku;
+              activeAdjustItem = inventoryItems.find(i => i.sku === sku);
+              if (activeAdjustItem) {
+                document.getElementById("adjustProductName").innerHTML = `${escapeHtml(activeAdjustItem.productName)} - <span class="font-mono">${activeAdjustItem.sku}</span>`;
+                document.getElementById("adjustModal").classList.remove("hidden");
+                document.getElementById("adjustModal").classList.add("flex");
+                document.getElementById("adjustQuantity").value = "";
+              }
+              return;
+            }
+            const transferBtn = e.target.closest(".transferStockBtn");
+            if (transferBtn) {
+              const sku = transferBtn.dataset.sku;
+              activeTransferItem = inventoryItems.find(i => i.sku === sku);
+              if (activeTransferItem) {
+                document.getElementById("transferProductName").innerHTML = `${escapeHtml(activeTransferItem.productName)} - <span class="font-mono">${activeTransferItem.sku}</span>`;
+                document.getElementById("transferModal").classList.remove("hidden");
+                document.getElementById("transferModal").classList.add("flex");
+                document.getElementById("transferQty").value = "";
+                document.getElementById("fromLocation").selectedIndex = 0;
+                document.getElementById("toLocation").selectedIndex = 1;
+              }
+            }
+          });
+        }
+
+        // ---------- MAIN RENDER & INIT ----------
+        function renderInventoryPage() {
+          const root = document.getElementById("inventoryModuleRoot");
+          if (!root) return;
+          root.innerHTML = renderFullInventory();
+          updateInventoryCardArea();
+          attachDynamicFilters();
+        }
+
+        function init() {
+          loadInitialData();
+          setupModalEventHandlers();
+          attachGlobalModalOpeners();
+          // initial render after data ready (setTimeout to allow async fetch)
+          const checkAndRender = () => {
+            if (inventoryItems.length > 0) renderInventoryPage();
+            else setTimeout(checkAndRender, 50);
+          };
+          checkAndRender();
+        }
+
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

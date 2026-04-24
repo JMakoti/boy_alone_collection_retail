@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>QwetuLinks | Enterprise Admin Suite – Customer Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+      }
+      .fade-in {
+        animation: fadeIn 0.25s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .customer-card {
+        transition: all 0.2s ease;
+      }
+      .customer-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+      }
+      .action-btn {
+        transition: all 0.15s ease;
+      }
+      .action-btn:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body class="antialiased p-4 md:p-6">
+    <div id="lipaCustomerHub" class="max-w-7xl mx-auto"></div>
+
+    <!-- ADD / EDIT MODAL -->
+    <div
+      id="customerFormModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 overflow-y-auto p-4"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 id="formModalTitle" class="text-2xl font-bold">
+            <i class="fas fa-user-plus text-emerald-600 mr-2"></i>Add New
+            Customer
+          </h3>
+          <button
+            id="closeFormModalBtn"
+            class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="customerForm" class="space-y-5">
+            <input type="hidden" id="editCustomerId" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-semibold mb-1.5"
+                  >Full Name <span class="text-red-500">*</span></label
+                ><input
+                  type="text"
+                  id="custName"
+                  required
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5"
+                  >Email Address</label
+                ><input
+                  type="email"
+                  id="custEmail"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5"
+                  >Phone Number <span class="text-red-500">*</span></label
+                ><input
+                  type="tel"
+                  id="custPhone"
+                  required
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Segment</label
+                ><select
+                  id="custSegment"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                >
+                  <option value="New">New</option>
+                  <option value="Regular">Regular</option>
+                  <option value="VIP">VIP</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5"
+                  >Risk Level</label
+                ><select
+                  id="custRiskLevel"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                >
+                  <option value="low">Low Risk</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5"
+                  >Shipping Address</label
+                ><input
+                  type="text"
+                  id="custAddress"
+                  class="w-full px-4 py-2.5 border rounded-xl"
+                />
+              </div>
+            </div>
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl"
+            >
+              <p class="text-sm text-emerald-800">
+                <i class="fas fa-info-circle mr-2"></i>New customers start with
+                0 orders. Risk level sets payment score automatically.
+              </p>
+            </div>
+            <div class="flex gap-3 justify-end pt-4 border-t">
+              <button
+                type="button"
+                id="cancelFormBtn"
+                class="px-6 py-2.5 border rounded-xl hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg"
+              >
+                <i class="fas fa-save mr-2"></i>Save Customer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER DETAIL MODAL -->
+    <div
+      id="customerDetailModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-xl font-bold">
+            <i class="fas fa-user-circle text-emerald-600 mr-2"></i>Customer
+            Details
+          </h3>
+          <button
+            id="closeCustomerModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="customerDetailContent" class="p-6 space-y-5"></div>
+        <div
+          class="border-t px-6 py-4 flex gap-3 justify-between items-center bg-gray-50 rounded-b-2xl"
+        >
+          <div class="flex gap-2">
+            <button
+              id="editFromDetailBtn"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button
+              id="deleteFromDetailBtn"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+          <button
+            id="closeCustomerModalFooterBtn"
+            class="px-4 py-2 border rounded-lg hover:bg-gray-100"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div
+      id="deleteConfirmModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-xl font-bold mb-2">Confirm Deletion</h3>
+        <p class="text-gray-600 mb-6">This action cannot be undone.</p>
+        <div class="flex gap-3 justify-center">
+          <button
+            id="confirmDeleteBtn"
+            class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Yes, Delete
+          </button>
+          <button
+            id="cancelDeleteBtn"
+            class="px-5 py-2 border rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ---------- DATA ----------
+        let customersData = [
+          {
+            id: "CUST-001",
+            name: "Sarah Mwangi",
+            email: "sarah.mwangi@email.com",
+            phone: "+254 712 345 678",
+            totalOrders: 24,
+            totalSpent: 125400,
+            activeInstallments: 2,
+            paymentScore: 95,
+            riskLevel: "low",
+            segment: "VIP",
+            joinedDate: "2025-06-15",
+            lastPurchase: "2026-04-09",
+            address: "123 Kimathi Street, Nairobi",
+          },
+          {
+            id: "CUST-002",
+            name: "John Kamau",
+            email: "john.kamau@email.com",
+            phone: "+254 723 456 789",
+            totalOrders: 12,
+            totalSpent: 67800,
+            activeInstallments: 1,
+            paymentScore: 72,
+            riskLevel: "medium",
+            segment: "Regular",
+            joinedDate: "2025-08-22",
+            lastPurchase: "2026-04-08",
+            address: "45 Moi Avenue, Mombasa",
+          },
+          {
+            id: "CUST-003",
+            name: "Grace Njeri",
+            email: "grace.njeri@email.com",
+            phone: "+254 734 567 890",
+            totalOrders: 8,
+            totalSpent: 42500,
+            activeInstallments: 3,
+            paymentScore: 88,
+            riskLevel: "low",
+            segment: "Regular",
+            joinedDate: "2025-10-11",
+            lastPurchase: "2026-04-08",
+            address: "78 Ngong Road, Nairobi",
+          },
+          {
+            id: "CUST-004",
+            name: "Peter Omondi",
+            email: "peter.omondi@email.com",
+            phone: "+254 745 678 901",
+            totalOrders: 5,
+            totalSpent: 28900,
+            activeInstallments: 1,
+            paymentScore: 55,
+            riskLevel: "high",
+            segment: "New",
+            joinedDate: "2025-12-03",
+            lastPurchase: "2026-04-07",
+            address: "12 Kenyatta Avenue, Kisumu",
+          },
+          {
+            id: "CUST-005",
+            name: "Mary Wanjiku",
+            email: "mary.wanjiku@email.com",
+            phone: "+254 756 789 012",
+            totalOrders: 18,
+            totalSpent: 89300,
+            activeInstallments: 2,
+            paymentScore: 92,
+            riskLevel: "low",
+            segment: "VIP",
+            joinedDate: "2025-05-20",
+            lastPurchase: "2026-04-07",
+            address: "99 Thika Road, Kiambu",
+          },
+          
+        ];
+
+        // UI state
+        let currentSearchTerm = "";
+        let currentFilteredCustomers = [];
+        let customerCurrentPage = 1;
+        let customerPerPage = 10;
+        let selectedCustomerForDetail = null;
+        let pendingDeleteId = null;
+
+        const riskConfig = {
+          low: { label: "Low Risk", color: "bg-green-100 text-green-700" },
+          medium: {
+            label: "Medium Risk",
+            color: "bg-amber-100 text-amber-700",
+          },
+          high: { label: "High Risk", color: "bg-red-100 text-red-700" },
+        };
+        const segmentConfig = {
+          VIP: { color: "bg-purple-100 text-purple-700", icon: "fa-star" },
+          Regular: { color: "bg-blue-100 text-blue-700", icon: "fa-users" },
+          New: { color: "bg-gray-100 text-gray-700", icon: "fa-user-plus" },
+        };
+
+        function escapeHtml(str) {
+          return String(str).replace(/[&<>]/g, function (m) {
+            if (m === "&") return "&amp;";
+            if (m === "<") return "&lt;";
+            if (m === ">") return "&gt;";
+            return m;
+          });
+        }
+        function generateCustomerId() {
+          const lastNum = Math.max(
+            ...customersData.map((c) => parseInt(c.id.split("-")[1])),
+            0,
+          );
+          return `CUST-${String(lastNum + 1).padStart(3, "0")}`;
+        }
+        function getPaymentScoreFromRisk(risk) {
+          return risk === "low" ? 85 : risk === "medium" ? 65 : 45;
+        }
+
+        // CRUD
+        function saveCustomer(formData, editId = null) {
+          if (editId) {
+            const index = customersData.findIndex((c) => c.id === editId);
+            if (index !== -1) {
+              customersData[index] = {
+                ...customersData[index],
+                ...formData,
+                paymentScore: getPaymentScoreFromRisk(formData.riskLevel),
+              };
+              return customersData[index];
+            }
+            return null;
+          } else {
+            const newCustomer = {
+              id: generateCustomerId(),
+              name: formData.name,
+              email: formData.email || "",
+              phone: formData.phone,
+              totalOrders: 0,
+              totalSpent: 0,
+              activeInstallments: 0,
+              paymentScore: getPaymentScoreFromRisk(formData.riskLevel),
+              riskLevel: formData.riskLevel,
+              segment: formData.segment,
+              joinedDate: new Date().toISOString().slice(0, 10),
+              lastPurchase: new Date().toISOString().slice(0, 10),
+              address: formData.address || "",
+            };
+            customersData.unshift(newCustomer);
+            return newCustomer;
+          }
+        }
+
+        function deleteCustomerById(id) {
+          customersData = customersData.filter((c) => c.id !== id);
+          if (selectedCustomerForDetail?.id === id) closeCustomerDetailModal();
+          reloadView(); // re‑render & re‑apply filter
+        }
+
+        // Filtering & pagination
+        function applyFilterAndRender() {
+          const term = currentSearchTerm.toLowerCase();
+          currentFilteredCustomers = customersData.filter(
+            (c) =>
+              c.name.toLowerCase().includes(term) ||
+              c.email.toLowerCase().includes(term) ||
+              c.phone.includes(term),
+          );
+          customerCurrentPage = 1;
+          renderCustomerPage();
+        }
+
+        function renderCustomerPage() {
+          const start = (customerCurrentPage - 1) * customerPerPage;
+          const paginated = currentFilteredCustomers.slice(
+            start,
+            start + customerPerPage,
+          );
+          renderCustomersGrid(paginated);
+          updatePaginationUI();
+        }
+
+        function updatePaginationUI() {
+          const total = currentFilteredCustomers.length;
+          const totalPages = Math.ceil(total / customerPerPage) || 1;
+          if (customerCurrentPage > totalPages)
+            customerCurrentPage = totalPages;
+          const start = (customerCurrentPage - 1) * customerPerPage + 1;
+          const end = Math.min(customerCurrentPage * customerPerPage, total);
+
+          const info = document.getElementById("paginationInfo");
+          if (info)
+            info.textContent =
+              total === 0 ? "0 items" : `${start}–${end} of ${total} items`;
+
+          const pageNumbersDiv = document.getElementById("pageNumbers");
+          if (pageNumbersDiv) {
+            pageNumbersDiv.innerHTML = "";
+            let maxVisible = 5;
+            let startPage = Math.max(
+              1,
+              customerCurrentPage - Math.floor(maxVisible / 2),
+            );
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage < maxVisible - 1)
+              startPage = Math.max(1, endPage - maxVisible + 1);
+            for (let i = startPage; i <= endPage; i++) {
+              const btn = document.createElement("button");
+              btn.textContent = i;
+              btn.className = `px-2 py-1 rounded text-sm ${i === customerCurrentPage ? "bg-emerald-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`;
+              btn.onclick = () => {
+                customerCurrentPage = i;
+                renderCustomerPage();
+              };
+              pageNumbersDiv.appendChild(btn);
+            }
+          }
+
+          // Arrow buttons
+          document.querySelectorAll("[data-page]").forEach((btn) => {
+            btn.onclick = () => {
+              const tp =
+                Math.ceil(currentFilteredCustomers.length / customerPerPage) ||
+                1;
+              const action = btn.dataset.page;
+              if (action === "first") customerCurrentPage = 1;
+              if (action === "prev" && customerCurrentPage > 1)
+                customerCurrentPage--;
+              if (action === "next" && customerCurrentPage < tp)
+                customerCurrentPage++;
+              if (action === "last") customerCurrentPage = tp;
+              renderCustomerPage();
+            };
+          });
+
+          const perPageSelect = document.getElementById("customerPerPage");
+          if (perPageSelect && !perPageSelect._listener) {
+            perPageSelect._listener = true;
+            perPageSelect.value = customerPerPage;
+            perPageSelect.onchange = (e) => {
+              customerPerPage = Number(e.target.value);
+              customerCurrentPage = 1;
+              renderCustomerPage();
+            };
+          }
+        }
+
+        // Render main UI (stats + search + grid container)
+        function renderMainHub() {
+          const total = customersData.length;
+          const vipCount = customersData.filter(
+            (c) => c.segment === "VIP",
+          ).length;
+          const activePlans = customersData.reduce(
+            (sum, c) => sum + c.activeInstallments,
+            0,
+          );
+          const avgSpend = total
+            ? Math.round(
+                customersData.reduce((s, c) => s + c.totalSpent, 0) / total,
+              )
+            : 0;
+          return `
+          <div class="space-y-6 fade-in">
+            <div class="flex flex-col sm:flex-row justify-between gap-4">
+              <div><h1 class="text-3xl font-bold">Customer Management</h1><p class="text-gray-500 mt-1">Manage, edit, delete customers & track payment scores</p></div>
+              <button id="globalAddCustomerBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2"><i class="fas fa-user-plus"></i> Add Customer</button>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-users"></i><p class="text-sm font-medium">Total Customers</p></div><p class="text-2xl font-semibold">${total}</p></div>
+              <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-star"></i><p class="text-sm font-medium">VIP Customers</p></div><p class="text-2xl font-semibold">${vipCount}</p></div>
+              <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-green-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-medium">Active Plans</p></div><p class="text-2xl font-semibold">${activePlans}</p></div>
+              <div class="bg-white rounded-xl border p-4"><div class="flex items-center gap-2 text-amber-600 mb-2"><i class="fas fa-credit-card"></i><p class="text-sm font-medium">Avg Spend</p></div><p class="text-2xl font-semibold">KES ${(avgSpend / 1000).toFixed(0)}K</p></div>
+            </div>
+            <div class="bg-white rounded-xl border p-4"><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="customerSearchInput" placeholder="Search by name, email or phone..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl"></div></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" id="customersGridContainer"></div>
+            ${
+              total > 0
+                ? `
+            <div class="bg-white rounded-xl p-4 flex flex-wrap justify-between items-center text-sm border mt-4">
+              <div id="paginationInfo" class="text-gray-500"></div>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-page="first">«</button>
+                <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-page="prev">‹</button>
+                <div id="pageNumbers" class="flex gap-1"></div>
+                <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-page="next">›</button>
+                <button class="px-2 py-1 bg-emerald-600 text-white rounded" data-page="last">»</button>
+              </div>
+              <div><select id="customerPerPage" class="border rounded px-2 py-1"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select><span class="text-gray-500 ml-2">per page</span></div>
+            </div>
+            `
+                : ""
+            }
+          </div>
+        `;
+        }
+
+        function renderCustomersGrid(customers) {
+          const container = document.getElementById("customersGridContainer");
+          if (!container) return;
+          if (!customers.length) {
+            container.innerHTML =
+              '<div class="col-span-2 text-center py-12 text-gray-400 bg-white rounded-xl border"><i class="fas fa-users-slash text-4xl mb-3"></i><p>No customers found</p></div>';
+            return;
+          }
+          container.innerHTML = customers
+            .map((c) => {
+              const seg = segmentConfig[c.segment];
+              const risk = riskConfig[c.riskLevel];
+              const initials = c.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2);
+              return `<div class="customer-card bg-white border rounded-xl p-6 hover:shadow-md transition-all" data-customer-id="${c.id}">
+            <div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-semibold text-lg">${initials}</div><div><h3 class="font-semibold">${escapeHtml(c.name)}</h3><p class="text-sm text-gray-500">${c.id}</p></div></div><div class="flex gap-2"><button class="edit-card-btn text-blue-600 hover:bg-blue-50 p-2 rounded-full" data-id="${c.id}"><i class="fas fa-edit"></i></button><button class="delete-card-btn text-red-600 hover:bg-red-50 p-2 rounded-full" data-id="${c.id}"><i class="fas fa-trash-alt"></i></button></div></div>
+            <div class="space-y-2 mb-4 pb-4 border-b"><div><i class="fas fa-envelope w-4 mr-2"></i> ${escapeHtml(c.email || "—")}</div><div><i class="fas fa-phone w-4 mr-2"></i> ${escapeHtml(c.phone)}</div></div>
+            <div class="grid grid-cols-2 gap-4 mb-4"><div><p class="text-xs text-gray-500">Orders</p><p class="text-lg font-semibold">${c.totalOrders}</p></div><div><p class="text-xs text-gray-500">Spent</p><p class="text-lg font-semibold">KES ${(c.totalSpent / 1000).toFixed(0)}K</p></div><div><p class="text-xs text-gray-500">Active Plans</p><p class="text-lg font-semibold">${c.activeInstallments}</p></div><div><p class="text-xs text-gray-500">Score</p><div class="flex items-center gap-2"><span class="text-lg font-semibold">${c.paymentScore}</span><span class="px-2 py-0.5 rounded text-xs font-medium ${risk.color}">${risk.label}</span></div></div></div>
+            <div class="flex justify-between text-xs text-gray-400 pt-4 border-t"><span>Joined: ${new Date(c.joinedDate).toLocaleDateString()}</span><span>Last: ${new Date(c.lastPurchase).toLocaleDateString()}</span></div>
+          </div>`;
+            })
+            .join("");
+
+          // Attach card click (view detail)
+          document.querySelectorAll(".customer-card").forEach((card) => {
+            card.addEventListener("click", (e) => {
+              if (
+                e.target.closest(".edit-card-btn") ||
+                e.target.closest(".delete-card-btn")
+              )
+                return;
+              const id = card.dataset.customerId;
+              const cust = customersData.find((c) => c.id === id);
+              if (cust) openCustomerDetailModal(cust);
+            });
+          });
+          document.querySelectorAll(".edit-card-btn").forEach((btn) =>
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const cust = customersData.find((c) => c.id === btn.dataset.id);
+              if (cust) openEditModal(cust);
+            }),
+          );
+          document.querySelectorAll(".delete-card-btn").forEach((btn) =>
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              pendingDeleteId = btn.dataset.id;
+              document
+                .getElementById("deleteConfirmModal")
+                .classList.remove("hidden");
+              document
+                .getElementById("deleteConfirmModal")
+                .classList.add("flex");
+            }),
+          );
+        }
+
+        // Modal actions
+        function openAddModal() {
+          document.getElementById("formModalTitle").innerHTML =
+            '<i class="fas fa-user-plus text-emerald-600 mr-2"></i>Add New Customer';
+          document.getElementById("editCustomerId").value = "";
+          document.getElementById("customerForm").reset();
+          document.getElementById("custRiskLevel").value = "low";
+          document.getElementById("custSegment").value = "New";
+          document
+            .getElementById("customerFormModal")
+            .classList.remove("hidden");
+          document.getElementById("customerFormModal").classList.add("flex");
+        }
+        function openEditModal(cust) {
+          document.getElementById("formModalTitle").innerHTML =
+            '<i class="fas fa-edit text-blue-600 mr-2"></i>Edit Customer';
+          document.getElementById("editCustomerId").value = cust.id;
+          document.getElementById("custName").value = cust.name;
+          document.getElementById("custEmail").value = cust.email;
+          document.getElementById("custPhone").value = cust.phone;
+          document.getElementById("custSegment").value = cust.segment;
+          document.getElementById("custRiskLevel").value = cust.riskLevel;
+          document.getElementById("custAddress").value = cust.address || "";
+          document
+            .getElementById("customerFormModal")
+            .classList.remove("hidden");
+          document.getElementById("customerFormModal").classList.add("flex");
+        }
+        function closeFormModal() {
+          document.getElementById("customerFormModal").classList.add("hidden");
+          document.getElementById("customerFormModal").classList.remove("flex");
+        }
+        function openCustomerDetailModal(cust) {
+          selectedCustomerForDetail = cust;
+          const risk = riskConfig[cust.riskLevel];
+          const seg = segmentConfig[cust.segment];
+          const container = document.getElementById("customerDetailContent");
+          if (container)
+            container.innerHTML = `<div class="flex items-center gap-4 pb-4 border-b"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold">${cust.name
+              .split(" ")
+              .map((n) => n[0])
+              .join(
+                "",
+              )}</div><div><h2 class="text-xl font-bold">${escapeHtml(cust.name)}</h2><p>${cust.id}</p><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${seg.color}"><i class="fas ${seg.icon}"></i> ${cust.segment}</span></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500">Email</p><p>${escapeHtml(cust.email) || "—"}</p></div><div class="bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500">Phone</p><p>${escapeHtml(cust.phone)}</p></div><div class="md:col-span-2 bg-gray-50 rounded-xl p-4"><p class="text-sm text-gray-500">Address</p><p>${escapeHtml(cust.address) || "Not provided"}</p></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="bg-emerald-50 rounded-xl p-3 text-center"><p class="text-xs">Orders</p><p class="text-2xl font-bold">${cust.totalOrders}</p></div><div class="bg-blue-50 rounded-xl p-3 text-center"><p class="text-xs">Spent</p><p class="text-2xl font-bold">KES ${cust.totalSpent.toLocaleString()}</p></div><div class="bg-purple-50 rounded-xl p-3 text-center"><p class="text-xs">Active Plans</p><p class="text-2xl font-bold">${cust.activeInstallments}</p></div><div class="bg-amber-50 rounded-xl p-3 text-center"><p class="text-xs">Score</p><p class="text-2xl font-bold">${cust.paymentScore}<span class="text-sm">/100</span></p></div></div><div class="bg-gray-50 rounded-xl p-4"><div class="flex justify-between flex-wrap gap-2"><div><p class="text-sm text-gray-500">Risk</p><p class="text-lg font-semibold ${risk.color.split(" ")[0]}">${risk.label}</p></div><div><p class="text-sm text-gray-500">Member Since</p><p>${new Date(cust.joinedDate).toLocaleDateString()}</p></div><div><p class="text-sm text-gray-500">Last Purchase</p><p>${new Date(cust.lastPurchase).toLocaleDateString()}</p></div></div></div><div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4"><div class="flex justify-between items-center"><span class="font-semibold">Loyalty Status</span><span class="text-emerald-700 font-bold">${cust.totalSpent > 100000 ? "Platinum" : cust.totalSpent > 50000 ? "Gold" : "Silver"}</span></div><div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="bg-emerald-600 h-2 rounded-full" style="width: ${Math.min(100, (cust.totalSpent / 150000) * 100)}%"></div></div></div>`;
+          document
+            .getElementById("customerDetailModal")
+            .classList.remove("hidden");
+          document.getElementById("customerDetailModal").classList.add("flex");
+        }
+        function closeCustomerDetailModal() {
+          document
+            .getElementById("customerDetailModal")
+            .classList.add("hidden");
+          document
+            .getElementById("customerDetailModal")
+            .classList.remove("flex");
+          selectedCustomerForDetail = null;
+        }
+
+        // Reload entire UI (preserves search term)
+        function reloadView() {
+          const container = document.getElementById("lipaCustomerHub");
+          if (container) {
+            container.innerHTML = renderMainHub();
+            const searchInput = document.getElementById("customerSearchInput");
+            if (searchInput) {
+              searchInput.value = currentSearchTerm;
+              searchInput.addEventListener("input", (e) => {
+                currentSearchTerm = e.target.value;
+                applyFilterAndRender();
+              });
+            }
+            const addBtn = document.getElementById("globalAddCustomerBtn");
+            if (addBtn) addBtn.addEventListener("click", openAddModal);
+            applyFilterAndRender(); // re‑filter & render grid + pagination
+          }
+        }
+
+        // Form submission
+        function initFormHandler() {
+          document
+            .getElementById("customerForm")
+            ?.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const name = document.getElementById("custName").value.trim();
+              const phone = document.getElementById("custPhone").value.trim();
+              if (!name || !phone) {
+                alert("Name and Phone are required.");
+                return;
+              }
+              const editId = document.getElementById("editCustomerId").value;
+              const saved = saveCustomer(
+                {
+                  name,
+                  email: document.getElementById("custEmail").value.trim(),
+                  phone,
+                  segment: document.getElementById("custSegment").value,
+                  riskLevel: document.getElementById("custRiskLevel").value,
+                  address: document.getElementById("custAddress").value,
+                },
+                editId || null,
+              );
+              if (saved) {
+                alert(
+                  editId
+                    ? `✅ Updated ${saved.name}`
+                    : `✅ Added ${saved.name}`,
+                );
+                closeFormModal();
+                reloadView();
+              } else alert("Error saving customer");
+            });
+        }
+
+        // Delete modal handlers
+        function initDeleteModal() {
+          const modal = document.getElementById("deleteConfirmModal");
+          document
+            .getElementById("confirmDeleteBtn")
+            ?.addEventListener("click", () => {
+              if (pendingDeleteId) deleteCustomerById(pendingDeleteId);
+              modal.classList.add("hidden");
+              modal.classList.remove("flex");
+              pendingDeleteId = null;
+            });
+          document
+            .getElementById("cancelDeleteBtn")
+            ?.addEventListener("click", () => {
+              modal.classList.add("hidden");
+              modal.classList.remove("flex");
+              pendingDeleteId = null;
+            });
+          window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              modal.classList.add("hidden");
+              modal.classList.remove("flex");
+              pendingDeleteId = null;
+            }
+          });
+        }
+
+        function initDetailModalActions() {
+          document
+            .getElementById("editFromDetailBtn")
+            ?.addEventListener("click", () => {
+              if (selectedCustomerForDetail) {
+                closeCustomerDetailModal();
+                openEditModal(selectedCustomerForDetail);
+              }
+            });
+          document
+            .getElementById("deleteFromDetailBtn")
+            ?.addEventListener("click", () => {
+              if (selectedCustomerForDetail) {
+                pendingDeleteId = selectedCustomerForDetail.id;
+                closeCustomerDetailModal();
+                const delModal = document.getElementById("deleteConfirmModal");
+                delModal.classList.remove("hidden");
+                delModal.classList.add("flex");
+              }
+            });
+          ["closeCustomerModalBtn", "closeCustomerModalFooterBtn"].forEach(
+            (id) => {
+              document
+                .getElementById(id)
+                ?.addEventListener("click", closeCustomerDetailModal);
+            },
+          );
+        }
+
+        // Initialisation
+        function init() {
+          reloadView();
+          initFormHandler();
+          initDeleteModal();
+          initDetailModalActions();
+          document
+            .getElementById("closeFormModalBtn")
+            ?.addEventListener("click", closeFormModal);
+          document
+            .getElementById("cancelFormBtn")
+            ?.addEventListener("click", closeFormModal);
+          window.addEventListener("click", (e) => {
+            if (e.target === document.getElementById("customerFormModal"))
+              closeFormModal();
+            if (e.target === document.getElementById("customerDetailModal"))
+              closeCustomerDetailModal();
+          });
+        }
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>
