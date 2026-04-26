@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>QwetuLinks | Business Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e1b4b 50%,
+          #0f172a 100%
+        );
+        min-height: 100vh;
+        padding: 1.5rem;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 1rem;
+        box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.4);
+        transition: all 0.2s ease;
+      }
+      .input-glass {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+      }
+      .input-glass:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .shake-error {
+        animation: shake 0.4s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        75% {
+          transform: translateX(6px);
+        }
+      }
+      .fade-scale {
+        animation: fadeScale 0.25s ease-out;
+      }
+      @keyframes fadeScale {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .modal-backdrop {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+      }
+      /* custom scroll */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #10b981;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center">
+    <!-- MAIN REGISTRATION CARD -->
+    <div class="w-full max-w-3xl glass-card p-6 md:p-8 fade-scale">
+      <!-- SMALL LOGO (as required) + header -->
+      <div class="text-center mb-7">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl shadow-xl mb-3"
+        >
+          <img
+            src="../images/qwetu_links.jpg"
+            alt="qwet Pos logo"
+            loading="lazy"
+            decoding="async"
+            onerror="
+              this.src = 'https://placehold.co/48x48?text=QWETUPOS';
+              this.onerror = null;
+            "
+          />
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
+          Business Onboarding
+        </h2>
+        <p class="text-gray-300 text-sm mt-1">
+          Join QwetuLinks — power your enterprise journey
+        </p>
+      </div>
+
+      <!-- Global error container -->
+      <div id="globalErrorContainer" class="mb-5 hidden">
+        <div
+          class="bg-red-500/20 border-l-4 border-red-500 rounded-xl p-3 flex gap-2 items-start"
+        >
+          <i class="fas fa-circle-exclamation text-red-400 mt-0.5"></i>
+          <div id="globalErrorMsg" class="text-sm text-red-200"></div>
+        </div>
+      </div>
+
+      <form id="registerForm" class="space-y-6">
+        <!-- BUSINESS SECTION -->
+        <div>
+          <div
+            class="flex items-center gap-2 mb-3 border-b border-white/10 pb-1"
+          >
+            <i class="fas fa-building text-emerald-400 text-sm"></i>
+            <h3 class="text-white font-semibold tracking-wide">
+              Business Information
+            </h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Business name <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="text"
+                id="businessName"
+                placeholder="e.g., Lipa Mdogo Enterprises"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Business email <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="email"
+                id="businessEmail"
+                placeholder="hello@lipamdogo.com"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Business phone <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="tel"
+                id="businessPhone"
+                placeholder="+254 712 345 678"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Business description
+                <span class="text-emerald-400">*</span></label
+              >
+              <textarea
+                id="businessDesc"
+                rows="2"
+                placeholder="Tell us about your business, products, or services..."
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none resize-none"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- OWNER SECTION -->
+        <div>
+          <div
+            class="flex items-center gap-2 mb-3 border-b border-white/10 pb-1"
+          >
+            <i class="fas fa-user-tie text-emerald-400 text-sm"></i>
+            <h3 class="text-white font-semibold tracking-wide">
+              Owner / Primary Contact
+            </h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Full name <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="text"
+                id="ownerName"
+                placeholder="James Kipruto"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Owner email <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="email"
+                id="ownerEmail"
+                placeholder="james@lipamdogo.com"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Owner phone <span class="text-emerald-400">*</span></label
+              >
+              <input
+                type="tel"
+                id="ownerPhone"
+                placeholder="+254 700 123 456"
+                class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY SECTION -->
+        <div>
+          <div
+            class="flex items-center gap-2 mb-3 border-b border-white/10 pb-1"
+          >
+            <i class="fas fa-lock text-emerald-400 text-sm"></i>
+            <h3 class="text-white font-semibold tracking-wide">
+              Account Security
+            </h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Password <span class="text-emerald-400">*</span></label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="Create strong password"
+                  class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none pr-11"
+                />
+                <button
+                  type="button"
+                  class="togglePwd absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"
+                  data-target="password"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-200 mb-1.5"
+                >Confirm password <span class="text-emerald-400">*</span></label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  placeholder="Confirm password"
+                  class="w-full px-4 py-2.5 rounded-xl input-glass text-white placeholder-gray-400 focus:outline-none pr-11"
+                />
+                <button
+                  type="button"
+                  class="togglePwd absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-400 transition"
+                  data-target="confirmPassword"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-400 text-xs mt-2">
+            <i class="fas fa-info-circle mr-1"></i> Password must be at least 6
+            characters
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          id="registerBtn"
+          class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-3.5 rounded-xl hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-[1.01] flex items-center justify-center gap-2 mt-4"
+        >
+          <i class="fas fa-user-plus"></i> Register Business Account
+        </button>
+
+        <div
+          class="text-center text-gray-400 text-xs pt-2 border-t border-white/10 mt-2"
+        >
+          <span> All fields marked with * are required</span>
+        </div>
+      </form>
+    </div>
+
+    <!-- SUCCESS MODAL (Toast / Modal) -->
+    <div
+      id="successModal"
+      class="fixed inset-0 flex items-center justify-center z-50 invisible opacity-0 transition-all duration-300"
+      style="visibility: hidden"
+    >
+      <div class="absolute inset-0 modal-backdrop" id="modalOverlay"></div>
+      <div
+        class="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl border border-white/20 transform transition-all scale-95"
+      >
+        <div class="text-center">
+          <div
+            class="mx-auto w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4"
+          >
+            <i class="fas fa-check-circle text-emerald-400 text-3xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Business created!</h3>
+          <p id="modalSuccessMessage" class="text-gray-300 text-sm mb-6">
+            Your account has been successfully registered.
+          </p>
+          <button
+            id="closeModalBtn"
+            class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition font-medium w-full"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // DOM elements
+        const form = document.getElementById("registerForm");
+        const businessName = document.getElementById("businessName");
+        const businessEmail = document.getElementById("businessEmail");
+        const businessPhone = document.getElementById("businessPhone");
+        const businessDesc = document.getElementById("businessDesc");
+        const ownerName = document.getElementById("ownerName");
+        const ownerEmail = document.getElementById("ownerEmail");
+        const ownerPhone = document.getElementById("ownerPhone");
+        const password = document.getElementById("password");
+        const confirmPwd = document.getElementById("confirmPassword");
+        const registerBtn = document.getElementById("registerBtn");
+        const globalErrorContainer = document.getElementById(
+          "globalErrorContainer",
+        );
+        const globalErrorMsg = document.getElementById("globalErrorMsg");
+
+        // Modal elements
+        const modal = document.getElementById("successModal");
+        const modalMsgSpan = document.getElementById("modalSuccessMessage");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const modalOverlay = document.getElementById("modalOverlay");
+
+        // Helper: show global error
+        function showGlobalError(message) {
+          globalErrorMsg.innerText = message;
+          globalErrorContainer.classList.remove("hidden");
+          globalErrorContainer.classList.add("shake-error");
+          setTimeout(() => {
+            globalErrorContainer.classList.remove("shake-error");
+          }, 500);
+          // scroll to top error
+          globalErrorContainer.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+
+        function hideGlobalError() {
+          globalErrorContainer.classList.add("hidden");
+        }
+
+        // clear validation on focus of any input (light cleanup)
+        const allInputs = [
+          businessName,
+          businessEmail,
+          businessPhone,
+          businessDesc,
+          ownerName,
+          ownerEmail,
+          ownerPhone,
+          password,
+          confirmPwd,
+        ];
+        allInputs.forEach((input) => {
+          if (input) input.addEventListener("focus", () => hideGlobalError());
+        });
+
+        // Email regex
+        function isValidEmail(email) {
+          return /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email);
+        }
+
+        // Phone basic: not empty, at least 8 digits (allow + and spaces)
+        function isValidPhone(phone) {
+          const cleaned = phone.replace(/[\s\-\(\)\+]/g, "");
+          return cleaned.length >= 8 && /^\d+$/.test(cleaned);
+        }
+
+        // Show success modal & reset form optionally after closing
+        function showSuccessModal(businessNameValue) {
+          modalMsgSpan.innerText = `"${businessNameValue}" is now registered. Welcome to QwetuLinks!`;
+          modal.classList.remove("invisible", "opacity-0");
+          modal.style.visibility = "visible";
+          modal.classList.add("opacity-100");
+          document.body.style.overflow = "hidden";
+        }
+
+        function hideModalAndReset() {
+          modal.classList.add("invisible", "opacity-0");
+          modal.style.visibility = "hidden";
+          document.body.style.overflow = "";
+          // Reset entire form after success
+          form.reset();
+          hideGlobalError();
+          // optional: remove any red border artifacts
+          allInputs.forEach((inp) => {
+            if (inp) inp.classList.remove("border-red-500");
+          });
+        }
+
+        // attach modal close events
+        function initModalEvents() {
+          const closeModal = () => hideModalAndReset();
+          closeModalBtn.addEventListener("click", closeModal);
+          modalOverlay.addEventListener("click", closeModal);
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.style.visibility === "visible") {
+              closeModal();
+            }
+          });
+        }
+
+        // Validate form fields
+        function validateForm() {
+          // get trimmed values
+          const bizName = businessName.value.trim();
+          const bizEmail = businessEmail.value.trim();
+          const bizPhone = businessPhone.value.trim();
+          const bizDesc = businessDesc.value.trim();
+          const ownName = ownerName.value.trim();
+          const ownEmail = ownerEmail.value.trim();
+          const ownPhone = ownerPhone.value.trim();
+          const pwd = password.value;
+          const confirm = confirmPwd.value;
+
+          // Business name
+          if (!bizName) {
+            showGlobalError("Business name is required.");
+            businessName.focus();
+            return false;
+          }
+          if (bizName.length < 2) {
+            showGlobalError("Business name must be at least 2 characters.");
+            businessName.focus();
+            return false;
+          }
+
+          // Business email
+          if (!bizEmail) {
+            showGlobalError("Business email is required.");
+            businessEmail.focus();
+            return false;
+          }
+          if (!isValidEmail(bizEmail)) {
+            showGlobalError(
+              "Please enter a valid business email address (e.g., name@domain.com).",
+            );
+            businessEmail.focus();
+            return false;
+          }
+
+          // Business phone
+          if (!bizPhone) {
+            showGlobalError("Business phone number is required.");
+            businessPhone.focus();
+            return false;
+          }
+          if (!isValidPhone(bizPhone)) {
+            showGlobalError(
+              "Business phone must contain at least 8 digits (numbers only, + allowed).",
+            );
+            businessPhone.focus();
+            return false;
+          }
+
+          // Business description
+          if (!bizDesc) {
+            showGlobalError("Business description is required.");
+            businessDesc.focus();
+            return false;
+          }
+          if (bizDesc.length < 10) {
+            showGlobalError(
+              "Description must be at least 10 characters (tell us more).",
+            );
+            businessDesc.focus();
+            return false;
+          }
+
+          // Owner full name
+          if (!ownName) {
+            showGlobalError("Owner full name is required.");
+            ownerName.focus();
+            return false;
+          }
+          if (ownName.split(" ").length < 2 && ownName.length < 5) {
+            // just a friendly hint but not strict
+            if (ownName.length < 3) {
+              showGlobalError("Please enter owner's complete name.");
+              ownerName.focus();
+              return false;
+            }
+          }
+
+          // Owner email
+          if (!ownEmail) {
+            showGlobalError("Owner email address is required.");
+            ownerEmail.focus();
+            return false;
+          }
+          if (!isValidEmail(ownEmail)) {
+            showGlobalError("Owner email is invalid (e.g., name@domain.com).");
+            ownerEmail.focus();
+            return false;
+          }
+
+          // Owner phone
+          if (!ownPhone) {
+            showGlobalError("Owner phone number is required.");
+            ownerPhone.focus();
+            return false;
+          }
+          if (!isValidPhone(ownPhone)) {
+            showGlobalError("Owner phone must contain at least 8 digits.");
+            ownerPhone.focus();
+            return false;
+          }
+
+          // Password validation
+          if (!pwd) {
+            showGlobalError("Password is required.");
+            password.focus();
+            return false;
+          }
+          if (pwd.length < 6) {
+            showGlobalError("Password must be at least 6 characters long.");
+            password.focus();
+            return false;
+          }
+          if (pwd !== confirm) {
+            showGlobalError("Passwords do not match. Please re-enter.");
+            confirmPwd.focus();
+            return false;
+          }
+
+          // optional: check password strength (basic but solid)
+          if (pwd.toLowerCase() === "password" || pwd === "123456") {
+            showGlobalError(
+              "Password is too weak. Choose a stronger password.",
+            );
+            password.focus();
+            return false;
+          }
+
+          // ALL GOOD.
+          return {
+            business: {
+              name: bizName,
+              email: bizEmail,
+              phone: bizPhone,
+              description: bizDesc,
+            },
+            owner: { name: ownName, email: ownEmail, phone: ownPhone },
+            password: pwd,
+          };
+        }
+
+        // simulate registration success (store demo data optionally in console)
+        function registerBusiness(data) {
+          // In real scenario: API call. Here just simulate successful creation.
+          console.log("Business registered:", data);
+          // Additional: keep in session for fun but not required
+          sessionStorage.setItem(
+            "last_registered_business",
+            data.business.name,
+          );
+          // Show success toast/modal with business name
+          showSuccessModal(data.business.name);
+        }
+
+        // Submit handler
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          hideGlobalError();
+
+          // Disable button and show loading effect
+          const originalBtnContent = registerBtn.innerHTML;
+          registerBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+          registerBtn.disabled = true;
+
+          // small delay to simulate async validation/processing
+          setTimeout(() => {
+            const validationResult = validateForm();
+            if (!validationResult) {
+              // validation failed -> re-enable button
+              registerBtn.innerHTML = originalBtnContent;
+              registerBtn.disabled = false;
+              return;
+            }
+
+            // success: call registration
+            registerBusiness(validationResult);
+            // re-enable (but modal will reset form, button will be restored after modal close)
+            registerBtn.innerHTML = originalBtnContent;
+            registerBtn.disabled = false;
+          }, 120);
+        });
+
+        // Password toggles (both fields)
+        const toggleButtons = document.querySelectorAll(".togglePwd");
+        toggleButtons.forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetId = btn.getAttribute("data-target");
+            const targetInput = document.getElementById(targetId);
+            if (targetInput) {
+              const type =
+                targetInput.getAttribute("type") === "password"
+                  ? "text"
+                  : "password";
+              targetInput.setAttribute("type", type);
+              btn.innerHTML =
+                type === "password"
+                  ? '<i class="fas fa-eye"></i>'
+                  : '<i class="fas fa-eye-slash"></i>';
+            }
+          });
+        });
+
+        // Small realtime check for password match: not mandatory but ux friendly
+        function setupLiveMatchHint() {
+          const confirmField = confirmPwd;
+          const pwdField = password;
+          function checkMatch() {
+            if (
+              pwdField.value.length > 0 &&
+              confirmField.value.length > 0 &&
+              pwdField.value !== confirmField.value
+            ) {
+              confirmField.style.borderColor = "#f87171";
+              confirmField.style.boxShadow = "0 0 0 1px rgba(248,113,113,0.3)";
+            } else if (
+              confirmField.value.length > 0 &&
+              pwdField.value === confirmField.value
+            ) {
+              confirmField.style.borderColor = "#10b981";
+              confirmField.style.boxShadow = "0 0 0 1px rgba(16,185,129,0.2)";
+            } else {
+              confirmField.style.borderColor = "rgba(255,255,255,0.2)";
+              confirmField.style.boxShadow = "none";
+            }
+          }
+          pwdField.addEventListener("input", checkMatch);
+          confirmField.addEventListener("input", checkMatch);
+        }
+        setupLiveMatchHint();
+
+        // Remove any old border highlight on focus for better UX
+        allInputs.forEach((input) => {
+          input.addEventListener("focus", () => {
+            input.style.borderColor = "";
+            input.style.boxShadow = "";
+          });
+        });
+
+        // Initial modal events
+        initModalEvents();
+      })();
+    </script>
+  </body>
+</html>

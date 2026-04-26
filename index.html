@@ -457,6 +457,51 @@
         background: #059669;
         color: white;
       }
+
+      /* //category */
+      .hover-scale {
+        transition: all 0.2s ease;
+      }
+
+      .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-transition {
+        transition: opacity 0.2s ease;
+      }
+
+      .category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.15);
+      }
     </style>
   </head>
   <body>
@@ -2011,11 +2056,134 @@
     <!-- Analytics Dashboard Modal -->
     <div id="analyticsEngineRoot" class="max-w-7xl mx-auto"></div>
 
+    <!-- MAIN CATEGORY MODULE WRAPPER -->
+    <div id="categoryModuleRoot" class="max-w-7xl mx-auto"></div>
+
+    <!-- Add/Edit Category Modal -->
+    <div
+      id="categoryModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 modal-transition"
+    >
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold" id="categoryModalTitle">
+            Add New Category
+          </h3>
+          <button
+            id="closeCategoryModalBtn"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <form id="categoryForm">
+          <input type="hidden" id="categoryId" value="" />
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1"
+              >Category Name *</label
+            >
+            <input
+              type="text"
+              id="categoryName"
+              required
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1"
+              >Description (optional)</label
+            >
+            <textarea
+              id="categoryDesc"
+              rows="3"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+              placeholder="e.g., Men's clothing including shirts, jackets, trousers"
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1"
+              >Icon (Font Awesome class)</label
+            >
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="categoryIcon"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl"
+                placeholder="fas fa-tshirt"
+                value="fas fa-tag"
+              />
+              <div class="bg-gray-100 p-3 rounded-xl">
+                <i class="text-2xl text-emerald-600" id="iconPreview"></i>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">
+              Enter any Font Awesome class (e.g., fas fa-shirt, fas
+              fa-shoe-prints)
+            </p>
+          </div>
+          <div class="flex gap-3 justify-end pt-3">
+            <button
+              type="button"
+              id="cancelCategoryBtn"
+              class="px-6 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg"
+            >
+              Save Category
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="deleteCategoryModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Category</h3>
+        <p class="text-gray-500 mb-6" id="deleteCategoryMessage">
+          Are you sure you want to delete this category? Products in this
+          category will remain but category will be removed.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirmDeleteCategoryBtn"
+            class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-medium hover:bg-red-700 transition"
+          >
+            Delete
+          </button>
+          <button
+            id="cancelDeleteCategoryBtn"
+            class="flex-1 border border-gray-300 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // ---------- DATA MODELS ----------
       // new
       let inventoryProducts = [];
       let inventoryItems = [];
+
+      //category
+      let categories = [];
+      let currentDeleteId = null;
 
       //old
       // let products = [];
@@ -2069,6 +2237,10 @@
         Regular: { color: "bg-blue-100 text-blue-700", icon: "fa-users" },
         New: { color: "bg-gray-100 text-gray-700", icon: "fa-user-plus" },
       };
+
+      function formatDate() {
+        return new Date().toLocaleString();
+      }
 
       function computeVariantInventory(variant) {
         const inv = variant.inventory;
@@ -2132,6 +2304,54 @@
             .catch((error) => {
               console.error("Error loading inventory items:", error);
             });
+        }
+
+        const stored = localStorage.getItem("qwetulinks_product_categories");
+        if (stored) {
+          categories = JSON.parse(stored);
+        } else {
+          // Default categories
+          categories = [
+            {
+              id: 1,
+              name: "Men's Clothing",
+              description: "Shirts, jackets, trousers, suits",
+              icon: "fas fa-tshirt",
+              productCount: 12,
+            },
+            {
+              id: 2,
+              name: "Women's Clothing",
+              description: "Dresses, blouses, skirts",
+              icon: "fas fa-female",
+              productCount: 18,
+            },
+            {
+              id: 3,
+              name: "Footwear",
+              description: "Shoes, sneakers, boots",
+              icon: "fas fa-shoe-prints",
+              productCount: 9,
+            },
+            {
+              id: 4,
+              name: "Accessories",
+              description: "Bags, belts, hats, jewelry",
+              icon: "fas fa-gem",
+              productCount: 24,
+            },
+            {
+              id: 5,
+              name: "Outerwear",
+              description: "Jackets, coats, hoodies",
+              icon: "fas fa-vest",
+              productCount: 6,
+            },
+          ];
+          localStorage.setItem(
+            "qwetulinks_product_categories",
+            JSON.stringify(categories),
+          );
         }
 
         //   const inventorydata = await res.json();
@@ -2840,6 +3060,8 @@
       //     m === "&" ? "&amp;" : m === "<" ? "&lt;" : "&gt;",
       //   );
       // }
+
+      //component
       function escapeHtml(str = "") {
         return String(str)
           .replace(/&/g, "&amp;")
@@ -2861,6 +3083,284 @@
       function deleteProduct(id) {
         inventoryProducts = inventoryProducts.filter((p) => p.id != id);
         persistData();
+      }
+
+      //category ui
+      function saveCategories() {
+        localStorage.setItem(
+          "qwetulinks_product_categories",
+          JSON.stringify(categories),
+        );
+      }
+
+      function generateId() {
+        return categories.length
+          ? Math.max(...categories.map((c) => c.id)) + 1
+          : 1;
+      }
+
+      function addCategory(data) {
+        const newCat = {
+          id: generateId(),
+          name: data.name,
+          description: data.description || "",
+          icon: data.icon || "fas fa-tag",
+          productCount: 0,
+        };
+        categories.push(newCat);
+        saveCategories();
+        return newCat;
+      }
+
+      function updateCategory(id, data) {
+        const idx = categories.findIndex((c) => c.id === id);
+        if (idx !== -1) {
+          categories[idx] = { ...categories[idx], ...data, id: id };
+          saveCategories();
+          return categories[idx];
+        }
+        return null;
+      }
+
+      function deleteCategory(id) {
+        categories = categories.filter((c) => c.id !== id);
+        saveCategories();
+      }
+
+      // Stats calculation
+      function computeStats() {
+        const total = categories.length;
+        const totalProducts = categories.reduce(
+          (sum, c) => sum + (c.productCount || 0),
+          0,
+        );
+        const avgProducts = total ? (totalProducts / total).toFixed(1) : 0;
+        return { total, totalProducts, avgProducts };
+      }
+
+      // Render Main UI
+      function renderCategoriesUI() {
+        const stats = computeStats();
+        return `
+          <div class="space-y-6 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-folder-tree text-emerald-600 mr-2"></i>Product Categories</h1>
+                <p class="text-gray-500 mt-1">Organize your products — manage categories, icons, and descriptions</p>
+              </div>
+              <button id="addCategoryBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg transition flex items-center gap-2"><i class="fas fa-plus-circle"></i> Add Category</button>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-blue-600 mb-2"><i class="fas fa-layer-group"></i><p class="text-sm font-semibold">Total Categories</p></div><p class="text-3xl font-extrabold text-gray-800">${stats.total}</p></div>
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-emerald-600 mb-2"><i class="fas fa-boxes"></i><p class="text-sm font-semibold">Total Products</p></div><p class="text-3xl font-extrabold text-gray-800">${stats.totalProducts}</p></div>
+              <div class="bg-white rounded-2xl border p-5 shadow-sm"><div class="flex items-center gap-2 text-purple-600 mb-2"><i class="fas fa-chart-line"></i><p class="text-sm font-semibold">Avg. Products/Category</p></div><p class="text-3xl font-extrabold text-gray-800">${stats.avgProducts}</p></div>
+            </div>
+            
+            <!-- Search -->
+            <div class="bg-white rounded-xl border p-4">
+              <div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchCategoryInput" placeholder="Search categories by name or description..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-emerald-500"></div>
+            </div>
+            
+            <!-- Categories Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="categoriesGridContainer"></div>
+            
+            <!-- Footer -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-sm text-gray-700 flex justify-between items-center flex-wrap gap-2">
+              <span><i class="fas fa-database text-emerald-600 mr-2"></i>${categories.length} categories | Data persists in browser storage</span>
+              <span class="text-xs text-gray-500">Last updated: ${formatDate()}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderCategoriesGrid(filteredCategories) {
+        const container = document.getElementById("categoriesGridContainer");
+        if (!container) return;
+        if (filteredCategories.length === 0) {
+          container.innerHTML =
+            '<div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-xl border"><i class="fas fa-folder-open text-4xl mb-3"></i><p>No categories found. Click "Add Category" to create one.</p></div>';
+          return;
+        }
+
+        container.innerHTML = filteredCategories
+          .map(
+            (cat) => `
+          <div class="category-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600"><i class="${cat.icon || "fas fa-tag"} text-2xl"></i></div>
+                <div><h3 class="font-bold text-lg text-gray-800">${escapeHtml(cat.name)}</h3><p class="text-xs text-gray-500">ID: ${cat.id}</p></div>
+              </div>
+              <div class="flex gap-1">
+                <button class="editCategoryBtn p-2 text-blue-600 hover:bg-blue-50 rounded-full transition" data-id="${cat.id}"><i class="fas fa-edit"></i></button>
+                <button class="deleteCategoryBtn p-2 text-red-600 hover:bg-red-50 rounded-full transition" data-id="${cat.id}" data-name="${escapeHtml(cat.name)}"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </div>
+            <div class="mb-3"><p class="text-sm text-gray-500 line-clamp-2">${escapeHtml(cat.description || "No description")}</p></div>
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full"><i class="fas fa-box mr-1"></i> ${cat.productCount || 0} products</span>
+              <span class="text-xs text-gray-400"><i class="${cat.icon} mr-1"></i> ${cat.icon}</span>
+            </div>
+          </div>
+        `,
+          )
+          .join("");
+
+        // Attach card events
+        document.querySelectorAll(".editCategoryBtn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const id = parseInt(btn.dataset.id);
+            const category = categories.find((c) => c.id === id);
+            if (category) openCategoryModal(category);
+          });
+        });
+        document.querySelectorAll(".deleteCategoryBtn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            currentDeleteId = parseInt(btn.dataset.id);
+            const name = btn.dataset.name;
+            document.getElementById("deleteCategoryMessage").innerText =
+              `Are you sure you want to delete category "${name}"? Products in this category will remain but category will be removed.`;
+            document
+              .getElementById("deleteCategoryModal")
+              .classList.remove("hidden");
+            document
+              .getElementById("deleteCategoryModal")
+              .classList.add("flex");
+          });
+        });
+      }
+
+      function filterCategories() {
+        const term =
+          document.getElementById("searchCategoryInput")?.value.toLowerCase() ||
+          "";
+        let filtered = [...categories];
+        if (term) {
+          filtered = filtered.filter(
+            (c) =>
+              c.name.toLowerCase().includes(term) ||
+              (c.description && c.description.toLowerCase().includes(term)),
+          );
+        }
+        renderCategoriesGrid(filtered);
+      }
+
+      // Modal functions
+      function openCategoryModal(category = null) {
+        if (category) {
+          document.getElementById("categoryModalTitle").innerText =
+            "Edit Category";
+          document.getElementById("categoryId").value = category.id;
+          document.getElementById("categoryName").value = category.name;
+          document.getElementById("categoryDesc").value =
+            category.description || "";
+          document.getElementById("categoryIcon").value =
+            category.icon || "fas fa-tag";
+        } else {
+          document.getElementById("categoryModalTitle").innerText =
+            "Add New Category";
+          document.getElementById("categoryForm").reset();
+          document.getElementById("categoryId").value = "";
+          document.getElementById("categoryName").value = "";
+          document.getElementById("categoryDesc").value = "";
+          document.getElementById("categoryIcon").value = "fas fa-tag";
+        }
+        // update icon preview
+        const iconClass = document.getElementById("categoryIcon").value;
+        const previewEl = document.getElementById("iconPreview");
+        if (previewEl)
+          previewEl.className = iconClass + " text-2xl text-emerald-600";
+        document.getElementById("categoryModal").classList.remove("hidden");
+        document.getElementById("categoryModal").classList.add("flex");
+      }
+
+      function closeCategoryModal() {
+        document.getElementById("categoryModal").classList.add("hidden");
+      }
+
+      function saveCategoryFromForm() {
+        const id = document.getElementById("categoryId").value;
+        const name = document.getElementById("categoryName").value.trim();
+        if (!name) {
+          alert("Category name is required");
+          return false;
+        }
+        const data = {
+          name: name,
+          description: document.getElementById("categoryDesc").value,
+          icon:
+            document.getElementById("categoryIcon").value.trim() ||
+            "fas fa-tag",
+        };
+        if (id) {
+          updateCategory(parseInt(id), data);
+          alert(`✅ Category "${data.name}" updated successfully.`);
+        } else {
+          addCategory(data);
+          alert(`✅ Category "${data.name}" added successfully.`);
+        }
+        closeCategoryModal();
+        renderCurrentTab();
+        return true;
+      }
+
+      function confirmDelete() {
+        if (currentDeleteId) {
+          deleteCategory(currentDeleteId);
+          alert(`Category deleted.`);
+          currentDeleteId = null;
+          renderCurrentTab();
+        }
+        document.getElementById("deleteCategoryModal").classList.add("hidden");
+      }
+
+      function cancelDelete() {
+        currentDeleteId = null;
+        document.getElementById("deleteCategoryModal").classList.add("hidden");
+      }
+
+      function attachEvents() {
+        document
+          .getElementById("addCategoryBtn")
+          ?.addEventListener("click", () => openCategoryModal(null));
+        document
+          .getElementById("closeCategoryModalBtn")
+          ?.addEventListener("click", closeCategoryModal);
+        document
+          .getElementById("cancelCategoryBtn")
+          ?.addEventListener("click", closeCategoryModal);
+        document
+          .getElementById("categoryForm")
+          ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            saveCategoryFromForm();
+          });
+        document
+          .getElementById("confirmDeleteCategoryBtn")
+          ?.addEventListener("click", confirmDelete);
+        document
+          .getElementById("cancelDeleteCategoryBtn")
+          ?.addEventListener("click", cancelDelete);
+        const searchInput = document.getElementById("searchCategoryInput");
+        if (searchInput)
+          searchInput.addEventListener("input", filterCategories);
+        const iconInput = document.getElementById("categoryIcon");
+        if (iconInput) {
+          iconInput.addEventListener("input", (e) => {
+            const preview = document.getElementById("iconPreview");
+            if (preview)
+              preview.className = e.target.value + " text-2xl text-emerald-600";
+          });
+        }
+        // Click outside modal to close
+        window.addEventListener("click", (e) => {
+          const modal = document.getElementById("categoryModal");
+          if (e.target === modal) closeCategoryModal();
+          const deleteModal = document.getElementById("deleteCategoryModal");
+          if (e.target === deleteModal) cancelDelete();
+        });
       }
 
       // INVENTORY RENDER (Enhanced with full UI)
@@ -4189,6 +4689,10 @@
           container.innerHTML = renderCatalog();
           filterProducts();
           attachCatalogEvents();
+        } else if (currentTab === "categories") {
+          container.innerHTML = renderCategoriesUI();
+          filterCategories();
+          attachEvents();
         } else if (currentTab === "variants") {
           renderVariantsPage();
         } else if (currentTab === "inventory") {
@@ -6326,37 +6830,40 @@
               </div>
             </div>
             <nav class="p-3 space-y-1 overflow-y-auto" style="max-height: calc(100vh - 140px);">
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl bg-emerald-50 text-emerald-700 font-semibold" data-tab="dashboard">
                 <i class="fas fa-chart-line w-5"></i><span>Executive Dashboard</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="catalog">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="catalog">
                 <i class="fas fa-tags w-5"></i><span>Product Catalog</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="variants">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="categories">
+                <i class="fas fa-folder-tree w-5"></i><span>Product Category</span>
+              </div>
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="variants">
                 <i class="fas fa-cubes w-5"></i><span>Product Variants</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="inventory">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="inventory">
                 <i class="fas fa-boxes w-5"></i><span>Inventory Intelligence</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="orders">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="orders">
                 <i class="fas fa-tasks w-5"></i><span>Orders Pipeline</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="customers">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="customers">
                 <i class="fas fa-users w-5"></i><span>Customers Hub</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="transactions">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="transactions">
                 <i class="fas fa-usd w-5"></i><span>Transactions Hub</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="installments">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="installments">
                 <i class="fas fa-hand-holding-usd w-5"></i><span>Lipa Mdogo Core</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="analytics">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="analytics">
                 <i class="fas fa-chart-pie w-5"></i><span>Analytics Engine</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="reports">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="reports">
                 <i class="fas fa-file-alt w-5"></i><span>Reports Center</span>
               </div>
-              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1.5 rounded-xl" data-tab="settings">
+              <div class="nav-item cursor-pointer flex items-center gap-3 px-4 py-1 rounded-xl" data-tab="settings">
                 <i class="fas fa-cog w-5"></i><span>Settings</span>
               </div>
             </nav>
